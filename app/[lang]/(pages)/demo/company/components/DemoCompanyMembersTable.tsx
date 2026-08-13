@@ -1,0 +1,193 @@
+"use client";
+
+import { useMemo } from "react";
+import { Avatar, Chip, Stack, Typography, useTheme } from "@mui/material";
+import InfoIcon from "@mui/icons-material/Info";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
+import DataTable from "@/app/components/ui/DataTable";
+import type {
+  DataTableColumn,
+  DataTableRowAction,
+} from "@/app/lib/type/dataTable";
+import { CompanyPageProps, CompanyMember } from "@/app/lib/type/company";
+import { useDateSettings } from "@/app/hooks/useDateSettings";
+import { formatDisplayDate } from "@/app/lib/utils/date";
+import { Dictionary } from "@/app/lib/language/language";
+
+/**
+ * Demo-only fork of CompanyMembersTable. The real table mounts
+ * EditCompanyMemberDialog / DeleteConfirmationDialog and calls
+ * actions.deleteMember (a real mutation). This fork mounts no mutation
+ * dialogs: details is delegated upward via onDetails (the caller mounts the
+ * read-only dialog), and edit / delete route through onAction, so no server
+ * action is reachable from the demo tree.
+ */
+
+function StatusChip({ status, dict }: { status: string; dict: Dictionary }) {
+  const normalized = status.toLocaleUpperCase("en-US");
+  const colorMap: Record<string, "success" | "error" | "warning" | "default"> =
+    {
+      ACTIVE: "success",
+      INACTIVE: "error",
+      SUSPENDED: "warning",
+    };
+
+  const labelMap: Record<string, string> = {
+    ACTIVE: dict.company.members.statuses.active,
+    INACTIVE: dict.company.members.statuses.inactive,
+    SUSPENDED: dict.company.members.statuses.suspended,
+  };
+
+  return (
+    <Chip
+      label={labelMap[normalized] ?? normalized}
+      color={colorMap[normalized] ?? "default"}
+      size="small"
+      sx={{ fontWeight: 600, fontSize: 11 }}
+    />
+  );
+}
+
+interface DemoCompanyMembersTableProps {
+  props: CompanyPageProps;
+  onAction: () => void;
+  /** Opens the read-only member details dialog. Falls back to onAction. */
+  onDetails?: (member: CompanyMember) => void;
+}
+
+export default function DemoCompanyMembersTable({
+  props,
+  onAction,
+  onDetails,
+}: DemoCompanyMembersTableProps) {
+  const dict = useDictionary();
+  const { state, actions } = props;
+  const theme = useTheme();
+  const members = state.data?.members ?? [];
+  const loading = state.loading;
+  const meta = state.data?.meta ?? {
+    page: 1,
+    limit: 10,
+    total: 0,
+  };
+  const dateSettings = useDateSettings();
+
+  const columns: DataTableColumn<CompanyMember>[] = useMemo(
+    () => [
+      {
+        key: "member",
+        label: dict.company.members.columns.member,
+        render: (row) => (
+          <Stack direction="row" spacing={1.5} alignItems="center">
+            <Avatar
+              src={row.avatarUrl ?? undefined}
+              sx={{
+                width: 32,
+                height: 32,
+                fontSize: 13,
+                bgcolor:
+                  theme.palette.primary?._alpha?.main_10 ?? "primary.main",
+                color: theme.palette.primary?.main,
+              }}
+            >
+              {!row.avatarUrl &&
+                row.name &&
+                row.surname &&
+                `${row.name[0]}${row.surname[0]}`}
+            </Avatar>
+            <Typography fontSize={13} fontWeight={600}>
+              {row.name} {row.surname}
+            </Typography>
+          </Stack>
+        ),
+      },
+      {
+        key: "email",
+        label: dict.company.members.columns.email,
+        render: (row) => (
+          <Typography fontSize={13} color="text.secondary">
+            {row.email}
+          </Typography>
+        ),
+      },
+      {
+        key: "role",
+        label: dict.company.members.columns.role,
+        render: (row) =>
+          row.roleName ? (
+            <Chip
+              label={
+                dict.company?.roles?.[
+                  row.roleName as keyof typeof dict.company.roles
+                ] || row.roleName
+              }
+              size="small"
+              variant="outlined"
+              sx={{ fontSize: 11, fontWeight: 600 }}
+            />
+          ) : (
+            <Typography fontSize={13} color="text.disabled">
+              —
+            </Typography>
+          ),
+      },
+      {
+        key: "status",
+        label: dict.company.members.columns.status,
+        render: (row) => <StatusChip status={row.status} dict={dict} />,
+      },
+      {
+        key: "joined",
+        label: dict.company.members.columns.joined,
+        render: (row) => (
+          <Typography fontSize={13} color="text.secondary">
+            {formatDisplayDate(row.createdAt, dateSettings)}
+          </Typography>
+        ),
+      },
+    ],
+    [theme, dict, dateSettings]
+  );
+
+  const rowActions: DataTableRowAction<CompanyMember>[] = useMemo(
+    () => [
+      {
+        label: dict.company.members.actions.details,
+        icon: <InfoIcon fontSize="small" color="info" />,
+        onClick: (row) => (onDetails ? onDetails(row) : onAction()),
+      },
+      {
+        label: dict.company.members.actions.edit,
+        icon: <EditIcon fontSize="small" />,
+        onClick: () => onAction(),
+      },
+      {
+        label: dict.company.members.actions.delete,
+        icon: <DeleteIcon fontSize="small" />,
+        onClick: () => onAction(),
+        color: "error",
+      },
+    ],
+    [dict, onAction, onDetails]
+  );
+
+  return (
+    <DataTable<CompanyMember>
+      rows={members}
+      columns={columns}
+      loading={loading}
+      emptyMessage={dict.company.members.empty}
+      meta={meta}
+      onPageChange={(p) => actions.updatePagination({ page: p })}
+      onLimitChange={(lim) =>
+        actions.updatePagination({ pageSize: lim, page: 1 })
+      }
+      onSearchChange={(v) => actions.updateFilters({ search: v })}
+      rowActions={rowActions}
+      wrapCard={true}
+      tableTitle={dict.company.members.title}
+    />
+  );
+}

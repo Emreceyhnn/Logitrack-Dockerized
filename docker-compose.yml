@@ -1,0 +1,139 @@
+services:
+  # Publishes the site through Cloudflare without opening a port on this
+  # machine: cloudflared dials OUT to Cloudflare's edge and traffic arrives
+  # over that connection. No inbound firewall rule, no port forwarding.
+  #
+  # It targets nginx (not web directly) so public traffic goes through the same
+  # rate limiting, caching and header handling as local traffic.
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    command: tunnel --no-autoupdate run
+    environment:
+      # Set in .env — the token grants full control of the tunnel, so it is
+      # kept out of this file (.env is gitignored, docker-compose.yml is not).
+      TUNNEL_TOKEN: ${CLOUDFLARE_TUNNEL_TOKEN:?CLOUDFLARE_TUNNEL_TOKEN is not set in .env}
+    depends_on:
+      nginx:
+        condition: service_healthy
+    restart: unless-stopped
+
+  nginx:
+    image: nginx:1.27-alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - nginx_cache:/var/cache/nginx
+    depends_on:
+      web:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost/healthz"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
+
+  web:
+    image: logitrack:latest
+    build:
+      context: .
+      secrets:
+        - dotenv
+    # No `ports:` — the app is reachable only through nginx on the compose
+    # network. Publishing 3000 as well would let clients bypass the proxy (and
+    # its rate limits) entirely.
+    expose:
+      - "3000"
+    env_file:
+      - .env
+    environment:
+      # Overrides the .env value: inside the container `localhost` is the web
+      # container itself, so the database has to be reached by service name.
+      # The role is `admin`, not `postgres` — the postgres_data volume was
+      # initialized with POSTGRES_USER=admin and already holds the migrated
+      # schema. POSTGRES_USER only takes effect on an empty data directory, so
+      # these must keep matching the volume or auth fails with a misleading
+      # "credentials are not valid" (really: role does not exist).
+      DATABASE_URL: "postgresql://admin:3121283455Em!@postgres:5432/logitrack?schema=public"
+      REDIS_URL: "redis://redis:6379"
+    restart: unless-stopped
+    # node-alpine has no curl/wget by default, so the check is done with Node
+    # itself. Any HTTP status counts as healthy — a redirect still proves the
+    # server is accepting and routing connections.
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "require('http').get('http://127.0.0.1:3000/',r=>process.exit(0)).on('error',()=>process.exit(1))",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: 3121283455Em!
+      POSTGRES_DB: logitrack
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      # Bound to 127.0.0.1 so pgAdmin/Prisma Studio on this machine still work,
+      # but the database is not reachable from the network. A bare "5432:5432"
+      # would listen on every interface.
+      - "127.0.0.1:5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d logitrack"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    # Cache data is disposable, but AOF keeps it across restarts so a redeploy
+    # doesn't stampede the database with a fully cold cache.
+    command:
+      [
+        "redis-server",
+        "--appendonly",
+        "yes",
+        "--maxmemory",
+        "512mb",
+        "--maxmemory-policy",
+        "allkeys-lru",
+      ]
+    volumes:
+      - redis_data:/data
+    ports:
+      # Localhost-only, same reasoning as postgres: redis-cli stays usable from
+      # this machine without exposing an unauthenticated cache to the network.
+      - "127.0.0.1:6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  redis_data:
+  nginx_cache:
+
+secrets:
+  # Mounted only during `docker compose build` so `next build` can inline the
+  # NEXT_PUBLIC_* values into the client bundle. Never copied into the image.
+  dotenv:
+    file: .env

@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cat >> *)",
+      "Bash(grep -iE \"\\\\.\\(ts|tsx\\)$\")",
+      "Bash(awk '/^model Company/,/^}/' prisma/schema.prisma)",
+      "Bash(awk '/createCompanySchema/,/^\\\\}\\\\\\);/' app/lib/validation/serverSchemas.ts)",
+      "Bash(awk '/^model Invitation/,/^}/' prisma/schema.prisma)",
+      "Bash(awk '/^enum InvitationStatus/,/^}/' prisma/schema.prisma)",
+      "Bash(awk '/^enum IssueStatus/,/^}/' prisma/schema.prisma)",
+      "Bash(mkdir -p \"C:\\\\Users\\\\emre\\\\.claude\\\\plans\")"
+    ],
+    "additionalDirectories": [
+      "C:\\Users\\emre\\.claude\\plans"
+    ]
+  }
+}

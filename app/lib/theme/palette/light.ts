@@ -1,0 +1,258 @@
+import { type PaletteMode } from "@mui/material";
+import { lightKpi } from "./lightKpi";
+
+/* -------------------------------- LIGHTMODE ------------------------------- */
+export const light = {
+  mode: "light" as PaletteMode,
+
+  primary: {
+    main: "#0284c7",
+    contrastText: "#FFFFFF",
+    _alpha: {
+      main_03: "#0284c708",
+      main_04: "#0284c70A",
+      main_05: "#0284c70D",
+      main_08: "#0284c714",
+      main_10: "#0284c71A",
+      main_12: "#0284c71F",
+      main_15: "#0284c726",
+      main_18: "#0284c72E",
+      main_20: "#0284c733",
+      main_25: "#0284c740",
+      main_30: "#0284c74D",
+      main_35: "#0284c759",
+      main_40: "#0284c766",
+      main_50: "#0284c780",
+      main_60: "#0284c799",
+      main_80: "#0284c7CC",
+    },
+  },
+
+  secondary: {
+    main: "#475569",
+    _alpha: {
+      main_10: "#4755691A",
+      main_20: "#47556933",
+    },
+  },
+
+  background: {
+    default: "#F8FAFC",
+    default_alpha: {
+      main_10: "#F8FAFC1A",
+      main_20: "#F8FAFC33",
+      main_40: "#F8FAFC66",
+      main_60: "#F8FAFC99",
+      main_98: "#F8FAFCFA",
+    },
+    dashboardBg: "#F1F5F9",
+    paper: "#FFFFFF",
+    paper_alpha: {
+      main_02: "#FFFFFF05",
+      main_03: "#FFFFFF08",
+      main_05: "#FFFFFF0D",
+      main_10: "#FFFFFF1A",
+      main_20: "#FFFFFF33",
+      main_30: "#FFFFFF4D",
+      main_40: "#FFFFFF66",
+      main_50: "#FFFFFF80",
+      main_60: "#FFFFFF99",
+      main_70: "#FFFFFFB3",
+      main_80: "#FFFFFFCC",
+      main_90: "#FFFFFFE6",
+    },
+    sidebar: "#FFFFFF",
+    header: "#FFFFFF",
+    hoverBg: "#F1F5F9",
+    midnight: {
+      main: "#0F172A",
+      _alpha: {
+        main_40: "#0F172A66",
+        main_60: "#0F172A99",
+        main_80: "#0F172ACC",
+        main_85: "#0F172AD9",
+        main_95: "#0F172AF2",
+      },
+    },
+    deepNavy: {
+      main: "#1E293B",
+      _alpha: {
+        main_85: "#1E293BD9",
+      },
+    },
+    ebony: {
+      main: "#334155",
+      _alpha: {
+        main_80: "#334155CC",
+      },
+    },
+  },
+
+  text: {
+    primary: "#0F172A",
+    primary_alpha: {
+      main_02: "#0F172A05",
+      main_05: "#0F172A0D",
+      main_10: "#0F172A1A",
+      main_20: "#0F172A33",
+      main_30: "#0F172A4D",
+      main_35: "#0F172A59",
+      main_40: "#0F172A66",
+      main_70: "#0F172AB3",
+      main_80: "#0F172ACC",
+    },
+    secondary: "#475569",
+    secondary_alpha: {
+      main_05: "#4755690D",
+      main_10: "#4755691A",
+      main_20: "#47556933",
+      main_40: "#47556966",
+      main_60: "#47556999",
+      main_70: "#475569B3",
+    },
+    greenText: "#065F46",
+    sideBarText: "#475569",
+    darkBlue: {
+      main: "#0F172A",
+      _alpha: {
+        main_30: "#0F172A4D",
+        main_50: "#0F172A80",
+        main_60: "#0F172A99",
+        main_80: "#0F172AB3",
+      },
+    },
+  },
+
+  divider: "#E2E8F0",
+  divider_alpha: {
+    main_01: "#E2E8F01A",
+    main_02: "#E2E8F033",
+    main_05: "#E2E8F066",
+    main_10: "#E2E8F0",
+    main_20: "#CBD5E1",
+    main_50: "#94A3B8",
+  },
+
+  action: {
+    active: "#475569",
+    hover: "#F1F5F9",
+    hoverOpacity: 0.04,
+    selected: "#E2E8F0",
+    selectedOpacity: 0.08,
+    disabled: "#94A3B8",
+    disabledBackground: "#F8FAFC",
+    disabledOpacity: 0.38,
+    focus: "#E2E8F0",
+    focusOpacity: 0.12,
+    activatedOpacity: 0.12,
+  },
+
+  icon: {
+    primary: "#0284c7",
+    secondary: "#475569",
+  },
+
+  buttonPrimary: {
+    buttonBg: "#0284c7",
+    buttonBgHover: "#0EA5E9",
+    iconColor: "#FFFFFF",
+    iconBgColor: "#FFFFFF33",
+    primaryText: "#FFFFFF",
+  },
+  buttonSecondary: {
+    buttonBg: "#FFFFFF",
+    buttonBgHover: "#F1F5F9",
+    iconColor: "#0284c7",
+    iconBg: "#0284c71A",
+    primaryText: "#0284c7",
+  },
+  logo: {
+    color1: "#0284c7",
+    color2: "#0F172A",
+    text: "#0F172A",
+  },
+  scroll: {
+    color: "#E2E8F0",
+    hover: "#CBD5E1",
+    background: "transparent",
+  },
+  kpi: lightKpi,
+  error: {
+    main: "#DC2626",
+    light: "#F87171",
+    dark: "#B91C1C",
+    _alpha: {
+      main_10: "#FEE2E2",
+      main_20: "#FECACA",
+      main_30: "#FCA5A5",
+      main_50: "#DC2626",
+      main_70: "#B91C1C",
+      main_80: "#991B1B",
+    },
+  },
+  success: {
+    main: "#065F46",
+    _alpha: {
+      main_02: "#ECFDF533",
+      main_05: "#ECFDF580",
+      main_10: "#D1FAE5",
+      main_20: "#A7F3D0",
+      main_40: "#34D399",
+    },
+  },
+  warning: {
+    main: "#F59E0B",
+    _alpha: {
+      main_03: "#FFFBEB4D",
+      main_05: "#FFFBEB",
+      main_10: "#FEF3C7",
+      main_20: "#FDE68A",
+    },
+  },
+  info: {
+    main: "#3B82F6",
+    _alpha: {
+      main_03: "#EFF6FF4D",
+      main_10: "#DBEAFE",
+      main_20: "#BFDBFE",
+    },
+  },
+  common: {
+    black: "#000000",
+    black_alpha: {
+      main_04: "#0000000A",
+      main_10: "#0000001A",
+      main_15: "#00000026",
+      main_20: "#00000033",
+      main_30: "#0000004D",
+      main_35: "#00000059",
+      main_40: "#00000066",
+      main_50: "#00000080",
+      main_55: "#0000008C",
+      main_60: "#00000099",
+      main_75: "#000000BF",
+    },
+    white: "#FFFFFF",
+    white_alpha: {
+      main_01: "#FFFFFF03",
+      main_015: "#FFFFFF04",
+      main_02: "#FFFFFF05",
+      main_03: "#FFFFFF08",
+      main_04: "#FFFFFF0A",
+      main_05: "#FFFFFF0D",
+      main_06: "#FFFFFF0F",
+      main_08: "#FFFFFF14",
+      main_10: "#FFFFFF1A",
+      main_15: "#FFFFFF26",
+      main_20: "#FFFFFF33",
+      main_25: "#FFFFFF40",
+      main_30: "#FFFFFF4D",
+      main_35: "#FFFFFF59",
+      main_40: "#FFFFFF66",
+      main_45: "#FFFFFF73",
+      main_50: "#FFFFFF80",
+      main_60: "#FFFFFF99",
+      main_70: "#FFFFFFB3",
+    },
+  },
+};

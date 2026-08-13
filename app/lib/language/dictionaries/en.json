@@ -1,0 +1,4311 @@
+{
+  "common": {
+    "logitrack": "LogiTrack",
+    "home": "Home",
+    "backToHome": "Back to Home",
+    "needHelp": "Need Help?",
+    "help": "Help",
+    "logout": "Log Out",
+    "lastUpdated": "Last updated",
+    "refresh": "Refresh",
+    "refreshDashboard": "Refresh Dashboard",
+    "loading": "Loading...",
+    "save": "Save",
+    "saving": "Saving...",
+    "uploading": "Uploading...",
+    "cancel": "Cancel",
+    "add": "Add",
+    "delete": "Delete",
+    "this": "this",
+    "edit": "Edit",
+    "search": "Search...",
+    "filter": "Filter",
+    "export": "Export",
+    "import": "Import",
+    "apply": "Apply",
+    "reset": "Reset",
+    "clearAll": "Clear All",
+    "errorState": {
+      "title": "Failed to load data",
+      "description": "The server could not be reached or an unexpected error occurred. Please try again.",
+      "retry": "Try Again"
+    },
+    "actionFailed": "The action failed. Please try again.",
+    "skipToContent": "Skip to content",
+    "notFound": {
+      "title": "Page Not Found",
+      "description": "The page you are looking for doesn't exist or has been moved.",
+      "goBack": "Go Back",
+      "returnHome": "Return Home"
+    },
+    "clearFilters": "Clear Filters",
+    "tooltips": {
+      "actions": "Actions",
+      "edit": "Edit",
+      "delete": "Delete",
+      "details": "View Details",
+      "refresh": "Refresh",
+      "search": "Search",
+      "clearFilter": "Clear this filter",
+      "clearAllFilters": "Clear all active filters",
+      "filterBy": "Filtering by {value}",
+      "notifications": "Notifications",
+      "account": "Account",
+      "changeLanguage": "Change Language"
+    },
+    "actions": "Actions",
+    "status": "Status",
+    "statusLabels": {
+      "pending": "Pending",
+      "accepted": "Accepted",
+      "rejected": "Rejected",
+      "expired": "Expired",
+      "revoked": "Revoked"
+    },
+    "date": "Date",
+    "technician": "Technician",
+    "next": "Next",
+    "back": "Back",
+    "step": "Step",
+    "saveSuccess": "Saved successfully",
+    "errorOccurred": "An error occurred",
+    "settings": "Settings",
+    "profile": "Profile",
+    "fromLastMonth": "FROM LAST MONTH",
+    "documents": "Documents",
+    "noData": "No data found.",
+    "na": "N/A",
+    "success": "Success",
+    "error": "Error",
+    "warning": "Warning",
+    "info": "Information",
+    "confirm": "Confirm",
+    "submit": "Submit",
+    "all": "All",
+    "active": "Active",
+    "expiring": "Expiring",
+    "missing": "Missing",
+    "upload": "Upload",
+    "uploadNew": "Upload New Document",
+    "docType": "Document Type",
+    "expiryDate": "Expiry Date",
+    "noDocuments": "No documents found.",
+    "months": {
+      "jan": "Jan",
+      "feb": "Feb",
+      "mar": "Mar",
+      "apr": "Apr",
+      "may": "May",
+      "jun": "Jun",
+      "jul": "Jul",
+      "aug": "Aug",
+      "sep": "Sep",
+      "oct": "Oct",
+      "nov": "Nov",
+      "dec": "Dec"
+    },
+    "ranges": {
+      "1w": "1 Week",
+      "2w": "2 Weeks",
+      "1m": "1 Month",
+      "6m": "6 Months"
+    },
+    "units": {
+      "kg": "kg",
+      "m3": "m³",
+      "pallets": "Pallets"
+    },
+    "updatePreferences": "Update Preferences",
+    "synchronizing": "Synchronizing...",
+    "thisActionCannotBeUndone": "This action cannot be undone",
+    "confirmDelete": "Confirm Delete",
+    "deleting": "Deleting...",
+    "updating": "Updating...",
+    "optional": "Optional",
+    "start": "Start",
+    "complete": "Complete",
+    "fillAllFields": "Please fill in all mandatory fields.",
+    "deleteDocumentTitle": "Delete Document?",
+    "deleteDocumentDesc": "Are you sure you want to delete this document? This action cannot be undone.",
+    "select": "Select",
+    "fillRequired": "Please fill in the required fields correctly.",
+    "close": "Close",
+    "nextStep": "Next Step",
+    "saveChanges": "Save Changes",
+    "creating": "Creating...",
+    "recent": "Recent",
+    "noEmail": "No Email",
+    "noPhone": "No Phone",
+    "contactInfo": "Contact Info",
+    "yes": "Yes",
+    "no": "No",
+    "none": "None",
+    "details": "Details",
+    "viewDetails": "View details",
+    "kg": "kg",
+    "km": "km",
+    "m3": "m³",
+    "unassigned": "Unassigned",
+    "pagination": {
+      "rowsPerPage": "Rows per page:",
+      "of": "of",
+      "totalRecords": "Showing {count} records"
+    },
+    "filtersActive": "{count} filters active",
+    "moreThan": "more than {count}",
+    "currency": "$",
+    "closingIn": "Closing in",
+    "openingIn": "Opening in",
+    "yourTime": "Your Time",
+    "currentTimeAtLocation": "Current time at location",
+    "confirmLogoutDescription": "Are you sure you want to end your session?",
+    "logoutWarning": "All your active session data will be cleared and you will be redirected to the login page.",
+    "guidedTour": {
+      "next": "Next",
+      "prev": "Previous",
+      "finish": "Finish",
+      "startTour": "Start Tour"
+    },
+    "searchPlaceholder": "Search...",
+    "underDevelopment": "This feature is currently under development.",
+    "comingSoon": "Coming Soon",
+    "manualEntry": "Manual Entry",
+    "timeUnits": {
+      "day": "d",
+      "hour": "h",
+      "minute": "m"
+    }
+  },
+  "guidedTour": {
+    "overview": {
+      "titleStep": {
+        "title": "Dashboard Overview",
+        "description": "Welcome to your central LogiTrack command center. This dashboard is designed to give you a comprehensive, real-time snapshot of your entire logistics network. From here, you can seamlessly monitor critical operations, identify bottlenecks early, and maintain full control over your supply chain performance."
+      },
+      "kpiStep": {
+        "title": "Key Performance Indicators",
+        "description": "These KPI cards represent the heartbeat of your business. They provide instant visibility into your most critical metrics: total active shipments, delayed orders needing attention, current fleet status, driver availability, and overall warehouse utilization. A quick glance here tells you exactly where to focus your efforts."
+      },
+      "dailyOpsStep": {
+        "title": "Daily Operations",
+        "description": "Track the day's operational momentum in real-time. This section breaks down your planned routes, tracks successfully completed deliveries, highlights any failed attempts, calculates your average delivery times, and monitors total fuel consumption to ensure maximum efficiency."
+      },
+      "actionRequiredStep": {
+        "title": "Action Required",
+        "description": "Your proactive alert center. Items listed here require your immediate intervention. Whether it's critically delayed shipments, expiring driver licenses, vehicle maintenance alerts, or low inventory thresholds, clicking on any item will take you directly to the resolution page."
+      },
+      "mapStep": {
+        "title": "Live Operations Map",
+        "description": "Visualize your entire supply chain on an interactive map. You can track live fleet positions, monitor active delivery routes in real-time, and see exactly where your warehouses and customers are located. Zoom in to see precise vehicle movements."
+      },
+      "gettingStartedStep": {
+        "title": "Your first steps",
+        "description": "Your dashboard is empty because you haven't added any data yet. Work through this checklist — add a vehicle, a driver, and a shipment — and your KPIs, charts, and live map will start filling in automatically."
+      }
+    },
+    "vehicles": {
+      "tabsStep": {
+        "title": "Category Navigation",
+        "description": "Switch seamlessly between your 'Vehicles' and 'Trailers' databases. This tabbed interface allows you to manage motorized units and non-motorized cargo units separately, keeping your fleet operations perfectly organized."
+      },
+      "tableStep": {
+        "title": "Vehicle Fleet Management",
+        "description": "This is your comprehensive vehicle roster. Manage your entire fleet from this interactive grid. You can quickly filter vehicles by their operational status, type, or current location. Clicking on any row will open detailed diagnostics, service history, and live tracking data for that specific vehicle."
+      },
+      "addStep": {
+        "title": "Register a New Vehicle",
+        "description": "Click here to expand your fleet. When adding a new vehicle, you will need to provide essential specifications such as license plate, make, model, fuel type, and load capacity. You can also assign the vehicle to a specific home-base warehouse and upload mandatory registration documents."
+      }
+    },
+    "shipments": {
+      "tableStep": {
+        "title": "Shipment Management Hub",
+        "description": "Your ultimate control room for tracking freight. Every single shipment is logged here with its current status. Use the powerful filtering tools to narrow down shipments by date ranges, specific customers, or current transit status. You can also track delays and ETA updates instantly."
+      },
+      "addStep": {
+        "title": "Create a New Shipment",
+        "description": "Ready to dispatch? Click here to generate a new shipment order. You will be guided through a streamlined process to define pickup and drop-off coordinates, specify cargo weight and dimensions, and automatically or manually assign the most optimal vehicle and driver for the job."
+      }
+    },
+    "analytics": {
+      "headerStep": {
+        "title": "Advanced Analytics Dashboard",
+        "description": "Welcome to your data intelligence hub. Dive deep into the operational health of your business. You can dynamically adjust time ranges, filter data by specific branches or regions, and export comprehensive reports for stakeholder reviews and strategic planning."
+      },
+      "gaugesStep": {
+        "title": "Performance Gauges",
+        "description": "These dynamic gauges measure your performance against predefined targets. Watch your 'On-Time Delivery Rate', 'Fleet Utilization Percentage', and 'Customer Satisfaction Scores' fluctuate in real-time, giving you an immediate sense of how well your operations are running."
+      },
+      "forecastStep": {
+        "title": "AI-Powered Forecasting",
+        "description": "Leverage our machine learning models to anticipate future demand. This chart compares your historical shipment volumes against predicted future trends, empowering you to proactively plan capacity, scale your workforce, and avoid supply chain bottlenecks before they happen."
+      },
+      "costStep": {
+        "title": "Operational Cost Analysis",
+        "description": "Keep your expenses strictly under control. This detailed breakdown categorizes your spending across fuel consumption, fleet maintenance, and general overhead. Identify cost trends over time and find new opportunities to optimize your profit margins."
+      }
+    },
+    "warehouses": {
+      "tableStep": {
+        "title": "Warehouse Directory",
+        "description": "A top-down view of your entire storage infrastructure. Monitor every warehouse facility, review their current pallet and volume capacity utilization, and check their operational status. This is crucial for load balancing and inventory distribution."
+      },
+      "addStep": {
+        "title": "Add a New Warehouse",
+        "description": "Expanding your footprint? Click here to register a new storage facility into the LogiTrack network. You'll set up its physical address, define precise capacity limits (pallets/volume), establish operating hours, and designate the responsible warehouse manager."
+      }
+    },
+    "drivers": {
+      "tableStep": {
+        "title": "Driver Roster",
+        "description": "Manage the human engine of your logistics network. This comprehensive list shows all your registered drivers, their real-time duty status, performance ratings, and current vehicle assignments. Keep an eye on compliance with automated license expiration warnings."
+      },
+      "addStep": {
+        "title": "Onboard a New Driver",
+        "description": "Add new talent to your team. Registering a driver requires filling in their personal contact info, license class, expiration dates, and any special certifications (like Hazmat). Once added, they can immediately log into the Driver App and start receiving route assignments."
+      }
+    },
+    "routes": {
+      "tableStep": {
+        "title": "Route Planning & Execution",
+        "description": "Command your delivery operations from this view. Monitor all planned, active, and completed delivery routes. You can inspect multi-stop itineraries, review estimated vs actual arrival times, and see exactly which driver and vehicle are executing each route."
+      },
+      "addStep": {
+        "title": "Generate a New Route",
+        "description": "Click here to craft a new multi-stop delivery journey. Our intelligent routing tool will help you sequence customer stops efficiently, automatically calculate total distance and duration, and allow you to seamlessly dispatch the route to an available driver."
+      }
+    },
+    "inventory": {
+      "tableStep": {
+        "title": "Global Inventory Overview",
+        "description": "Achieve total visibility over your stored assets. Track live stock levels across all your connected warehouses simultaneously. Monitor specific SKUs, identify low stock items reaching their reorder thresholds, and track product allocation to active shipments."
+      },
+      "addStep": {
+        "title": "Register New Inventory Item",
+        "description": "Introduce new products into your catalog. Define the SKU, product name, physical dimensions (weight/volume), and assign it to a specific zone within a warehouse. Setting minimum stock alerts here ensures you never run out of critical inventory."
+      }
+    },
+    "customers": {
+      "tableStep": {
+        "title": "Customer Directory",
+        "description": "Your centralized CRM for logistics. Manage your entire customer database, track their historical orders, and manage multiple delivery locations per client. This ensures your dispatchers always have the correct contact and billing information at their fingertips."
+      },
+      "addStep": {
+        "title": "Add a New Customer",
+        "description": "Onboarding a new client? Register their primary business details, tax identification, and key contact personnel here. You can then add multiple default delivery locations, streamlining the shipment creation process for future orders."
+      }
+    },
+    "reports": {
+      "tabsStep": {
+        "title": "Report Categories",
+        "description": "Navigate between different operational domains using these tabs. You can switch focus instantly from 'Shipment' performance metrics, to 'Fleet' efficiency analytics, and finally to detailed 'Inventory' movement reports without losing your context."
+      },
+      "contentStep": {
+        "title": "Reporting Center",
+        "description": "Your central hub for data extraction. Generate deep, customizable reports covering everything from fuel efficiency and driver performance to delayed shipments and financial summaries. Export your findings in PDF or Excel formats for auditing and compliance."
+      }
+    },
+    "company": {
+      "kpiStep": {
+        "title": "Company Overview",
+        "description": "These dynamic cards display the overall size and scope of your company. Keep track of your total users, vehicles, drivers, warehouses, customers, and active shipments at a single glance. Trends are calculated automatically to show your growth."
+      },
+      "infoStep": {
+        "title": "Company Profile",
+        "description": "This section contains your core business information, including your official company name, tax identification, and registered address. Keeping this updated ensures seamless billing and compliance across the platform."
+      },
+      "membersStep": {
+        "title": "Team Management",
+        "description": "Manage your entire workforce from this directory. You can review all registered team members, check their assigned roles (such as Dispatcher, Driver, or Warehouse Manager), and monitor their active status within the organization."
+      },
+      "addMemberStep": {
+        "title": "Invite New Member",
+        "description": "Growing your team? Click here to invite a new user to your company workspace. You will securely assign them a role and permissions, ensuring they only have access to the modules they need for their specific job."
+      }
+    },
+    "warehouseWorker": {
+      "sidebarStep": {
+        "title": "Main Navigation Menu",
+        "description": "Welcome to your mobile-friendly Warehouse Workspace! Use this sidebar to swiftly navigate between your primary duties: checking your Dashboard, Scanning items, managing Tasks, monitoring Zone Capacity, and reviewing the live Activity Feed."
+      },
+      "dashboardPicksStep": {
+        "title": "Your Performance Metrics",
+        "description": "Stay motivated and on track. These indicators show your personal picking and packing progress for your current shift against your daily targets. It's a great way to measure your efficiency and ensure smooth operations."
+      },
+      "dashboardControlStep": {
+        "title": "Active Zone Control",
+        "description": "Working in a different area today? Use this control panel to set your current active working zone. Doing so ensures that you only receive tasks, pick-lists, and alerts relevant to your immediate physical location in the warehouse."
+      },
+      "dashboardQuickStep": {
+        "title": "Emergency Quick Actions",
+        "description": "Your fast lane for resolving on-the-floor problems. If you encounter a damaged product, a misplaced pallet, or need an urgent restock for your picking lane, use these quick action buttons to instantly alert management without leaving your station."
+      },
+      "scanSectionStep": {
+        "title": "Smart Barcode Scanner",
+        "description": "The core of your daily workflow. Use this section to scan product barcodes, QR codes, or SKUs. Whether you are receiving goods, picking items for an order, or transferring stock between zones, scanning ensures perfect inventory accuracy."
+      },
+      "taskListStep": {
+        "title": "Your Active Task Queue",
+        "description": "Your personalized to-do list. This queue is intelligently sorted, ensuring that 'CRITICAL' and 'HIGH' priority tasks always float to the top. Simply click on a task to view the precise aisle and bin locations for your next pick or put-away."
+      },
+      "capacityChartStep": {
+        "title": "Global Facility Capacity",
+        "description": "A macro-level visualization of the entire warehouse's physical storage limits. This chart gives you an instant reading of how many total pallet positions are currently occupied versus how much free space remains across the entire building."
+      },
+      "capacityZoneStep": {
+        "title": "Detailed Zone Breakdown",
+        "description": "Drill down into the details. This list breaks down the capacity utilization strictly by individual zones or aisles. It's an essential tool for identifying overcrowded bottlenecks and discovering empty zones perfect for incoming bulk shipments."
+      },
+      "activityFeedStep": {
+        "title": "Live Operations Feed",
+        "description": "Keep your finger on the pulse of the warehouse. This real-time feed streams every single inventory movement, task completion, and status update happening across the facility. It provides incredible transparency and helps teams coordinate seamlessly."
+      }
+    }
+  },
+  "primaryColors": {
+    "title": "Color Configuration",
+    "success": "#48BB78",
+    "info": "#4299E1",
+    "warning": "#F6AD55",
+    "error": "#F56565",
+    "secondary": "#718096",
+    "labels": {
+      "success": "Success",
+      "info": "Information",
+      "warning": "Warning",
+      "error": "Error",
+      "secondary": "Secondary"
+    }
+  },
+  "sidebar": {
+    "overview": "Overview",
+    "operation": "Operation",
+    "vehicles": "Vehicles",
+    "drivers": "Drivers",
+    "routes": "Routes",
+    "shipments": "Shipments",
+    "management": "Management",
+    "warehouses": "Warehouses",
+    "inventory": "Inventory",
+    "customers": "Customers",
+    "company": "Company",
+    "analytics": "Analytics",
+    "reports": "Reports",
+    "warehousePanel": "Warehouse Panel",
+    "driverConsolePanel": "Driver Console",
+    "demoSoon": "Soon"
+  },
+  "liveDemo": {
+    "bannerText": "You're viewing a live demo account with sample data.",
+    "bannerCta": "Sign Up Free"
+  },
+  "roles-header": {
+    "Company Admin": "Company Admin",
+    "Warehouse Operator": "Warehouse Operator",
+    "Administrator": "Administrator",
+    "Default": "Default",
+    "Dispatcher": "Dispatcher",
+    "Driver": "Driver",
+    "Manager": "Manager",
+    "Warehouse": "Warehouse"
+  },
+  "auth": {
+    "signIn": "Sign In",
+    "signInDescription": "Please enter your credentials to access your account.",
+    "email": "Email Address",
+    "password": "Password",
+    "forgotPassword": "Forgot password?",
+    "login": "Login",
+    "register": "Register",
+    "noAccount": "Don't have an account?",
+    "signUp": "SignUp",
+    "loggingIn": "Logging In...",
+    "logInNow": "Log In Now",
+    "orContinueWith": "or continue with",
+    "continueWithGoogle": "Continue with Google",
+    "googleSignInFailed": "Google sign-in failed. Please try again.",
+    "createAccount": "Create Account",
+    "welcome": "Welcome Back",
+    "resetIt": "Reset it",
+    "error": "Authentication failed",
+    "forgotPasswordPrompt": "Forgot your password?",
+    "personalInfo": "Personal Information",
+    "security": "Security",
+    "review": "Review",
+    "finalTouches": "Final Touches",
+    "signUpDescription": "Please provide your basic details to get started.",
+    "securityDescription": "Choose a strong password.",
+    "passwordRules": {
+      "title": "Your password must contain:",
+      "minLength": "At least 8 characters",
+      "lowercase": "One lowercase letter (a-z)",
+      "uppercase": "One uppercase letter (A-Z)",
+      "number": "One number (0-9)"
+    },
+    "profileDescription": "Almost there! Complete your profile to join the LogiTrack team.",
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "repeatPassword": "Repeat Password",
+    "uploading": "Uploading...",
+    "changePhoto": "Change Photo",
+    "uploadProfilePicture": "Upload Profile Picture",
+    "termsAgreement": "By clicking \"Complete Registration\", you agree to our Terms of Service and Privacy Policy. Your account will be created and you're redirected to the dashboard.",
+    "registering": "Registering...",
+    "continuing": "Continuing...",
+    "completeRegistration": "Complete Registration",
+    "continue": "Continue",
+    "unexpectedError": "An unexpected network error occurred.",
+    "loginFailed": "Login failed",
+    "resetLinkSent": "If an account exists for that address, we've sent a password reset link.",
+    "resetLinkSentHint": "The link expires in 60 minutes and can only be used once. Check your spam folder if it doesn't arrive.",
+    "resetLinkError": "Something went wrong. Please try again.",
+    "resetLinkInvalid": "This reset link is invalid or has expired.",
+    "resetLinkInvalidHint": "Reset links expire after 60 minutes and can only be used once. Request a new one to continue.",
+    "requestNewLink": "Request a new link",
+    "resetPasswordTitle": "Set a new password",
+    "resetPasswordDescription": "Choose a new password for your account. You'll be signed out of all other devices.",
+    "resetPasswordButton": "Reset Password",
+    "passwordResetSuccess": "Your password has been reset. Please sign in.",
+    "newPassword": "New Password",
+    "togglePassword": "Toggle password visibility",
+    "emailVerifiedSuccess": "Your email address has been verified.",
+    "emailAlreadyVerified": "This email address is already verified.",
+    "continueToSignIn": "Continue to Sign In",
+    "continueToOnboarding": "Continue",
+    "verifyEmailInvalid": "This verification link is invalid or has expired.",
+    "verifyEmailError": "Something went wrong. Please try again.",
+    "verifyEmailResendTitle": "Request a new link",
+    "verifyEmailResendDescription": "Enter your email address and we'll send you a new verification link.",
+    "verifyEmailResendButton": "Send New Link",
+    "emailNotVerifiedAction": "Please verify your email address to continue. Check your inbox for the verification link.",
+    "verifyEmailResent": "If that address needs verifying, we've sent a new link.",
+    "verifyEmailResentHint": "The link expires in 24 hours and can only be used once. Check your spam folder if it doesn't arrive.",
+    "invalidCredentials": "Invalid credentials",
+    "emailExists": "Email already exists",
+    "tooManyAttempts": "Too many login attempts. Please try again later.",
+    "tooManyAttemptsAccount": "Too many login attempts for this account. Please try again later.",
+    "tooManyRegistrationAttempts": "Too many registration attempts from this IP. Please try again in an hour.",
+    "emailAddress": "Email Address",
+    "forgotPasswordTitle": "Forgot Password",
+    "forgotPasswordDescription": "Enter your email address and we'll send you a link to reset your password.",
+    "sendResetLink": "Send Reset Link",
+    "sending": "Sending...",
+    "backToSignIn": "Back to Sign In",
+    "tagline": "Empowering global supply chains with real-time intelligence and seamless coordination.",
+    "verifyEmailGateTitle": "Verify your email first",
+    "verifyEmailGateBody": "Before creating a company we need to confirm your email address belongs to you. Press the button below to send the verification link.",
+    "verifyEmailGateSend": "Send Verification Email",
+    "verifyEmailGateSending": "Sending…",
+    "verifyEmailGateSent": "Verification link sent to {email}. Once you follow it you can create your company."
+  },
+  "landing": {
+    "metaTitle": "LogiTrack – AI Logistics Management Platform",
+    "metaDescription": "Orchestrate every shipment with live intelligence. Synchronize dispatch, fleets, and customer promises in one immersive dashboard.",
+    "pageMeta": {
+      "pricing": {
+        "title": "Pricing",
+        "description": "Explore transparent, flexible enterprise logistics pricing plans."
+      },
+      "features": {
+        "title": "Features",
+        "description": "Explore the enterprise logistics features and capabilities of LogiTrack."
+      },
+      "about": {
+        "title": "About Us",
+        "description": "Learn more about the mission and vision behind LogiTrack."
+      },
+      "howItWorks": {
+        "title": "How It Works",
+        "description": "See how LogiTrack orchestrates end-to-end logistics operations."
+      },
+      "contact": {
+        "title": "Contact & Demo Request",
+        "description": "Get in touch with our team or request a live demo. Our experts will get back to you shortly."
+      },
+      "enterprise": {
+        "title": "Enterprise Solutions",
+        "description": "Built for the scale of global operations with dedicated infrastructure and white-glove onboarding."
+      },
+      "globalTracking": {
+        "title": "Global Tracking",
+        "description": "Real-time visibility across every continent. Monitor your fleet and shipments with sub-second precision."
+      },
+      "careers": {
+        "title": "Careers",
+        "description": "Build the future of logistics. Join our team of engineers, designers, and logistics experts."
+      },
+      "customApi": {
+        "title": "Custom API",
+        "description": "Robust, high-performance APIs for custom logistics integrations and advanced automation."
+      },
+      "developerDocs": {
+        "title": "Developer Docs",
+        "description": "Build on the LogiTrack platform with comprehensive API docs, SDKs, and integration guides."
+      },
+      "engineering": {
+        "title": "Engineering",
+        "description": "The technology behind the intelligence. Cloud-native architecture and real-time data processing at global scale."
+      },
+      "helpCenter": {
+        "title": "Help Center",
+        "description": "Find answers, get support, and access resources to make the most of your LogiTrack platform."
+      },
+      "ourMission": {
+        "title": "Our Mission",
+        "description": "Moving the world with intelligence. Learn about our mission to make logistics smarter and more sustainable."
+      },
+      "pressKit": {
+        "title": "Press Kit",
+        "description": "Brand assets, press releases, and media resources for logistics technology coverage."
+      },
+      "privacy": {
+        "title": "Privacy Policy",
+        "description": "Your data, your rights. Our commitment to privacy, transparency, and global regulatory compliance."
+      },
+      "routeIntelligence": {
+        "title": "Route Intelligence",
+        "description": "AI-powered route optimization at scale. Reduce fuel costs and delivery times with ML-driven routing."
+      },
+      "securityCenter": {
+        "title": "Security Center",
+        "description": "Zero-trust security for mission-critical logistics with enterprise-grade encryption and compliance."
+      },
+      "sla": {
+        "title": "SLA",
+        "description": "Our commitment to reliability with industry-leading uptime guarantees and transparent incident reporting."
+      },
+      "smbLogistics": {
+        "title": "SMB Logistics",
+        "description": "Enterprise power with startup simplicity. AI-powered logistics for small and medium businesses."
+      },
+      "supplyChain": {
+        "title": "Supply Chain",
+        "description": "End-to-end supply chain orchestration from raw materials to last-mile delivery."
+      },
+      "telemetryHub": {
+        "title": "Telemetry Hub",
+        "description": "Every sensor, every signal, one dashboard. Aggregate IoT telemetry data in real-time."
+      }
+    },
+    "hero": {
+      "badge": "AI logistics control tower",
+      "trusted": "Trusted worldwide",
+      "titleMain": "Orchestrate every shipment with live intelligence",
+      "titleHighlight": "Absolute Clarity",
+      "description": "Synchronize dispatch, fleets, and customer promises in one immersive dashboard. Forecast issues before they happen and keep routes optimized with predictive AI.",
+      "discover": "Discover Now",
+      "startTrial": "Start Trial",
+      "demo": "Request a Demo",
+      "signIn": "Sign In",
+      "liveDemo": "Try Live Demo",
+      "persona": "For fleet operators, carriers, and warehouse teams.",
+      "benefits": {
+        "fleet": "Track your fleet in real time",
+        "shipment": "Manage shipments end to end",
+        "warehouse": "Control warehouse operations from one place"
+      },
+      "metrics": {
+        "activeRoutes": "Active Routes",
+        "vehicles": "Vehicles",
+        "slaStability": "SLA stability",
+        "slaTrend": "+14% in the last 30 days",
+        "predictiveEtaReady": "Predictive ETA ready",
+        "lastUpdate": "Last update 45 seconds ago"
+      }
+    },
+    "contactPage": {
+      "badge": "Contact",
+      "title": "Get in Touch",
+      "subtitle": "Request a live demo or send us your questions. Our team will get back to you as soon as possible",
+      "form": {
+        "fullName": "Full Name",
+        "email": "Email",
+        "company": "Company",
+        "message": "Your Message",
+        "messagePlaceholder": "How can we help? Briefly describe what you need.",
+        "submit": "Send Request",
+        "submitting": "Sending..."
+      },
+      "success": "Your request has been received. We'll be in touch shortly.",
+      "error": "Could not send your request. Please try again.",
+      "successCard": {
+        "title": "Request received 🎉",
+        "timeframe": "A team member typically replies within 1 business day.",
+        "stepsTitle": "What happens next",
+        "step1": "We review your request and match you with the right person.",
+        "step2": "You'll get an email at the address you gave us — check your spam folder just in case.",
+        "step3": "We'll schedule a walkthrough or send access details, depending on what you need.",
+        "selfServeTitle": "Don't want to wait?",
+        "selfServeBody": "You can start a free 7-day trial right now — no approval needed. Full access to the dashboard in minutes.",
+        "selfServeCta": "Start free trial",
+        "emailNote": "Our reply will come by email — no further action needed from you for now.",
+        "trialGrantedToast": "Trial activated — you're all set!",
+        "trialGrantedTitle": "You're all set — trial activated!",
+        "trialGrantedBody": "Your 7-day trial is active right now. Head back to onboarding to create your company.",
+        "trialGrantedCta": "Go to onboarding"
+      },
+      "validation": {
+        "fullNameRequired": "Full name is required",
+        "emailRequired": "Email is required",
+        "emailInvalid": "Enter a valid email address"
+      }
+    },
+    "operations": {
+      "tabs": {
+        "overview": "Overview",
+        "fleet": "Active Fleet",
+        "routes": "Route Optimization"
+      },
+      "stats": {
+        "totalFleet": "Total Fleet",
+        "inTransit": "In Transit",
+        "maintenance": "Maintenance",
+        "onTime": "On Time",
+        "activeRoutes": "Active Routes",
+        "fuelSaved": "Fuel Saved",
+        "timeSaved": "Time Saved",
+        "deviations": "Deviations",
+        "activeUnits": "Active Units",
+        "efficiency": "Efficiency",
+        "avgSpeed": "Avg. Speed",
+        "co2Reduced": "CO2 Reduced"
+      },
+      "telemetry": {
+        "title": "LIVE TELEMETRY FEED",
+        "activeIntelligence": "Active Intelligence",
+        "routeOptimized": "Route {id} optimized.",
+        "efficiencyIncreased": "Efficiency increased by {value} based on current traffic.",
+        "systemLog": "System Log",
+        "globalCommand": "GLOBAL OPERATIONS COMMAND // ACTIVE",
+        "nodeStatus": "NODE STATUS",
+        "systemsNominal": "SYSTEMS NOMINAL"
+      },
+      "fleet": {
+        "title": "LIVE FLEET TRACKING",
+        "onSchedule": "ON SCHEDULE",
+        "delayed": "DELAYED",
+        "arriving": "ARRIVING"
+      },
+      "routes": {
+        "title": "AI ROUTE ANALYSIS",
+        "originalEta": "ORIGINAL ETA",
+        "optimizedEta": "OPTIMIZED ETA",
+        "timeSaved": "TIME SAVED"
+      }
+    },
+    "stats": {
+      "onTime": "On-time delivery rate",
+      "monitored": "Shipments monitored",
+      "live": "Live optimization enabled",
+      "updateFreq": "Routing updates every 15 seconds"
+    },
+    "features": {
+      "overline": "Core features",
+      "title": "Everything you need for end-to-end visibility",
+      "description": "Coordinate dispatch, drivers, and customer updates with intelligent workflows designed for complex logistics operations.",
+      "smartRoute": {
+        "title": "Smart Route Planning",
+        "desc": "Optimize deliveries with live traffic and warehouse capacity data to cut delays."
+      },
+      "predictiveEta": {
+        "title": "Predictive ETAs",
+        "desc": "Accurately forecast arrival times with AI-powered scheduling models."
+      },
+      "driverPerf": {
+        "title": "Driver Performance",
+        "desc": "Track utilization, safety metrics, and compliance from a unified dashboard."
+      },
+      "exceptionAlerts": {
+        "title": "Exception Alerts",
+        "desc": "React instantly to disruptions with automated notifications and workflows."
+      }
+    },
+    "workflow": {
+      "step": "Step",
+      "title1": "Register Your Fleet",
+      "desc1": "Add your vehicles to the platform, and our expert team will handle the technical tracking integration for you.",
+      "title2": "Visualize Operations",
+      "desc2": "Monitor every shipment and asset in real time with adaptive dashboards and reports.",
+      "title3": "Automate Decisions",
+      "desc3": "Trigger proactive workflows, alerts, and customer updates before issues escalate.",
+      "title4": "Optimize Routes",
+      "desc4": "Leverage AI-driven route optimization to minimize fuel costs, idle time, and delays.",
+      "title5": "Analyze Performance",
+      "desc5": "Evaluate KPIs such as delivery accuracy, driver efficiency, and cost per shipment with analytics tools.",
+      "title6": "Scale Seamlessly",
+      "desc6": "Expand your logistics network confidently with modular integrations and scalable infrastructure."
+    },
+    "cta": {
+      "title": "Ready to modernize your logistics operations?",
+      "description": "Partner with Logi-Track to unlock real-time visibility, predictive intelligence, and exceptional customer experiences.",
+      "trial": "Start Free Trial",
+      "sales": "Talk to Sales"
+    },
+    "trusted": "Powering modern operations",
+    "trustedLogos": [
+      "Global Cargo",
+      "Oceanic",
+      "Alpha Freight",
+      "Continental",
+      "ExpressWay"
+    ],
+    "pricing": {
+      "badge": "Pricing Plans",
+      "accessNotice": "Your trial has ended or you don't have active access. Request a demo or get in touch to continue.",
+      "title": "Predictable Pricing for <br /> Unpredictable Logistics",
+      "monthly": "Monthly",
+      "yearly": "Yearly",
+      "save": "Save 20%",
+      "mostPopular": "Most Popular",
+      "custom": "Custom",
+      "perMonth": "/mo",
+      "tiers": {
+        "starter": {
+          "title": "Starter",
+          "description": "Perfect for local fleet owners and individual operators.",
+          "features": [
+            "Live GPS Tracking",
+            "5 Active Routes",
+            "Basic WMS Integration",
+            "Email Support",
+            "Mobile App Access"
+          ],
+          "cta": "Start Free Trial"
+        },
+        "pro": {
+          "title": "Pro",
+          "description": "Optimized for regional logistics and growing teams.",
+          "features": [
+            "AI Route Optimization",
+            "Unlimited Active Routes",
+            "Predictive ETAs",
+            "24/7 Priority Support",
+            "Advanced Analytics",
+            "Driver Performance Scores"
+          ],
+          "cta": "Start Free Trial"
+        },
+        "enterprise": {
+          "title": "Enterprise",
+          "description": "Custom solutions for global supply chain leaders.",
+          "features": [
+            "Full Telematics Integration",
+            "Custom SLA Monitoring",
+            "Dedicated Account Manager",
+            "White-Label Options",
+            "On-Premise Deployment",
+            "Infinite Custom Connectors"
+          ],
+          "cta": "Contact Sales"
+        }
+      },
+      "infrastructure": {
+        "title": "Enterprise-Grade Security & Performance",
+        "description": "Need more than 10,000 routes per month? Contact our engineering team for custom integration solutions and volume-based pricing.",
+        "cta": "Learn about our Infrastructure →"
+      },
+      "footer": {
+        "tos": "© {year} LogiTrack Intelligence Systems. All plans subject to our TOS.",
+        "support": "Enterprise customers get dedicated support channels."
+      }
+    },
+    "featuresPage": {
+      "badge": "Product Capabilities",
+      "heroTitle": "Engineering the <br /> Modern Supply Chain",
+      "heroSubtitle": "From predictive telemetry to autonomous warehouse orchestration, explore the tools redefining what it means to be a global logistics leader",
+      "items": {
+        "routeOptimization": {
+          "title": "AI Route Optimization",
+          "description": "Our proprietary AI engine processes live traffic, weather, and fleet capacity to generate the most fuel-efficient routes in real-time.",
+          "tag": "Predictive",
+          "details": [
+            "Live Traffic Integration",
+            "Load Balancing",
+            "Carbon Offset Tracking"
+          ]
+        },
+        "warehouse": {
+          "title": "Warehouse Intelligence",
+          "description": "Optimize pick-paths and vertical space utilization with automated WMS synchronization. Scale from 1 to 100 warehouses with ease.",
+          "tag": "Automated",
+          "details": [
+            "Space Optimization",
+            "Inventory Velocity",
+            "Cross-Docking Ready"
+          ]
+        },
+        "telemetry": {
+          "title": "Real-Time Telemetry",
+          "description": "Monitor vehicle health, driver safety, and fuel consumption via integrated telematics. Convert raw data into actionable insights.",
+          "tag": "Hardware-Agnostic",
+          "details": [
+            "Driver Scorecards",
+            "Predictive Maintenance",
+            "Cold Chain Monitoring"
+          ]
+        },
+        "alerts": {
+          "title": "Smart Exception Alerts",
+          "description": "Stop reacting to disasters. Our anomaly detection system flags potential delays before they happen, suggesting proactive rerouting.",
+          "tag": "Proactive",
+          "details": [
+            "Delay Forecasting",
+            "Dynamic ETA Adjustments",
+            "Multi-Channel Alerts"
+          ]
+        },
+        "compliance": {
+          "title": "Enterprise Compliance",
+          "description": "Automatic audit logs, geofencing, and chain-of-custody tracking. Built to meet the strictest logistics security standards.",
+          "tag": "Secured",
+          "details": [
+            "E-Signatures",
+            "Geofence Enforcement",
+            "Audit-Ready Logs"
+          ]
+        },
+        "api": {
+          "title": "API-First Architecture",
+          "description": "Utilize modern REST API and webhook architecture for seamless integration with your existing systems.",
+          "tag": "Modular",
+          "details": [
+            "REST & GraphQL APIs",
+            "Robust Webhooks",
+            "Custom ERP Integration"
+          ]
+        }
+      },
+      "infrastructure": {
+        "overline": "Unified Infrastructure",
+        "title": "One Dashboard Infinite Control",
+        "description": "Our features aren't standalone tools—they are part of a deeply integrated ecosystem. When your warehouse updates, your fleet reacts. When traffic spikes, your customer knows. That is the Logi-Track advantage.",
+        "stats": [
+          "Cloud Native",
+          "AI Optimized",
+          "256-bit AES Encryption",
+          "99.9% SLA",
+          "PCI-DSS Compliant"
+        ]
+      },
+      "footer": {
+        "copyright": "© {year} LogiTrack Intelligence Systems. All rights reserved.",
+        "builtFor": "Built for the enterprise, optimized for the road.",
+        "links": {
+          "privacy": "Privacy",
+          "terms": "Terms",
+          "security": "Security",
+          "status": "Status"
+        }
+      }
+    },
+    "aboutPage": {
+      "mission": {
+        "badge": "Our Mission",
+        "title": "Orchestrating the Future of Global Trade",
+        "subtitle": "At LogiTrack, we don’t just track shipments—we synchronize entire supply chains. Our mission is to transform fragmented logistics data into live intelligence"
+      },
+      "vision": {
+        "overline": "The LogiTrack Vision",
+        "title": "Eliminating the blind spots in modern logistics",
+        "description": "Born from the intersection of AI innovation and operational expertise, LogiTrack was built to solve the most complex challenges in freight and warehouse management. We envision a world where every vehicle, warehouse, and shipment is part of a unified, self-optimizing ecosystem."
+      },
+      "pillars": {
+        "title": "Our Core Pillars",
+        "items": {
+          "resilience": {
+            "title": "Predictive Resilience",
+            "description": "We anticipate disruptions before they escalate. Our AI models analyze live traffic and capacity to keep your SLA at 98%+."
+          },
+          "transparency": {
+            "title": "Radical Transparency",
+            "description": "Empowering every stakeholder with a single source of truth. From the driver’s cab to the C-suite, total visibility is standard."
+          },
+          "efficiency": {
+            "title": "Scalable Efficiency",
+            "description": "Built to grow with your network. Whether managing a local fleet or a global supply chain, our infrastructure scales seamlessly."
+          }
+        }
+      },
+      "why": {
+        "title": "Why We Do It",
+        "subtitle": "In an era of instant expectations, logistics is no longer a back-office function—it is a competitive advantage. LogiTrack provides the tools to turn that advantage into a market-leading reality"
+      },
+      "footer": {
+        "copyright": "© {year} LogiTrack Intelligence Systems. All rights reserved."
+      }
+    },
+    "howItWorksPage": {
+      "hero": {
+        "overline": "OUR PROCESS",
+        "title": "How LogiTrack Works",
+        "subtitle": "A comprehensive, end-to-end logistics orchestration platform designed to scale with your business needs"
+      },
+      "cta": {
+        "title": "Ready to Optimize?",
+        "subtitle": "Join hundreds of companies that have modernized their logistics with LogiTrack",
+        "getStarted": "Get Started Free",
+        "bookDemo": "Book a Demo",
+        "freeDemo": "Request a Free Demo"
+      },
+      "footer": {
+        "rights": "© {year} Logi-Track. All rights reserved.",
+        "privacy": "Privacy Policy",
+        "terms": "Terms of Service",
+        "help": "Help Center"
+      }
+    },
+    "globalTrackingPage": {
+      "hero": {
+        "badge": "Global Tracking",
+        "title": "Real-Time Visibility Across Every Continent",
+        "subtitle": "Track your fleet and shipments seamlessly from anywhere in the world with our cloud-based infrastructure"
+      },
+      "sections": {
+        "liveMap": {
+          "title": "Live Map Intelligence",
+          "description": "Interactive globe with real-time asset positions, geofenced zones, and predictive route overlays powered by satellite and cellular networks."
+        },
+        "multiModal": {
+          "title": "Multi-Modal Tracking",
+          "description": "Seamlessly track assets across road, rail, air, and sea with automatic carrier handoff detection and unified timeline views."
+        },
+        "alerts": {
+          "title": "Instant Deviation Alerts",
+          "description": "AI-powered anomaly detection flags route deviations, unauthorized stops, and ETA changes before they impact your operations."
+        }
+      },
+      "stats": {
+        "countries": "Global",
+        "countriesLabel": "Countries Covered",
+        "updates": "< 1s",
+        "updatesLabel": "Update Latency",
+        "uptime": "High",
+        "uptimeLabel": "Platform Uptime",
+        "events": "10M+",
+        "eventsLabel": "Daily Events"
+      },
+      "cta": {
+        "title": "Start Tracking Globally",
+        "subtitle": "Deploy real-time tracking across your entire logistics network in under 48 hours"
+      },
+      "trackCta": "Track a shipment",
+      "footer": {
+        "copyright": "© {year} LogiTrack Intelligence Systems. All rights reserved."
+      }
+    },
+    "trackingPage": {
+      "badge": "Shipment Tracking",
+      "title": "Track your shipment",
+      "subtitle": "Enter your tracking number to see the latest delivery status.",
+      "inputLabel": "Tracking number",
+      "inputPlaceholder": "e.g. TRK-A1B2C3D",
+      "trackButton": "Track",
+      "tracking": "Checking…",
+      "resultTitle": "Tracking {id}",
+      "destinationLabel": "Destination",
+      "etaLabel": "Estimated arrival",
+      "etaComplete": "Delivery complete",
+      "etaUnknown": "Not available yet",
+      "timelineTitle": "Progress",
+      "noHistory": "No status updates have been recorded yet.",
+      "searchAnother": "Track another shipment",
+      "mapTitle": "Location",
+      "mapDestination": "Destination",
+      "mapLastReported": "Last reported near",
+      "mapApproxNote": "Location is approximate — shown as a general area, not an exact position.",
+      "mapUnavailable": "Map could not be loaded.",
+      "errors": {
+        "invalid": "Please enter a valid tracking number.",
+        "notFound": "We couldn't find a shipment with that tracking number. Double-check it and try again.",
+        "rateLimited": "Too many lookups. Please wait a minute and try again.",
+        "internal": "Something went wrong. Please try again."
+      },
+      "status": {
+        "PENDING": "Pending",
+        "PROCESSING": "Processing",
+        "ASSIGNED": "Assigned to a driver",
+        "IN_TRANSIT": "In transit",
+        "DELIVERED": "Delivered",
+        "FAILED": "Delivery failed",
+        "RETURNED": "Returned",
+        "DELAYED": "Delayed",
+        "CANCELLED": "Cancelled"
+      }
+    },
+    "sandboxPage": {
+      "meta": {
+        "title": "Live Demo Sandbox — LogiTrack",
+        "description": "Explore a fully interactive LogiTrack dashboard with simulated live fleet data — no signup required."
+      },
+      "banner": {
+        "text": "You're viewing a Demo Account with simulated live data streaming. Connecting your own vehicle tracking devices takes just 2 minutes!",
+        "cta": "Connect Your GPS/API"
+      },
+      "map": {
+        "title": "Live Fleet Map",
+        "subtitle": "5 simulated vehicles · updating in real time",
+        "unavailable": "Map could not be loaded."
+      },
+      "vehicleStatus": {
+        "EN_ROUTE": "En Route",
+        "CUSTOMS_DELAY": "Customs Delayed",
+        "TEMP_ALERT": "Temperature Alarm"
+      },
+      "copilot": {
+        "title": "AI Route Co-Pilot",
+        "subtitle": "Autonomous rerouting around live disruptions",
+        "detecting": "Detecting delay at Kapıkule Border Crossing…",
+        "detected": "Congestion detected — 4h 10m average wait",
+        "rerouting": "Calculating alternative Middle Corridor route…",
+        "rerouted": "Rerouted via Middle Corridor",
+        "beforeLabel": "Before",
+        "afterLabel": "After",
+        "originalRoute": "Original route via Kapıkule",
+        "optimizedRoute": "Optimized via Middle Corridor",
+        "timeSaved": "Time Saved",
+        "fuelSaved": "Fuel Saved",
+        "timeSavedValue": "4 hours",
+        "fuelSavedValue": "15%",
+        "replay": "Replay simulation"
+      },
+      "coldChain": {
+        "title": "Cold Chain IoT Monitoring",
+        "subtitle": "Live temperature & humidity feed",
+        "temperature": "Temperature",
+        "humidity": "Humidity",
+        "criticalAlarm": "CRITICAL ALARM — Temperature exceeds +4°C threshold",
+        "nominal": "Within safe range",
+        "currentTemp": "Current",
+        "currentHumidity": "Humidity"
+      },
+      "carbon": {
+        "title": "CBAM Carbon Emissions Reporter",
+        "subtitle": "EU 2026 Green Deal customs compliance",
+        "currentEmission": "Live CO₂ Emission",
+        "perKm": "kg CO₂ / km",
+        "totalFleet": "Total fleet emissions today",
+        "compliant": "EU CBAM Compliant",
+        "downloadButton": "Download EU-Compliant Customs Report (PDF)",
+        "generating": "Generating report…",
+        "generated": "Report ready — download started"
+      }
+    },
+    "routeIntelligencePage": {
+      "hero": {
+        "badge": "Route Intelligence",
+        "title": "AI-Powered Route Optimization at Scale",
+        "subtitle": "Reduce fuel costs by up to 23% and delivery times by 18% with our proprietary machine learning route engine"
+      },
+      "sections": {
+        "predictive": {
+          "title": "Predictive Traffic Analysis",
+          "description": "Our models process historical and live traffic patterns to anticipate congestion hours before it impacts your fleet."
+        },
+        "dynamic": {
+          "title": "Dynamic Re-Routing",
+          "description": "Automatically reroute vehicles in real-time based on weather, road closures, and delivery priority changes."
+        },
+        "carbon": {
+          "title": "Carbon-Aware Routing",
+          "description": "Optimize not just for time and cost, but also for environmental impact with integrated carbon footprint calculations."
+        }
+      },
+      "detail": {
+        "overline": "The Algorithm",
+        "title": "Built on millions of data points",
+        "description": "Our route intelligence engine processes real-time road and location data using modern cloud infrastructure designed to improve delivery accuracy."
+      },
+      "cta": {
+        "title": "Optimize Your Routes",
+        "subtitle": "See how AI-driven routing can transform your delivery operations"
+      },
+      "footer": {
+        "copyright": "© {year} LogiTrack Intelligence Systems. All rights reserved."
+      }
+    },
+    "telemetryHubPage": {
+      "hero": {
+        "badge": "Telemetry Hub",
+        "title": "Every Sensor Every Signal One Dashboard",
+        "subtitle": "Aggregate and analyze telemetry data from thousands of IoT devices, vehicles, and warehouse sensors in real-time"
+      },
+      "sections": {
+        "vehicleHealth": {
+          "title": "Vehicle Health Monitoring",
+          "description": "Track engine diagnostics, tire pressure, brake wear, and fuel consumption across your entire fleet with predictive maintenance alerts."
+        },
+        "coldChain": {
+          "title": "Cold Chain Compliance",
+          "description": "Monitor temperature, humidity, and shock sensors for perishable goods with automatic compliance reporting and breach notifications."
+        },
+        "driverSafety": {
+          "title": "Driver Safety Scores",
+          "description": "Real-time driver behavior analysis including harsh braking, speeding, and fatigue detection with actionable coaching insights."
+        }
+      },
+      "detail": {
+        "overline": "Data Pipeline",
+        "title": "From sensor to insight in milliseconds",
+        "description": "Our edge-to-cloud telemetry pipeline processes raw sensor data through noise filtering, anomaly detection, and contextual enrichment before surfacing actionable intelligence."
+      },
+      "cta": {
+        "title": "Register Your Fleet",
+        "subtitle": "Add your vehicles while our team handles the complex IoT data integrations"
+      },
+      "footer": {
+        "copyright": "© {year} LogiTrack Intelligence Systems. All rights reserved."
+      }
+    },
+    "securityCenterPage": {
+      "hero": {
+        "badge": "Security Center",
+        "title": "Zero-Trust Security for Mission-Critical Logistics",
+        "subtitle": "Solid protection with modern authentication, role-based access control, and industry-standard data security"
+      },
+      "sections": {
+        "encryption": {
+          "title": "End-to-End Encryption",
+          "description": "All data in transit and at rest is protected with AES-256 encryption. TLS 1.3 enforced across all API endpoints and client connections."
+        },
+        "accessControl": {
+          "title": "Granular Access Control",
+          "description": "Securely manage user permissions with role-based access control."
+        },
+        "compliance": {
+          "title": "Global Compliance",
+          "description": "Transparent and auditable infrastructure protected by Firebase Auth, Prisma, and modern cloud security standards."
+        }
+      },
+      "detail": {
+        "overline": "Threat Detection",
+        "title": "Continuous cloud security monitoring",
+        "description": "Our infrastructure is protected by automated threat detection and standard security measures provided by serverless architecture."
+      },
+      "cta": {
+        "title": "Review Our Security",
+        "subtitle": "Learn more about our security standards"
+      },
+      "trust": {
+        "compliance": {
+          "overline": "Compliance",
+          "title": "Where our compliance stands today",
+          "subtitle": "We publish our real posture — what's live now, and what we're actively working toward. No badges we haven't earned.",
+          "statusLive": "Live",
+          "statusInProgress": "In progress",
+          "statusRoadmap": "Roadmap",
+          "items": {
+            "gdpr": {
+              "name": "GDPR & KVKK",
+              "description": "Data subject rights, export and deletion, and regional data handling aligned with EU and Turkish data protection law."
+            },
+            "encryption": {
+              "name": "Encryption in transit & at rest",
+              "description": "AES-256 at rest and TLS 1.3 in transit across all API endpoints and client connections."
+            },
+            "accessControl": {
+              "name": "Access control & audit logging",
+              "description": "Role-based access control and automatic audit logs across tenant-scoped data."
+            },
+            "soc2": {
+              "name": "SOC 2 Type II",
+              "description": "Formal audit not yet started. We build to SOC 2 controls and will publish the report once the audit completes."
+            },
+            "iso27001": {
+              "name": "ISO 27001",
+              "description": "On our roadmap. Certification is planned but not yet in progress; we won't claim it until it's real."
+            }
+          }
+        },
+        "documents": {
+          "overline": "Documents",
+          "title": "Security documentation",
+          "subtitle": "These documents are available on request while we finalize a self-serve trust portal. Reach out and we'll send them over.",
+          "requestCta": "Request",
+          "items": {
+            "whitepaper": {
+              "name": "Security Whitepaper",
+              "description": "How we architect encryption, access control, and tenant isolation."
+            },
+            "dpa": {
+              "name": "Data Processing Agreement (DPA)",
+              "description": "Our standard DPA covering data handling, sub-processors, and your rights."
+            },
+            "subprocessors": {
+              "name": "Sub-processor List",
+              "description": "The third-party services that process data on our behalf."
+            }
+          }
+        },
+        "status": {
+          "overline": "System Status",
+          "title": "Platform status",
+          "operational": "All systems operational",
+          "note": "This reflects our last manual review, not an automated live feed yet. A real-time status page is coming.",
+          "lastReviewed": "Last reviewed",
+          "cta": "Report an issue"
+        }
+      },
+      "footer": {
+        "copyright": "© {year} LogiTrack Intelligence Systems. All rights reserved."
+      }
+    },
+    "enterprisePage": {
+      "hero": {
+        "badge": "Enterprise Solutions",
+        "title": "Built for the Scale of Global Operations",
+        "subtitle": "Scalable infrastructure for teams looking to digitize their enterprise logistics processes with modern technologies."
+      },
+      "sections": {
+        "dedicated": {
+          "title": "Dedicated Infrastructure",
+          "description": "High-performance, scalable, and secure hosting solutions powered by modern cloud infrastructure."
+        },
+        "integration": {
+          "title": "Deep ERP Integration",
+          "description": "Secure and flexible data synchronization with custom Webhook and REST API connectors for your business systems."
+        },
+        "support": {
+          "title": "24/7 Priority Support",
+          "description": "Find answers to your questions through comprehensive documentation and direct access to our support team via email."
+        }
+      },
+      "detail": {
+        "overline": "Enterprise Scale",
+        "title": "Designed for modern logistics teams",
+        "description": "Our scalable platform is built on flexible and reliable cloud technologies to adapt to your growing supply chain operations."
+      },
+      "cta": {
+        "title": "Talk to Enterprise Sales",
+        "subtitle": "Get a custom proposal tailored to your organization's specific requirements"
+      },
+      "footer": {
+        "copyright": "© {year} LogiTrack Intelligence Systems. All rights reserved."
+      }
+    },
+    "customApiPage": {
+      "hero": {
+        "badge": "Custom API",
+        "title": "Integrate LogiTrack into Your Systems",
+        "subtitle": "Simple and standard REST endpoints to access your LogiTrack data from your own applications"
+      },
+      "sections": {
+        "dedicated": {
+          "title": "Basic REST Endpoints",
+          "description": "Standard integration infrastructure where you can access shipment, vehicle, and driver data from your own systems."
+        },
+        "integration": {
+          "title": "Easy Data Transfer",
+          "description": "Fast and reliable data synchronization between systems with JSON-based data exchange."
+        },
+        "support": {
+          "title": "Simple Documentation",
+          "description": "Basic API examples and guides for your developers."
+        }
+      },
+      "detail": {
+        "overline": "Developer Experience",
+        "title": "Built by developers, for developers",
+        "description": "Our APIs are designed with predictability, consistency, and clear error handling in mind."
+      },
+      "cta": {
+        "title": "View API Documentation",
+        "subtitle": "Start building your integration today"
+      },
+      "footer": {
+        "copyright": "© {year} LogiTrack Intelligence Systems. All rights reserved."
+      }
+    },
+    "smbLogisticsPage": {
+      "hero": {
+        "badge": "SMB Logistics",
+        "title": "Enterprise Power Startup Simplicity",
+        "subtitle": "Get AI-powered logistics tools utilizing industry best practices, packaged with transparent pricing"
+      },
+      "sections": {
+        "quickStart": {
+          "title": "5-Minute Setup",
+          "description": "Go from sign-up to live tracking in under five minutes. No complex integrations, no IT department required. Just plug and play."
+        },
+        "costEffective": {
+          "title": "Pay As You Grow",
+          "description": "Start with our free tier and scale seamlessly. No minimum commitments, no hidden fees. Only pay for the shipments you track."
+        },
+        "automation": {
+          "title": "Smart Automation",
+          "description": "Automated dispatch, route optimization, and customer notifications out of the box. Reduce manual work by up to 70%."
+        }
+      },
+      "detail": {
+        "overline": "Built for Growth",
+        "title": "Scale without complexity",
+        "description": "Whether you are managing 50 or 5,000 shipments per month, our platform grows with you. No migration headaches, no feature gates."
+      },
+      "cta": {
+        "title": "Start Free Today",
+        "subtitle": "No credit card required. 7 days full access"
+      },
+      "footer": {
+        "copyright": "© {year} LogiTrack Intelligence Systems. All rights reserved."
+      }
+    },
+    "supplyChainPage": {
+      "hero": {
+        "badge": "Supply Chain",
+        "title": "End-to-End Supply Chain Orchestration",
+        "subtitle": "Unified visibility for land logistics from raw material procurement to last-mile delivery. Coordinate fleets, drivers, and warehouses on a single platform"
+      },
+      "sections": {
+        "visibility": {
+          "title": "Full Chain Visibility",
+          "description": "Track every node in your supply chain from origin to destination. Real-time inventory levels, in-transit goods, and delivery confirmations."
+        },
+        "vendor": {
+          "title": "Vendor Management",
+          "description": "Score and monitor supplier performance with automated KPI tracking, compliance verification, and risk assessment dashboards."
+        },
+        "multiModal": {
+          "title": "Manage Your Fleet From One Screen",
+          "description": "Seamlessly manage all your trucks, vans, and distribution vehicles in land logistics with smart route suggestions."
+        }
+      },
+      "detail": {
+        "overline": "Supply Chain Intelligence",
+        "title": "Predict disruptions before they happen",
+        "description": "Our system analyzes traffic density, road conditions, and vehicle capacity data to predict potential delivery delays in advance."
+      },
+      "cta": {
+        "title": "Unify Your Supply Chain",
+        "subtitle": "See how end-to-end visibility transforms supply chain performance"
+      },
+      "footer": {
+        "copyright": "© {year} LogiTrack Intelligence Systems. All rights reserved."
+      }
+    },
+    "ourMissionPage": {
+      "hero": {
+        "badge": "Our Mission",
+        "title": "Moving the World with Intelligence",
+        "subtitle": "We believe logistics is the backbone of global commerce. Our mission is to make it smarter, faster, and more sustainable"
+      },
+      "sections": {
+        "innovation": {
+          "title": "Relentless Innovation",
+          "description": "We invest 40% of our revenue in R&D, pushing the boundaries of AI, IoT, and real-time data processing to solve logistics hardest problems."
+        },
+        "sustainability": {
+          "title": "Sustainable Logistics",
+          "description": "Every route we optimize reduces carbon emissions. We are committed to making global supply chains environmentally responsible by 2030."
+        },
+        "community": {
+          "title": "Global Community",
+          "description": "We serve logistics professionals across 60+ countries, building a community that shares knowledge, best practices, and innovation."
+        }
+      },
+      "detail": {
+        "overline": "Our Story",
+        "title": "Founded by operators, built for operators",
+        "description": "LogiTrack was born from the frustration of managing complex supply chains with fragmented tools. Our founders spent decades in logistics operations before building the platform they always wished existed."
+      },
+      "cta": {
+        "title": "Join Our Mission",
+        "subtitle": "Partner with us in building the future of intelligent logistics"
+      },
+      "footer": {
+        "copyright": "© {year} LogiTrack Intelligence Systems. All rights reserved."
+      }
+    },
+    "engineeringPage": {
+      "hero": {
+        "badge": "Engineering",
+        "title": "The Technology Behind the Intelligence",
+        "subtitle": "Built on cutting-edge cloud-native architecture, our engineering team pushes the limits of real-time data processing at global scale"
+      },
+      "sections": {
+        "architecture": {
+          "title": "Cloud-Native Architecture",
+          "description": "Kubernetes-orchestrated microservices deployed across 12 global regions with automatic failover and horizontal scaling."
+        },
+        "data": {
+          "title": "Real-Time Data Pipeline",
+          "description": "Apache Kafka and custom stream processors handle 10 million events per second with sub-millisecond latency."
+        },
+        "ml": {
+          "title": "Machine Learning at Scale",
+          "description": "Our ML platform trains and deploys models continuously, processing petabytes of logistics data to power predictive intelligence."
+        }
+      },
+      "detail": {
+        "overline": "Open Source",
+        "title": "We give back to the community",
+        "description": "Our team actively contributes to open-source projects and has published several libraries for logistics data processing, geospatial indexing, and real-time event streaming."
+      },
+      "cta": {
+        "title": "Explore Our Tech Stack",
+        "subtitle": "Read our engineering blog and see how we build at scale"
+      },
+      "footer": {
+        "copyright": "© {year} LogiTrack Intelligence Systems. All rights reserved."
+      }
+    },
+    "pressKitPage": {
+      "hero": {
+        "badge": "Press Kit",
+        "title": "LogiTrack in the Media",
+        "subtitle": "Brand assets, press releases, and media resources for journalists and partners covering logistics technology"
+      },
+      "sections": {
+        "brand": {
+          "title": "Brand Assets",
+          "description": "Download our official logos, brand guidelines, color palettes, and typography specifications for consistent brand representation."
+        },
+        "releases": {
+          "title": "Press Releases",
+          "description": "Stay up to date with our latest announcements, product launches, partnerships, and company milestones."
+        },
+        "media": {
+          "title": "Media Contact",
+          "description": "For press inquiries, interviews, and speaking opportunities, reach out to our communications team at press@logitrack.io."
+        }
+      },
+      "detail": {
+        "overline": "In The News",
+        "title": "Recognized by industry leaders",
+        "description": "LogiTrack has been featured in TechCrunch, Forbes, Supply Chain Dive, and recognized as a leader in the Gartner Magic Quadrant for Transportation Management Systems."
+      },
+      "cta": {
+        "title": "Get in Touch",
+        "subtitle": "Our PR team is available for interviews and media inquiries"
+      },
+      "footer": {
+        "copyright": "© {year} LogiTrack Intelligence Systems. All rights reserved."
+      }
+    },
+    "careersPage": {
+      "hero": {
+        "badge": "Careers",
+        "title": "Build the Future of Logistics",
+        "subtitle": "Join a team of engineers, designers, and logistics experts solving some of the world's most complex supply chain challenges"
+      },
+      "sections": {
+        "culture": {
+          "title": "Engineering-First Culture",
+          "description": "We believe the best products are built by empowered teams. Autonomy, ownership, and continuous learning are at our core."
+        },
+        "benefits": {
+          "title": "World-Class Benefits",
+          "description": "Competitive equity packages, unlimited PTO, remote-first flexibility, annual learning budgets, and comprehensive health coverage."
+        },
+        "growth": {
+          "title": "Accelerated Growth",
+          "description": "Work on problems that impact millions of shipments daily. Ship code to production on day one and see your impact immediately."
+        }
+      },
+      "detail": {
+        "overline": "Open Positions",
+        "title": "We are hiring across all teams",
+        "description": "From senior backend engineers to product designers, we are looking for passionate people who want to transform the logistics industry. Remote positions available globally."
+      },
+      "cta": {
+        "title": "View Open Positions",
+        "subtitle": "Find your next role and apply today"
+      },
+      "footer": {
+        "copyright": "© {year} LogiTrack Intelligence Systems. All rights reserved."
+      }
+    },
+    "developerDocsPage": {
+      "hero": {
+        "badge": "Developer Docs",
+        "title": "Build on the LogiTrack Platform",
+        "subtitle": "Comprehensive API documentation, SDKs, and integration guides to extend and customize your logistics operations"
+      },
+      "sections": {
+        "restApi": {
+          "title": "REST & GraphQL APIs",
+          "description": "Full-featured RESTful and GraphQL APIs with comprehensive endpoint documentation, request/response examples, and interactive playground."
+        },
+        "sdks": {
+          "title": "Official SDKs",
+          "description": "Production-ready SDKs for Node.js, Python, Java, Go, and .NET with type-safe clients and automatic retry logic."
+        },
+        "webhooks": {
+          "title": "Webhooks & Events",
+          "description": "Real-time event notifications for shipment updates, delivery confirmations, and system alerts with configurable retry policies."
+        }
+      },
+      "detail": {
+        "overline": "Developer Experience",
+        "title": "From zero to integration in hours",
+        "description": "Our API-first architecture and comprehensive SDKs make it possible to integrate LogiTrack with your existing systems in hours, not weeks. Sandbox environments included."
+      },
+      "cta": {
+        "title": "Start Building",
+        "subtitle": "Get your API keys and explore the documentation"
+      },
+      "footer": {
+        "copyright": "© {year} LogiTrack Intelligence Systems. All rights reserved."
+      }
+    },
+    "helpCenterPage": {
+      "hero": {
+        "badge": "Help Center",
+        "title": "We Are Here to Help",
+        "subtitle": "Find answers, get support, and access resources to make the most of your LogiTrack platform"
+      },
+      "sections": {
+        "knowledgeBase": {
+          "title": "Knowledge Base",
+          "description": "Comprehensive guides, tutorials, and how-to articles covering every feature of the LogiTrack platform, updated weekly."
+        },
+        "support": {
+          "title": "Technical Support",
+          "description": "Reach our support team via live chat, email, or phone. Enterprise customers get dedicated support engineers and priority queues."
+        },
+        "community": {
+          "title": "Community Forum",
+          "description": "Connect with other LogiTrack users, share best practices, and get answers from our community of logistics professionals."
+        }
+      },
+      "detail": {
+        "overline": "Support Tiers",
+        "title": "The right level of support for every team",
+        "description": "From self-service knowledge base access to dedicated 24/7 enterprise support with guaranteed SLAs, we offer support tiers that scale with your needs."
+      },
+      "cta": {
+        "title": "Contact Support",
+        "subtitle": "Our team typically responds within 2 hours during business hours"
+      },
+      "footer": {
+        "copyright": "© {year} LogiTrack Intelligence Systems. All rights reserved."
+      }
+    },
+    "privacyPage": {
+      "hero": {
+        "badge": "Privacy Policy",
+        "title": "Your Data, Your Rights",
+        "subtitle": "We are committed to protecting your privacy and handling your data with full transparency and in compliance with global regulations"
+      },
+      "sections": {
+        "collection": {
+          "title": "Data We Collect",
+          "description": "We collect only the data necessary to provide our services: account information, shipment data, device telemetry, and usage analytics. No data is sold to third parties."
+        },
+        "rights": {
+          "title": "Your Rights",
+          "description": "You have the right to access, correct, delete, and export your data at any time. We support GDPR, CCPA, and other regional privacy frameworks."
+        },
+        "security": {
+          "title": "How We Protect Your Data",
+          "description": "Our platform protects all data at rest and in transit using industry-standard encryption algorithms."
+        }
+      },
+      "detail": {
+        "overline": "Compliance",
+        "title": "Built for global privacy standards",
+        "description": "Our platform is designed from the ground up to comply with GDPR, CCPA, PIPEDA, and other international privacy regulations. Data residency options available for all enterprise accounts."
+      },
+      "cta": {
+        "title": "Questions About Privacy?",
+        "subtitle": "Contact our Data Protection Officer at privacy@logitrack.io"
+      },
+      "footer": {
+        "copyright": "© {year} LogiTrack Intelligence Systems. All rights reserved."
+      }
+    },
+    "slaPage": {
+      "hero": {
+        "badge": "Service Level Agreement",
+        "title": "Our Commitment to Reliability",
+        "subtitle": "Cloud-based infrastructure for reliable performance, transparent reporting, and high availability"
+      },
+      "sections": {
+        "uptime": {
+          "title": "High Availability Goal",
+          "description": "Our platform operates with a goal of high availability through modern serverless hosting systems."
+        },
+        "response": {
+          "title": "Incident Response Times",
+          "description": "Critical incidents: 15 min response, 1 hour resolution target. High priority: 1 hour response, 4 hour resolution target. Standard: 4 hour response."
+        },
+        "transparency": {
+          "title": "Full Transparency",
+          "description": "Real-time status page, post-incident reports within 48 hours, and monthly uptime reports. We believe in radical transparency about our reliability."
+        }
+      },
+      "detail": {
+        "overline": "Service Credits",
+        "title": "Transparent Service Policy",
+        "description": "We aim to continuously improve our service quality and provide an uninterrupted experience to our users."
+      },
+      "cta": {
+        "title": "Review Full SLA Terms",
+        "subtitle": "Download our complete SLA documentation for your records"
+      },
+      "footer": {
+        "copyright": "© {year} LogiTrack Intelligence Systems. All rights reserved."
+      }
+    },
+    "footer": {
+      "description": "The intelligence layer for global logistics. We provide the mission-critical data required to move the world with precision.",
+      "sections": {
+        "platform": "Platform",
+        "solutions": "Solutions",
+        "company": "Company",
+        "support": "Support",
+        "globalTracking": "Global Tracking",
+        "routeIntelligence": "Route Intelligence",
+        "telemetryHub": "Telemetry Hub",
+        "securityCenter": "Security Center",
+        "enterprise": "Enterprise",
+        "smbLogistics": "SMB Logistics",
+        "supplyChain": "Supply Chain",
+        "customApi": "Custom API",
+        "ourMission": "Our Mission",
+        "engineering": "Engineering",
+        "pressKit": "Press Kit",
+        "careers": "Careers",
+        "devDocs": "Developer Docs",
+        "helpCenter": "Help Center",
+        "privacy": "Privacy",
+        "sla": "SLA"
+      },
+      "rights": "© 2026 LogiTrack Intelligence Systems. All rights reserved. Precision-built.",
+      "status": "SYSTEM STATUS: OPERATIONAL"
+    }
+  },
+  "navbar": {
+    "features": "Features",
+    "pricing": "Pricing",
+    "about": "About",
+    "howItWorks": "How It Works",
+    "contact": "Contact",
+    "dashboard": "Dashboard",
+    "setupOrg": "Complete Setup",
+    "signIn": "Sign In",
+    "signUp": "Sign Up",
+    "startPro": "Start Pro"
+  },
+  "languages": {
+    "en": "English",
+    "tr": "Türkçe"
+  },
+  "currencies": {
+    "USD": "US Dollar",
+    "EUR": "Euro",
+    "TRY": "Turkish Lira",
+    "GBP": "British Pound"
+  },
+  "validation": {
+    "required": "{field} is required",
+    "email": "Invalid email address",
+    "min": "{field} must be at least {min} characters",
+    "max": "{field} must be at most {max} characters",
+    "matches": "{field} format is invalid",
+    "passwordLowercase": "Password must contain at least one lowercase letter",
+    "passwordUppercase": "Password must contain at least one uppercase letter",
+    "passwordNumber": "Password must contain at least one number",
+    "oneOf": "Please select a valid {field}",
+    "number": "{field} must be a number",
+    "integer": "{field} must be a whole number",
+    "positive": "{field} must be a positive number",
+    "url": "Invalid URL",
+    "genericFormError": "Please fill in required fields correctly",
+    "firstErrorField": "Check this field: {field}",
+    "passwordsMatch": "Passwords must match",
+    "endTimeAfterStart": "End time must be after start time"
+  },
+  "overview": {
+    "title": "Overview",
+    "activeShipments": "Active Shipments",
+    "delayedShipments": "Delayed Shipments",
+    "vehiclesOnTrip": "Vehicles On Trip",
+    "vehiclesInService": "Vehicles In Service",
+    "availableVehicles": "Available Vehicles",
+    "activeDrivers": "Active Drivers",
+    "warehouses": "Warehouses",
+    "inventorySkus": "Inventory Skus",
+    "actionRequired": "Action Required",
+    "fuelByVehicle": "Fuel By Vehicle",
+    "shipmentStatus": "Shipment Status",
+    "dailyOperations": "Daily Operations",
+    "warehouseCapacity": "Warehouse Capacity",
+    "picksAndPacks": "Picks & Packs Daily",
+    "shipmentVolume": "Shipment Volume",
+    "lowStock": "Low Stock Items",
+    "gettingStarted": {
+      "title": "Let's get your fleet moving",
+      "subtitle": "Your dashboard fills with live data as you add your first records. Start here:",
+      "progress": "{done} of {total} done",
+      "addVehicleTitle": "Add your first vehicle",
+      "addVehicleDesc": "Register a truck or van so you can track it live on the map.",
+      "addVehicleCta": "Add vehicle",
+      "addDriverTitle": "Add your first driver",
+      "addDriverDesc": "Assign drivers to vehicles and shipments.",
+      "addDriverCta": "Add driver",
+      "addShipmentTitle": "Create your first shipment",
+      "addShipmentDesc": "Plan a delivery and watch its status update in real time.",
+      "addShipmentCta": "Create shipment",
+      "done": "Done",
+      "takeTour": "Take a quick tour",
+      "dismiss": "Dismiss"
+    }
+  },
+  "vehicles": {
+    "title": "Vehicle Fleet Management",
+    "subtitle": "Track, manage and optimize your logistics fleet in real-time",
+    "addVehicle": "Add Vehicle",
+    "vehicleTable": "Vehicle Table",
+    "maxLoadCapacityChart": "Vehicle Max Load Capacity Chart",
+    "expiringSoonCalendar": "Expiring Soon Calendar",
+    "vehicleDialogs": "Vehicle Dialogs",
+    "specs": {
+      "plate": "Plate Number",
+      "fleetNo": "Fleet Number",
+      "brand": "Brand",
+      "model": "Model",
+      "type": "Vehicle Type",
+      "capacity": "Capacity (kg)",
+      "year": "Year",
+      "odometer": "Odometer (km)",
+      "fuelType": "Fuel Type",
+      "fuelLevel": "Fuel Level",
+      "fuelCapacity": "Fuel Capacity",
+      "avgFuelConsumption": "Avg. Fuel Consumption",
+      "engineSize": "Engine Size",
+      "service": "Next Service (km)",
+      "transmission": "Transmission",
+      "status": "Current Status",
+      "techNotes": "Additional Technical Notes"
+    },
+    "types": {
+      "TRUCK": "Heavy Duty Truck",
+      "VAN": "Light Delivery Van",
+      "PICKUP": "Pickup Truck",
+      "MOTORCYCLE": "Motorcycle",
+      "CAR": "Passenger Car"
+    },
+    "serviceTypes": {
+      "ROUTINE_MAINTENANCE": "Routine Maintenance",
+      "REPAIR": "Repair",
+      "INSPECTION": "Inspection",
+      "TIRE_CHANGE": "Tire Change",
+      "OIL_CHANGE": "Oil Change",
+      "OTHER": "Other"
+    },
+    "statuses": {
+      "AVAILABLE": "Available",
+      "ON_TRIP": "On Trip",
+      "MAINTENANCE": "Maintenance",
+      "OUT_OF_ORDER": "Out of Order",
+      "COMPLETED": "Completed",
+      "IN_PROGRESS": "In Progress",
+      "SCHEDULED": "Scheduled",
+      "CANCELLED": "Cancelled",
+      "OPEN": "Open",
+      "RESOLVED": "Resolved",
+      "CLOSED": "Closed",
+      "IN_SERVICE": "In Service",
+      "notAssigned": "Not Assigned"
+    },
+    "priorities": {
+      "LOW": "Low",
+      "MEDIUM": "Medium",
+      "HIGH": "High",
+      "CRITICAL": "Critical"
+    },
+    "fuelTypes": {
+      "DIESEL": "Diesel",
+      "GASOLINE": "Gasoline",
+      "ELECTRIC": "Electric",
+      "HYBRID": "Hybrid"
+    },
+    "fields": {
+      "plate": "Plate",
+      "brandModel": "Brand / Model",
+      "odometer": "Odometer",
+      "driver": "Driver",
+      "type": "Type",
+      "status": "Status",
+      "fuelLevel": "Fuel Level",
+      "fuelCapacity": "Fuel Capacity",
+      "fleetNo": "Fleet No",
+      "brand": "Brand",
+      "model": "Model",
+      "year": "Year",
+      "service": "Service",
+      "cost": "Cost",
+      "capacity": "Capacity",
+      "fuelType": "Fuel Type",
+      "avgFuelConsumption": "Avg. Fuel Consumption",
+      "engineSize": "Engine Size",
+      "transmission": "Transmission",
+      "techNotes": "Technical Notes",
+      "priority": "Priority",
+      "serviceType": "Service Type",
+      "fuelConsumption": "Fuel Consumption"
+    },
+    "transmissionTypes": {
+      "AUTOMATIC": "Automatic",
+      "MANUAL": "Manual",
+      "AMULTI": "Semi-Automatic"
+    },
+    "docTypes": {
+      "REGISTRATION": "Registration",
+      "TRAILER_REGISTRATION": "Trailer Registration",
+      "INSURANCE": "Insurance",
+      "LICENSE": "License/Permit",
+      "INSPECTION": "Inspection",
+      "MAINTENANCE": "Maintenance",
+      "OTHER": "Other"
+    },
+    "dialogs": {
+      "addTitle": "Add New Vehicle",
+      "editTitle": "Edit Vehicle Details",
+      "reportIssueTitle": "Report Vehicle Issue",
+      "vehicleLabel": "Vehicle",
+      "coreDetails": "Core Details",
+      "issueTitle": "Issue Title",
+      "issuePlaceholder": "Describe the technical disruption...",
+      "priorityLevel": "Priority Level",
+      "extendedDescription": "Extended Description",
+      "details": "Details",
+      "detailsPlaceholder": "Provide additional context...",
+      "submitIssue": "Submit Issue",
+      "photo": "Vehicle Photo",
+      "clickToUpload": "Click to upload",
+      "uploadNotes": "SVG, PNG, JPG or GIF",
+      "dragAndDrop": "or drag and drop",
+      "fileFormats": "JPG or PNG (Max. 10MB)",
+      "pdfUploadDisabled": "PDF uploads are temporarily unavailable. Please try again later.",
+      "complianceDates": "Compliance Dates",
+      "registrationExpiry": "Registration Expiry Date",
+      "inspectionExpiry": "Inspection Expiry Date",
+      "attachDocument": "Attach Document / Photo (Optional)",
+      "newFileUpload": "Upload New File",
+      "viewDocument": "View Document",
+      "deleteAttachmentNote": "Delete existing to upload new",
+      "enableAlerts": "Enable Expiry Alerts",
+      "alertsDesc": "Notify fleet managers 30 days before documents expire.",
+      "requiredDocs": "Required Documents",
+      "uploadFiles": "Upload Files",
+      "assignDriver": "Assign Driver",
+      "selectDriver": "Select an available driver",
+      "assignmentDate": "Assignment Date",
+      "maintenanceRecord": "New Maintenance Record",
+      "serviceType": "Service Type",
+      "cost": "Total Cost",
+      "description": "Description",
+      "returnToService": "Return to Service",
+      "setMaintenance": "Set Maintenance",
+      "preview": "Preview",
+      "kmLeft": "km left",
+      "vehicleStatus": "Vehicle Status",
+      "manageAvailability": "Manage overall availability",
+      "openIssues": "Open Issues",
+      "reportIssue": "Report Issue",
+      "noOpenIssues": "No open issues.",
+      "reportedOn": "Reported on",
+      "recentMaintenance": "Recent Maintenance",
+      "addRecord": "Add Record",
+      "noMaintenanceFound": "No maintenance records found.",
+      "liveStatus": "LIVE",
+      "noSignal": "NO SIGNAL",
+      "noGpsData": "No GPS data available",
+      "noGpsDesc": "Location will appear here once the vehicle starts transmitting GPS data.",
+      "updated": "Updated",
+      "dbFallback": "Showing last known DB position — live signal not yet active",
+      "connectionLost": "Connection lost",
+      "reconnecting": "Reconnecting…",
+      "mapLoadError": "Map failed to load — check your connection",
+      "secondsAgo": "s ago",
+      "minutesAgo": "m ago",
+      "hoursAgo": "h ago",
+      "manageDriver": "Manage Driver",
+      "currentAssignment": "Current Assignment",
+      "unassign": "Unassign",
+      "noDriverAssigned": "No driver currently assigned.",
+      "assignNewDriver": "Assign New Driver",
+      "noDriversFound": "No available drivers found",
+      "assigning": "Assigning...",
+      "rating": "Rating",
+      "failedToLoadDrivers": "Failed to load available drivers",
+      "failedToAssign": "Failed to assign driver",
+      "failedToUnassign": "Failed to unassign driver",
+      "issueDetails": "Issue Details",
+      "referenceId": "Reference ID",
+      "incidentTitle": "Incident Title",
+      "problemDesc": "Problem Description",
+      "noSupplementalDetails": "No details provided.",
+      "configurationStatus": "Configuration Status",
+      "savingChanges": "Saving Changes...",
+      "updateIssue": "Update Issue",
+      "maintenanceDetails": "Maintenance Details",
+      "servicedOn": "Serviced On",
+      "technicianNotes": "Technician Notes",
+      "costInformation": "Cost Information",
+      "updateRecord": "Update Record",
+      "reportNewIssue": "Report New Issue",
+      "issueSubject": "Issue Subject",
+      "tellUsMore": "Tell us more about the situation...",
+      "submitting": "Submitting...",
+      "maintenanceDetailsDesc": "View and manage the status of this maintenance entry.",
+      "maintenanceStatus": "Maintenance Status",
+      "configuration": "Configuration",
+      "additionalInfo": "Additional Info",
+      "technicianNotesDesc": "Briefly describe the work performed...",
+      "failedToUpdateIssue": "Failed to update issue",
+      "failedToUpdateRecord": "Failed to update maintenance record",
+      "addMaintenanceRecord": "Add Maintenance Record",
+      "addMaintenanceDesc": "Log service and maintenance events for this vehicle.",
+      "saveRecord": "Save Record",
+      "saving": "Saving...",
+      "failedToCreateRecord": "Failed to create maintenance record",
+      "uploadDocumentTitle": "Upload Document",
+      "uploadDocumentDesc": "Add new compliance or service records to this vehicle.",
+      "selectOrDragFile": "Select or drag file",
+      "startUpload": "Start Upload",
+      "failedToUploadDocument": "Failed to upload document",
+      "docName": "Document Name",
+      "docNamePlaceholder": "e.g. Q1 Maintenance Receipt",
+      "fileAttachment": "File Attachment",
+      "expiryDate": "Expiry Date",
+      "steps": {
+        "general": "General Info",
+        "specs": "Tech Specs",
+        "docs": "Documents"
+      },
+      "tabs": {
+        "overview": "Overview",
+        "documents": "Documents",
+        "maintenance": "Maintenance",
+        "fuel": "Fuel Logs",
+        "map": "Live Map",
+        "specs": "Tech Specs",
+        "linkedShipments": "Shipments"
+      },
+      "linkedShipments": {
+        "subtitle": "{count} active shipments on this vehicle's trailer",
+        "noneActive": "No active shipments on this vehicle.",
+        "noTrailer": "This vehicle has no trailer attached.",
+        "selectedCount": "{n} selected",
+        "targetTrailer": "Move to trailer",
+        "noTargets": "No available trailers",
+        "reassignButton": "Reassign {n}",
+        "reassigned": "{count} shipments reassigned",
+        "reassignError": "Could not reassign shipments"
+      },
+      "status": "Status"
+    },
+    "kpis": {
+      "totalVehicles": "Total Vehicles",
+      "available": "Available",
+      "inService": "In Maintenance",
+      "onTrip": "On Trip",
+      "openIssues": "Open Issues",
+      "docsExpiring": "Docs Expiring"
+    },
+    "docStats": {
+      "summary": "Document Summary",
+      "valid": "Valid",
+      "expiringSoon": "Expiring Soon",
+      "expired": "Expired",
+      "noExpiry": "No expiry",
+      "lastUpload": "Last upload",
+      "never": "Nothing uploaded yet",
+      "totalDocs": "{count} documents",
+      "uploadNew": "Upload New Document",
+      "allValid": "All documents valid"
+    },
+    "tabs": {
+      "vehicles": "Vehicles",
+      "trailers": "Trailers"
+    },
+    "dashboard": {
+      "expiringSoon": "Expiring Soon",
+      "maxLoadCapacity": "Vehicle Max Load Capacity",
+      "vehiclePlate": "Vehicle Plate",
+      "capacityUnits": "Small Capacity Units (Pallets, m³)",
+      "maxWeightKg": "Max Weight (kg)",
+      "openIssues": "Open Vehicle Issues",
+      "activeIssues": "{count} active issues",
+      "noOpenIssues": "No open issues"
+    },
+    "table": {
+      "title": "Vehicle List",
+      "searchPlaceholder": "Search vehicles...",
+      "emptyMessage": "No vehicles found"
+    },
+    "deleteTitle": "Delete Vehicle?",
+    "deleteDesc": "Are you sure you want to delete this vehicle? This will permanently remove the vehicle and all associated data.",
+    "maintenanceTypes": {
+      "OIL_CHANGE": "Oil Change",
+      "TIRE_REPLACEMENT": "Tire Replacement",
+      "GENERAL_INSPECTION": "General Inspection",
+      "BRAKE_SERVICE": "Brake Service",
+      "ENGINE_REPAIR": "Engine Repair",
+      "OTHER": "Other"
+    }
+  },
+  "trailers": {
+    "title": "Trailers",
+    "subtitle": "Manage and track your trailer fleet",
+    "kpis": {
+      "totalTrailers": "Total Trailers",
+      "available": "Available",
+      "inUse": "In Use",
+      "maintenance": "In Maintenance",
+      "openIssues": "Open Issues"
+    },
+    "addTrailer": "Add Trailer",
+    "editTrailer": "Edit Trailer",
+    "plate": "Plate",
+    "fleetNo": "Fleet No",
+    "type": "Type",
+    "capacity": "Capacity (m³)",
+    "maxLoad": "Max Load (kg)",
+    "coldChain": "Cold Chain",
+    "status": "Status",
+    "currentVehicle": "Current Vehicle",
+    "assigned": "Assigned",
+    "notAssigned": "Not Assigned",
+    "assignToVehicle": "Assign to Vehicle",
+    "detach": "Detach",
+    "assignTrailer": "Assign Trailer",
+    "selectTrailer": "Select Trailer",
+    "types": {
+      "DRY_VAN": "Dry Van",
+      "REEFER": "Reefer (Refrigerated)",
+      "FLATBED": "Flatbed",
+      "TANKER": "Tanker",
+      "CURTAINSIDE": "Curtainside",
+      "CONTAINER_CHASSIS": "Container Chassis"
+    },
+    "statuses": {
+      "AVAILABLE": "Available",
+      "IN_USE": "In Use",
+      "MAINTENANCE": "Maintenance",
+      "RETIRED": "Retired"
+    },
+    "emptyMessage": "No trailers found"
+  },
+  "drivers": {
+    "title": "Driver Management",
+    "subtitle": "Manage your fleet drivers, monitor performance and license status",
+    "statuses": {
+      "ON_JOB": "On Job",
+      "OFF_DUTY": "Off Duty",
+      "ON_LEAVE": "On Leave"
+    },
+    "addDriver": "Add Driver",
+    "totalDrivers": "Total Fleet Drivers",
+    "onDuty": "On Duty",
+    "offDuty": "Off Duty",
+    "onLeave": "On Leave",
+    "complianceIssues": "Compliance Issues",
+    "dashboard": {
+      "performance": "Driver Performance",
+      "ratings": "Driver Ratings",
+      "ratingsLabel": "Rating (0-5)",
+      "weeklyHours": "Weekly Working Hours",
+      "hours": "Hours",
+      "hoursThisWeek": "Hours this week",
+      "safetyEfficiency": "Safety & Efficiency",
+      "scoreLabel": "Score (0-100)",
+      "safetyScore": "Safety",
+      "efficiencyScore": "Efficiency",
+      "weeklyOutcomes": "This Week's Deliveries",
+      "shipmentsLabel": "Shipments",
+      "delivered": "Delivered",
+      "delayed": "Delayed"
+    },
+    "card": {
+      "license": "License: {type}",
+      "vehicle": "Vehicle: {plate}",
+      "noVehicle": "No Vehicle"
+    },
+    "table": {
+      "title": "Driver List",
+      "noDrivers": "No drivers found",
+      "searchPlaceholder": "Search drivers...",
+      "columns": {
+        "idx": "#",
+        "name": "Name",
+        "status": "Status",
+        "phone": "Phone",
+        "vehicle": "Vehicle",
+        "homebase": "Homebase",
+        "license": "License",
+        "safetyScore": "Safety Score"
+      },
+      "noVehicle": "No assigned vehicle",
+      "notAssigned": "Not assigned"
+    },
+    "actions": {
+      "details": "Details",
+      "edit": "Edit",
+      "delete": "Delete"
+    },
+    "filters": {
+      "status": "Status",
+      "vehicle": "Vehicle",
+      "vehicleAssignment": "Vehicle Assignment",
+      "all": "All",
+      "assigned": "Assigned",
+      "unassigned": "Unassigned"
+    },
+    "safetyRating": "Avg Safety Rating",
+    "efficiencyRating": "Efficiency Rating",
+    "deleteTitle": "Delete Driver",
+    "deleteDesc": "Are you sure you want to delete this driver? This action cannot be undone.",
+    "noDriverSelected": "No driver selected",
+    "labels": {
+      "rating": "Driver Rating",
+      "efficiency": "Efficiency Score",
+      "safety": "Safety Score",
+      "licenseStatus": "License Status",
+      "compliant": "Compliant",
+      "actionRequired": "Action Required",
+      "officialDocuments": "Official Documents",
+      "noExpiry": "No expiry date",
+      "expiryPrefix": "Expiry: ",
+      "noDocsUploaded": "No Documents Uploaded",
+      "noDocsDesc": "This driver does not have any official documents registered in the system.",
+      "contactDriver": "Contact Driver",
+      "viewHistory": "View Full History",
+      "driverHistory": "Driver History",
+      "activityLog": "Activity log for {name}",
+      "completedJobs": "Completed Jobs",
+      "permissions": "Permissions",
+      "recentActivities": "Recent Activities",
+      "noActivities": "No activities found for this driver.",
+      "base": "Base",
+      "operationalAssignment": "Operational Assignment",
+      "vehicleAssignment": "Vehicle Assignment",
+      "initialStatus": "Initial Operational Status",
+      "reviewAssignment": "Please review your assignments before saving.",
+      "profileSummary": "PROFILE SUMMARY",
+      "information": "Information",
+      "verificationDesc": "All data is subject to verification.",
+      "physicalLicense": "Physical License Scan",
+      "ensureVisible": "Please ensure all data is clearly visible.",
+      "manageAvailability": "Manage overall availability"
+    },
+    "dialogs": {
+      "addTitle": "Add New Driver",
+      "editTitle": "Edit Driver Details",
+      "editSubtitle": "Update driver information, license details and assignments",
+      "steps": {
+        "credentials": "Credentials",
+        "assignment": "Assignment"
+      }
+    },
+    "fields": {
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "licenseNumber": "License Number",
+      "phoneNumber": "Phone Number",
+      "phone": "Phone",
+      "employeeId": "Employee ID",
+      "licenseType": "License Type",
+      "licenseExpiry": "License Expiry",
+      "status": "Status",
+      "selectUser": "Select Driver User",
+      "licensePhoto": "License Photo",
+      "hazmat": "Hazmat Certified",
+      "homeWarehouse": "Home Base Warehouse",
+      "assignedVehicle": "Assigned Vehicle",
+      "activeLanguages": "Known Languages",
+      "additionalDocs": "Additional Documents",
+      "languageProficiency": "Language Proficiency",
+      "placeholders": {
+        "employeeId": "e.g. EMP-1234",
+        "phone": "e.g. +1 555 123 4567",
+        "license": "e.g. DL-485920394",
+        "licenseFormat": "PNG, JPG OR HEIC (MAX 10MB)"
+      },
+      "employee": "Employee"
+    },
+    "tabs": {
+      "overview": "Overview",
+      "documents": "Documents",
+      "personalInfo": "Personal Information",
+      "operationalInfo": "Operational Information"
+    }
+  },
+  "customers": {
+    "title": "Customer Management",
+    "searchPlaceholder": "Search customers...",
+    "noGeoData": "No geo-data available",
+    "deleteTitle": "Delete Customer?",
+    "deleteDesc": "Are you sure you want to delete {name}? This action cannot be undone.",
+    "addCustomer": "Add Customer",
+    "registerNewPartner": "REGISTER A NEW PARTNER",
+    "operatingLocations": "Operating Locations",
+    "addOfficesHubs": "ADD OFFICES, HUBS OR WAREHOUSES",
+    "addLocation": "Add Location",
+    "primaryEmail": "Primary Email",
+    "phoneNumber": "Phone Number",
+    "registeredLocations": "Registered Locations",
+    "noLocations": "No locations recorded",
+    "totalShipments": "TOTAL SHIPMENTS",
+    "recentShipments": "Recent Shipments",
+    "noRecentShipments": "No recent shipments",
+    "records": "Records",
+    "customerNotFound": "Customer not found",
+    "industryGeneral": "General",
+    "list": {
+      "noAddress": "No address provided",
+      "na": "N/A",
+      "shipmentsCount": "{count} Shipments",
+      "noCustomers": "No customers found"
+    },
+    "actions": {
+      "details": "Details",
+      "edit": "Edit",
+      "delete": "Delete"
+    },
+    "dialogs": {
+      "addTitle": "Add Customer",
+      "editTitle": "Edit Customer",
+      "editSubtitle": "Update details for {name}",
+      "steps": {
+        "identity": "Company Identity",
+        "contact": "Contact Details"
+      },
+      "successAdd": "Customer created successfully.",
+      "successUpdate": "Customer updated successfully.",
+      "successDelete": "Customer deleted successfully.",
+      "errorAdd": "Failed to create customer.",
+      "errorUpdate": "Failed to update customer.",
+      "errorDelete": "Failed to delete customer."
+    },
+    "fields": {
+      "companyName": "Full Legal Company Name",
+      "customerCode": "Customer Code",
+      "taxId": "Tax ID / VAT No",
+      "industry": "Industry Vertical",
+      "name": "Name",
+      "address": "Full Address",
+      "lat": "Lat Boundary",
+      "lng": "Lng Boundary",
+      "isDefault": "Default",
+      "mainOffice": "Main Office",
+      "phone": "Phone",
+      "email": "Email",
+      "selectIndustry": "Select an industry",
+      "currency": "Currency",
+      "role": "Role",
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "status": "Status",
+      "locationName": "Location Name"
+    },
+    "activityStatus": {
+      "PENDING": "Shipment created",
+      "ASSIGNED": "Route created",
+      "IN_TRANSIT": "In transit",
+      "DELIVERED": "Successful",
+      "CANCELLED": "Cancelled"
+    }
+  },
+  "industries": {
+    "logistics": "Logistics & Transportation",
+    "retail": "Retail & E-commerce",
+    "ecommerce": "E-commerce",
+    "manufacturing": "Manufacturing",
+    "pharmaceuticals": "Pharmaceuticals",
+    "automotive": "Automotive",
+    "aviation": "Aviation",
+    "technology": "Technology",
+    "other": "Other"
+  },
+  "inventory": {
+    "title": "Inventory Management",
+    "subtitle": "Manage, track, and analyze inventory items efficiently",
+    "header": "Inventory List",
+    "totalItems": "TOTAL ITEMS",
+    "lowStock": "LOW STOCK",
+    "outOfStock": "OUT OF STOCK",
+    "totalValue": "TOTAL VALUE",
+    "addInventory": "Add Inventory",
+    "searchPlaceholder": "Search product, SKU...",
+    "filter": "Filter",
+    "filters": {
+      "title": "Filter Inventory",
+      "warehouse": "Warehouse",
+      "status": "Stock Status",
+      "reset": "Reset Filters",
+      "apply": "Apply Filters",
+      "cancel": "Cancel"
+    },
+    "noItems": "No inventory items found",
+    "table": {
+      "productName": "Product Name",
+      "sku": "SKU",
+      "category": "Category",
+      "stockLevel": "Stock Level",
+      "unitPrice": "Unit Price",
+      "warehouses": "Warehouses",
+      "cargoType": "Cargo Type"
+    },
+    "actions": {
+      "details": "Details",
+      "edit": "Edit",
+      "delete": "Delete"
+    },
+    "category": {
+      "general": "General"
+    },
+    "status": {
+      "inStock": "IN STOCK",
+      "lowStock": "LOW STOCK",
+      "outOfStock": "OUT OF STOCK",
+      "low": "Low",
+      "out": "Out",
+      "blocked": "Blocked"
+    },
+    "dialogs": {
+      "addTitle": "Add New Item",
+      "editTitle": "Edit Item Details",
+      "addSubtitle": "Configure your warehouse stock item",
+      "overview": "Overview",
+      "history": "Inventory History",
+      "stockLevels": "Stock Levels",
+      "available": "AVAILABLE",
+      "physical": "PHYSICAL",
+      "units": "UNITS",
+      "safetyStock": "SAFETY STOCK",
+      "locationData": "Location Data",
+      "warehouseCode": "Warehouse Code",
+      "palletSpots": "Pallet Spots",
+      "cargoType": "Cargo Type",
+      "physicalSpecs": "Physical Specifications",
+      "intelTitle": "Architectural Intelligence",
+      "intelDesc": "Real-time stock monitoring is active. Re-stock workflows will trigger when quantity drops below {minStock} units.",
+      "noHistory": "No movement history recorded yet.",
+      "historyFields": {
+        "type": "TYPE",
+        "quantity": "QUANTITY",
+        "notes": "NOTES",
+        "user": "USER",
+        "date": "DATE",
+        "system": "System"
+      },
+      "quickAdjustment": "Quick Stock Adjustment",
+      "adjustmentAmount": "Adjustment Amount (+/-)",
+      "adjustmentType": "Operation Type",
+      "notes": "Notes / Description",
+      "otherLocations": "Stock in Other Locations",
+      "historyTypes": {
+        "STOCK_IN": "STOCK IN",
+        "STOCK_OUT": "STOCK OUT",
+        "RESTOCK_REQUEST": "RESTOCK REQUEST",
+        "PICK": "PICK (OUT)",
+        "PACK": "PACK",
+        "PUTAWAY": "PUTAWAY (IN)",
+        "ALLOCATION": "SHIPMENT ALLOCATION",
+        "ALLOCATION_REVERT": "ALLOCATION REVERTED",
+        "ALLOCATION_CANCEL": "ALLOCATION CANCELLED",
+        "ADJUSTMENT": "STOCK ADJUSTMENT",
+        "PURCHASE": "PURCHASE",
+        "RETURN": "RETURN",
+        "DAMAGE": "DAMAGE",
+        "LOSS": "LOSS",
+        "SHIPMENT": "SHIPMENT DISPATCH",
+        "SHIPMENT_REVERT": "SHIPMENT REVERTED",
+        "SHIPMENT_CANCEL": "SHIPMENT CANCELLED"
+      },
+      "closeView": "Close View",
+      "modifySpecs": "Modify Specs",
+      "editItem": "Edit Item",
+      "productInfo": "Product Identity & Stock",
+      "productImage": "PRODUCT IMAGE",
+      "clickToChange": "Click to change image",
+      "clickToUpload": "Click to upload product image",
+      "skuOptional": "SKU (Optional)",
+      "skuPlaceholder": "Leave blank to auto-generate",
+      "safetyThreshold": "Safety Threshold",
+      "auditWarning": "Manual stock adjustments are tracked in the audit log and affect shipment dispatch availability.",
+      "loadParams": "Load Parameters",
+      "unitWeight": "Unit Weight",
+      "totalVolume": "Total Volume",
+      "discardChanges": "Discard Changes",
+      "commitUpdate": "Commit Update",
+      "storageAndLevels": "Storage & Levels",
+      "storageDesc": "Define where this inventory will be stored and its stock thresholds.",
+      "warehouseLocation": "Warehouse Location",
+      "selectFacility": "SELECT FACILITY *",
+      "warehouseLockedHint": "Warehouse preselected because you are adding from this warehouse.",
+      "stockConfig": "Stock Configuration",
+      "initialQuantity": "INITIAL QUANTITY",
+      "minStockAlert": "MIN. STOCK LEVEL (ALERT)",
+      "movementDetails": "MOVEMENT DETAILS",
+      "putawayDesc": "This transaction is categorized as PUTAWAY. The initial stock will be immediately registered to the selected warehouse and logged in the Prisma ledger.",
+      "detailsDesc": "Provide the fundamental identification details for the new inventory item.",
+      "categoryLabel": "Category *",
+      "steps": {
+        "details": "Item Details",
+        "storage": "Storage Levels",
+        "review": "Review & Confirm"
+      },
+      "cargoTypes": {
+        "General Cargo": "General Cargo",
+        "General": "General Cargo",
+        "Perishable Goods": "Perishable Goods",
+        "Hazardous Materials": "Hazardous Materials",
+        "Fragile Goods": "Fragile Goods",
+        "Liquid Cargo": "Liquid Cargo",
+        "Oversized Cargo": "Oversized Cargo",
+        "Perishable": "Perishable",
+        "Hazardous Material": "Hazardous Material",
+        "Automotive Parts": "Automotive Parts",
+        "Electronics": "Electronics",
+        "Textile": "Textile",
+        "Construction Materials": "Construction Materials"
+      }
+    },
+    "deleteTitle": "Delete Item",
+    "deleteDesc": "Are you sure you want to delete {name}?",
+    "fields": {
+      "name": "Item Name",
+      "sku": "SKU",
+      "quantity": "Quantity",
+      "warehouse": "Warehouse",
+      "minStock": "Min Stock Level",
+      "unitValue": "Unit Value",
+      "weight": "Weight",
+      "volume": "Volume",
+      "pallets": "Units per Pallet",
+      "unit": "Unit"
+    },
+    "categories": {
+      "electronics": "Electronics",
+      "machinery": "Machinery",
+      "spareParts": "Spare Parts",
+      "rawMaterials": "Raw Materials",
+      "finishedGoods": "Finished Goods",
+      "packaging": "Packaging",
+      "officeSupplies": "Office Supplies",
+      "others": "Others"
+    }
+  },
+  "company": {
+    "title": "Company Configuration",
+    "subtitle": "Manage your organization, team members, and regional settings",
+    "overview": "Manage your organization, members and settings.",
+    "addMember": "Add Member",
+    "kpi": {
+      "totalUsers": "Total Users",
+      "vehicles": "Vehicles",
+      "drivers": "Drivers",
+      "warehouses": "Warehouses",
+      "customers": "Customers",
+      "shipments": "Shipments"
+    },
+    "info": {
+      "created": "Created on {date}",
+      "active": "Active"
+    },
+    "joinRequests": {
+      "title": "Invitations & Join Requests",
+      "empty": "No pending join requests.",
+      "columns": {
+        "requester": "Name",
+        "email": "Email",
+        "requestedAt": "Requested",
+        "type": "Type",
+        "status": "Status",
+        "request": "Request",
+        "invitation": "Invitation"
+      },
+      "actions": {
+        "accept": "Accept",
+        "reject": "Reject",
+        "resend": "Resend",
+        "revoke": "Revoke"
+      }
+    },
+    "roles": {
+      "Admin": "Admin",
+      "Manager": "Warehouse Manager",
+      "Warehouse Worker": "Warehouse Worker",
+      "Driver": "Driver",
+      "Customer": "Staff",
+      "read-only": "read-only",
+      "Administrator": "Administrator",
+      "Warehouse Manager": "Warehouse Manager",
+      "Dispatcher": "Dispatcher",
+      "Warehouse Operator": "Warehouse Operator",
+      "Warehouse": "Warehouse Worker",
+      "Default": "Staff"
+    },
+    "branding": {
+      "title": "Company Identity",
+      "subtitle": "Define your organization's legal name and digital branding",
+      "legalName": "Legal Company Name",
+      "legalNamePlaceholder": "e.g. Acme Logistics Ltd.",
+      "legalNameDesc": "This name will appear on all official documents and reports.",
+      "digitalIdentity": "Digital Identity",
+      "changeLogo": "Change Logo",
+      "uploadAssets": "SVG, PNG or JPG (max 2MB)",
+      "uploadFormat": "Recommended: 400×400 px",
+      "industry": "Industry Sector",
+      "industryPlaceholder": "Select an industry"
+    },
+    "sidebar": {
+      "currentStep": "Current Step",
+      "stepProgress": "Step {current} of {total}",
+      "loggedInAs": "Logged in as",
+      "primaryAdmin": "Primary Admin"
+    },
+    "dialogs": {
+      "identityTitle": "Company Identity",
+      "regionalTitle": "Regional Configuration",
+      "identitySubtitle": "Set up your organization's core identity and branding",
+      "localizationDesc": "Configure regional preferences for your organization.",
+      "interfaceLanguage": "Interface Language",
+      "defaultCurrency": "Default Currency",
+      "activeTimezone": "Active Timezone",
+      "dateTimeFormat": "Date & Time Format",
+      "addMemberTitle": "Add Team Member",
+      "addMemberSubtitle": "Search for a user and assign them a role in your organization",
+      "searchPlaceholder": "Search by name or email...",
+      "searchResults": "Search Results",
+      "assignRole": "Assign Role",
+      "invitationNote": "The selected user will receive an invitation to join your organization.",
+      "assignWarehouse": "Assign Warehouse",
+      "selectWarehouse": "Select a warehouse",
+      "warehouseStaffNote": "This user will be assigned to the selected warehouse as staff.",
+      "warehouseManagerNote": "This user will be set as the manager of the selected warehouse.",
+      "noWarehouses": "No warehouses yet. Create a warehouse first.",
+      "driverDetailsRequired": "Driver details are required for this role.",
+      "addToCompany": "Add to Company",
+      "employeeIdHelper": "Company assigned unique identifier",
+      "phoneHelper": "Required for driver contact",
+      "existingUser": "Add existing user",
+      "inviteByEmail": "Invite user by email",
+      "inviteEmailPlaceholder": "driver@example.com",
+      "sendInvite": "Send Invite",
+      "domainLabel": "Company Email Domain",
+      "domainHelperText": "Optional. Teammates with a matching email domain (e.g. acme.com) can request to join automatically.",
+      "acceptJoinRequestTitle": "Accept Join Request",
+      "rejectJoinRequestTitle": "Reject Join Request",
+      "rejectJoinRequestDescription": "This person will need to submit a new request to join later.",
+      "revokeInvitationTitle": "Revoke Invitation",
+      "revokeInvitationDesc": "Are you sure you want to revoke this invitation? The link that was sent will stop working.",
+      "resendInvitationTitle": "Resend Invitation",
+      "resendInvitationDesc": "Are you sure you want to resend this invitation? A new link will be generated and the old one will stop working.",
+      "steps": {
+        "branding": "Branding",
+        "regional": "Regional",
+        "globalConfig": "Global Configuration",
+        "regionalEcosystem": "Regional Ecosystem",
+        "regionalDesc": "Set your organization's timezone, currency and language preferences.",
+        "timezone": "Timezone",
+        "currency": "Currency",
+        "language": "Interface Language",
+        "integrity": "Team regional settings",
+        "standardize": "These timezone, currency, and language settings apply to everyone in your company by default.",
+        "overrides": "Let team members pick their own timezone, currency, and language"
+      }
+    },
+    "members": {
+      "title": "Team Members",
+      "empty": "No members found.",
+      "statuses": {
+        "active": "Active",
+        "inactive": "Inactive",
+        "suspended": "Suspended"
+      },
+      "columns": {
+        "member": "Member",
+        "email": "Email",
+        "role": "Role",
+        "status": "Status",
+        "joined": "Joined"
+      },
+      "actions": {
+        "details": "Details",
+        "edit": "Edit",
+        "delete": "Delete"
+      },
+      "deleteDialog": {
+        "title": "Remove Member?",
+        "description": "Are you sure you want to remove {name} from the organization? This action cannot be undone."
+      }
+    },
+    "memberDetails": {
+      "noRole": "No Role",
+      "contactInfo": "Contact Information",
+      "emailAddress": "Email Address",
+      "phone": "Phone Number",
+      "joinedOn": "Joined On",
+      "joinedSince": "Member Since",
+      "lastActive": "Last Active",
+      "permissions": "Permissions",
+      "accountStatus": "Account Status",
+      "adminData": "Administrative Data",
+      "adminDataDesc": "This member holds the {role} role in your company.",
+      "closeView": "Close"
+    },
+    "editMember": {
+      "title": "Edit Member",
+      "subtitle": "Update details for {name}",
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "systemRole": "System Role",
+      "accountStatus": "Account Status",
+      "saving": "Saving...",
+      "statuses": {
+        "ACTIVE": "Active",
+        "INACTIVE": "Inactive",
+        "SUSPENDED": "Suspended"
+      },
+      "driverRoleWarning": "Driver roles must be managed from the Drivers dashboard."
+    }
+  },
+  "shipments": {
+    "title": "Shipment Management",
+    "subtitle": "Manage your shipments, monitor performance and status",
+    "addShipment": "Add Shipment",
+    "active": "Active Shipments",
+    "completed": "Completed",
+    "pending": "Pending",
+    "delayed": "Delayed",
+    "track": "Track Shipment",
+    "deleteTitle": "Delete Shipment?",
+    "deleteDesc": "Are you sure you want to delete shipment {id}?",
+    "statuses": {
+      "PENDING": "Pending",
+      "PROCESSING": "Processing",
+      "ASSIGNED": "Assigned",
+      "IN_TRANSIT": "In Transit",
+      "DELIVERED": "Delivered",
+      "FAILED": "Delivery Failed",
+      "RETURNED": "Returned",
+      "DELAYED": "Delayed",
+      "CANCELLED": "Cancelled"
+    },
+    "dashboard": {
+      "statusOverview": "Status Overview",
+      "liveBreakdown": "Live breakdown of shipment statuses",
+      "volumeTrend": "Volume Trend",
+      "dailyVolume": "Daily shipment creation volume (Last 7 Days)",
+      "shipments": "Shipments",
+      "units": "{count} units",
+      "noData": "No Data",
+      "totalShipments": "Total Shipments",
+      "activeShipments": "Active Shipments",
+      "delayedShipments": "Delayed Shipments",
+      "inTransit": "In Transit"
+    },
+    "table": {
+      "title": "Shipment List",
+      "searchPlaceholder": "Search shipments...",
+      "noShipments": "No shipments found",
+      "columns": {
+        "code": "Code",
+        "status": "Status",
+        "customer": "Customer",
+        "created": "Created",
+        "destination": "Destination",
+        "driver": "Driver",
+        "route": "Route",
+        "items": "Items"
+      }
+    },
+    "details": {
+      "title": "Shipment Details",
+      "systemConsignmentId": "SYSTEM CONSIGNMENT ID",
+      "assignmentDetails": "Assignment Details",
+      "noDriverAssigned": "No Driver Assigned",
+      "missionPath": "Mission Path",
+      "pickupOrigin": "Pickup Origin",
+      "finalDelivery": "Final Delivery",
+      "consignmentSpecs": "Consignment Specs",
+      "quantity": "Quantity",
+      "units": "units",
+      "grossWeight": "Gross Weight",
+      "kg": "kg",
+      "customerEntity": "Customer Entity",
+      "clientPartner": "Client Partner",
+      "description": "Description",
+      "mileage": "MILEAGE",
+      "duration": "DURATION",
+      "fleetId": "FLEET ID",
+      "noUnit": "NO UNIT",
+      "tbd": "TBD",
+      "directConsignment": "Direct Consignment",
+      "oneTimeService": "One-time direct service",
+      "tabs": {
+        "overview": "Overview",
+        "items": "Cargo Items"
+      },
+      "itemsTab": {
+        "sku": "SKU",
+        "product": "Product",
+        "qty": "Qty",
+        "weight": "Weight",
+        "volume": "Volume",
+        "pallets": "Pallets",
+        "cargoType": "Cargo Type",
+        "noItems": "No items linked to this shipment.",
+        "totalItems": "Total Items",
+        "totalWeight": "Total Weight"
+      }
+    },
+    "dialogs": {
+      "addTitle": "Create New Shipment",
+      "updateStatusTitle": "Update status",
+      "currentStatus": "Current",
+      "newStatus": "New status",
+      "statusNote": "Note",
+      "statusNotePlaceholder": "Optional context for this change",
+      "failureReasonRequired": "A reason is required when marking as failed",
+      "noTransitions": "This shipment is in a final state and can't change.",
+      "editTitle": "Edit Shipment Details",
+      "editSubtitle": "Modify shipment parameters and update logistics status",
+      "addSubtitle": "Create a new logitrack shipment and define parameters",
+      "cargoTitle": "Cargo & Load Details",
+      "steps": {
+        "logistics": "Logistics & Priority",
+        "route": "Route & Customer",
+        "inventory": "Inventory & Load",
+        "cargo": "Cargo Details"
+      },
+      "sections": {
+        "basicInfo": "Basic Information",
+        "logisticsParties": "Logistics & Parties",
+        "cargoDetails": "Cargo Details",
+        "inventoryDetail": "Inventory Detail",
+        "routeManagement": "Route Management",
+        "shipmentStops": "Shipment Stops",
+        "noStopsDefined": "No stops defined. Click + to add stops.",
+        "stop": "Stop",
+        "addStop": "Add Stop",
+        "optimizeRoute": "Optimize order",
+        "routeOptimized": "Stops reordered by nearest route",
+        "routeAlreadyOptimal": "Route is already optimal"
+      },
+      "fields": {
+        "shipmentIdRef": "SHIPMENT ID / REF (Optional)",
+        "shipmentIdPlaceholder": "e.g. SHP-8752-XP (Leave blank to auto-generate)",
+        "referenceNumber": "REFERENCE NUMBER",
+        "priorityLevel": "PRIORITY LEVEL",
+        "type": "TYPE",
+        "slaDeadline": "SLA DEADLINE",
+        "slaPlaceholder": "Select Date & Time",
+        "weight": "WEIGHT (KG)",
+        "volume": "VOLUME (M³)",
+        "palletCount": "PALLETS",
+        "cargoType": "CARGO TYPE",
+        "originWarehouse": "ORIGIN WAREHOUSE",
+        "originPlaceholder": "Search origin warehouse...",
+        "destination": "DESTINATION",
+        "destinationPlaceholder": "Search destination...",
+        "customerClient": "CUSTOMER / CLIENT",
+        "customerPlaceholder": "Select customer",
+        "customerLocation": "CUSTOMER LOCATION (DEPOT)",
+        "deliveryLocation": "DELIVERY LOCATION",
+        "locationPlaceholder": "Select depot",
+        "selectCustomerFirst": "Select a customer first",
+        "contactEmail": "CONTACT EMAIL",
+        "billingAccount": "BILLING ACCOUNT",
+        "assignDriver": "ASSIGN DRIVER",
+        "selectDriver": "Select driver",
+        "capacityFree": "free",
+        "overCapacity": "Over capacity",
+        "availableLabel": "Available",
+        "unavailableLabel": "Busy",
+        "routeId": "ROUTE ID",
+        "routePlaceholder": "Select route...",
+        "assignedDriver": "ASSIGNED DRIVER",
+        "estDeparture": "EST. DEPARTURE",
+        "unassigned": "Unassigned",
+        "pendingAssignment": "Pending Assignment",
+        "readOnlyPreview": "READ ONLY PREVIEW - No route selected",
+        "noItemsAdded": "No items added.",
+        "skuId": "SKU ID",
+        "itemName": "ITEM NAME",
+        "qty": "QTY",
+        "unit": "UNIT",
+        "calculatedPallets": "Calculated Pallets",
+        "rowWeight": "Row Weight",
+        "warehouseInventory": "Warehouse Inventory",
+        "manual": "Manual",
+        "warehouse": "Warehouse",
+        "insufficientStock": "Warning: Insufficient inventory stock for this item",
+        "availableStock": "Current Available",
+        "exceedsTrailerWeight": "CRITICAL: Shipment weight exceeds trailer payload capacity!",
+        "exceedsTrailerVolume": "CRITICAL: Shipment volume exceeds trailer cubic capacity!",
+        "stops": "Shipment Stops",
+        "addStop": "Add Stop",
+        "stop": "Stop",
+        "stopSequence": "Stop Sequence",
+        "availableKg": "Available:",
+        "availableVol": "Available:"
+      },
+      "buttons": {
+        "assignToExistingRoute": "Assign to Existing Route"
+      },
+      "types": {
+        "standardFreight": "Standard Freight",
+        "express": "Express",
+        "hazardous": "Hazardous",
+        "generalCargo": "General Cargo",
+        "each": "Each",
+        "box": "Box",
+        "pallet": "Palet",
+        "standardBilling": "Standard Billing (Net 30)"
+      }
+    },
+    "fields": {
+      "priority": "Priority",
+      "shipmentType": "Shipment Type",
+      "slaDeadline": "SLA Deadline",
+      "originWarehouse": "Origin Warehouse",
+      "destination": "Destination",
+      "palletCount": "Pallet Count",
+      "weight": "Weight",
+      "volume": "Volume"
+    }
+  },
+  "routes": {
+    "title": "Route Planning",
+    "subtitle": "Optimize and manage your fleet's active delivery paths",
+    "active": "Active Routes",
+    "total": "Total Routes",
+    "completed": "Completed",
+    "inProgress": "In Progress",
+    "completedToday": "Completed Today",
+    "delayed": "Delayed Routes",
+    "dashboard": {
+      "routeEfficiency": "Route Efficiency",
+      "fuelConsumption": "Fuel Consumption (L/100km)",
+      "avg": "{count} avg",
+      "onTimePerformance": "On-Time Performance",
+      "vehicleUtilization": "Vehicle Utilization",
+      "recentNotifications": "Recent Notifications",
+      "noNotifications": "No notifications yet — everything looks good",
+      "notification": "Notification"
+    },
+    "table": {
+      "title": "Route List",
+      "noRoutes": "No routes found.",
+      "notSyncedYet": "This route hasn't been saved yet. Please wait a moment and try again.",
+      "searchPlaceholder": "Search route...",
+      "columns": {
+        "routeId": "Route ID",
+        "vehiclePlate": "Vehicle Plate",
+        "origin": "Origin",
+        "destination": "Destination",
+        "eta": "ETA",
+        "status": "Status"
+      },
+      "actions": {
+        "activate": "Activate Route",
+        "complete": "Complete Route"
+      }
+    },
+    "toasts": {
+      "updateSuccess": "Route updated to {status}",
+      "updateError": "Failed to update route",
+      "statusSuccess": "Route status updated successfully"
+    },
+    "statuses": {
+      "PENDING": "Pending",
+      "PROCESSING": "Processing",
+      "ASSIGNED": "Assigned",
+      "PLANNED": "Planned",
+      "ACTIVE": "Active",
+      "IN_TRANSIT": "In Transit",
+      "DELIVERED": "Delivered",
+      "DELAYED": "Delayed",
+      "CANCELLED": "Cancelled",
+      "CANCELED": "Canceled",
+      "COMPLETED": "Completed",
+      "FAILED": "Failed"
+    },
+    "addRoute": "Add Route",
+    "deleteDesc": "Are you sure you want to delete this route?",
+    "details": {
+      "origin": "Origin",
+      "destination": "Destination",
+      "delivery": "Delivery",
+      "distance": "DISTANCE",
+      "stops": "STOPS",
+      "liveProgress": "Live Progress",
+      "missionRoute": "MISSION ROUTE",
+      "liveTelemetryMap": "LIVE TELEMETRY MAP",
+      "liveTelemetry": "LIVE TELEMETRY",
+      "distTravelled": "DIST. TRAVELLED",
+      "remaining": "Remaining",
+      "fuelLevel": "Fuel level",
+      "vehicleToDestination": "JOURNEY STATUS",
+      "traveledLabel": "TRAVELED",
+      "toDestination": "REMAINING",
+      "etaLabel": "ETA",
+      "deviationCorridor": "Deviation corridor: ±{buffer} m"
+    },
+    "dialogs": {
+      "localizationDesc": "Global regional settings synchronize time matrices, currency symbols, and date formatting across all telemetry and management layers.",
+      "interfaceLanguage": "Interface Language",
+      "defaultCurrency": "Default Currency",
+      "activeTimezone": "Active Timezone",
+      "dateTimeFormat": "Date Format",
+      "addTitle": "Plan New Route",
+      "editTitle": "Edit Route Details",
+      "prefilledFrom": "Prefilled from shipment",
+      "addSubtitle": "Define timing, endpoints and assets for this route",
+      "editSubtitle": "Modify route parameters and update logistics status",
+      "deliveryLabel": "Delivery",
+      "basicDetails": "Step 1: Basic Details & Schedule",
+      "basicDetailsDesc": "These details help define the framework and priority of the route.",
+      "quickStart": "Quick Start: Select Shipment",
+      "chooseShipment": "Choose a shipment to pre-fill locations...",
+      "selectUnassigned": "Select an unassigned shipment",
+      "prefillNote": "Selecting a shipment will automatically fill the Route Name and Destination.",
+      "routeName": "Route Name",
+      "routeNamePlaceholder": "e.g. Morning Delivery - North",
+      "expectedStart": "Expected Start Time",
+      "selectDateTime": "Select Date & Time",
+      "expectedEnd": "Expected End Time",
+      "timingGuidance": "Setting accurate start and end times helps the system calculate delivery windows and optimize fuel efficiency during the route planning phase.",
+      "locationDetails": "Step 2: Location Details",
+      "locationDetailsDesc": "Enter the starting point and destination to calculate the route metrics.",
+      "startAddress": "Start Address",
+      "endAddress": "End Address",
+      "distanceKmLabel": "Distance (km)",
+      "durationMinLabel": "Duration (min)",
+      "optimizationTip": "Optimization Tip:",
+      "optimizationDesc": "This route currently avoids major highways. You can adjust the path by dragging the line on the map to avoid traffic or congested areas.",
+      "assignmentsTitle": "Step 3: Assignments",
+      "assignmentsDesc": "Assign an available driver and vehicle to this route.",
+      "driverAssignment": "Driver Assignment",
+      "loadingDrivers": "Loading drivers...",
+      "unassigned": "Unassigned",
+      "vehicleAssignment": "Vehicle Assignment",
+      "loadingVehicles": "Loading vehicles...",
+      "assignmentSummary": "ASSIGNMENT SUMMARY",
+      "noDriverSelected": "No driver selected",
+      "statusOnDuty": "Status: On Duty",
+      "vehicleMaintenance": "Vehicle Maintenance",
+      "nextService": "Next Service",
+      "in": "in",
+      "noVehicleSelected": "No vehicle selected",
+      "healthGood": "Health: Good",
+      "compliance": "Compliance",
+      "hazmatCertified": "Hazmat & ELD Certified",
+      "statusAllClear": "Status: All Clear",
+      "steps": {
+        "timing": "Timing & Assets",
+        "points": "Start & End Points",
+        "schedule": "Schedule",
+        "locations": "Locations",
+        "assignments": "Assignments"
+      },
+      "deviationTitle": "Route Deviation Tracking",
+      "deviationDesc": "A notification is sent if the vehicle leaves this corridor.",
+      "deviationDisabledHint": "Select a start and end address to set the corridor.",
+      "bufferLabel": "Deviation Tolerance (m)",
+      "bufferHelper": "Maximum allowed distance from the planned path. Defaults to {default} m if left empty.",
+      "bufferHint": "Low values may cause false alarms where urban GPS drift is common.",
+      "bufferInvalid": "Tolerance must be between {min} and {max} m.",
+      "deviationNoShape": "Deviation tracking needs a drawn route; pick the start and end points first."
+    },
+    "fields": {
+      "name": "Name",
+      "startTime": "Start Time",
+      "endTime": "End Time",
+      "startAddress": "Start Address",
+      "endAddress": "End Address",
+      "driver": "Driver",
+      "vehicle": "Vehicle",
+      "address": "Address"
+    }
+  },
+  "warehouses": {
+    "title": "Warehouse Management",
+    "subtitle": "Manage your warehouses, monitor performance and license status",
+    "addWarehouse": "Add Warehouse",
+    "deleteTitle": "Delete Warehouse?",
+    "deleteDesc": "Are you sure you want to delete {name}? This action cannot be undone.",
+    "kpi": {
+      "totalWarehouses": "Total Warehouses",
+      "inventorySkus": "Inventory SKUs",
+      "totalItems": "Total Items",
+      "palletCapacity": "Pallet Capacity",
+      "stockedVolume": "Stocked Volume"
+    },
+    "categories": {
+      "types": {
+        "WAREHOUSE": "Standard Warehouse",
+        "DISTRIBUTION_CENTER": "Distribution Center",
+        "CROSSDOCK": "Cross-Docking Facility"
+      },
+      "specs": {
+        "temperatureControlled": "Temperature Controlled",
+        "coldStorage": "Cold Storage",
+        "hazardous": "Hazardous Materials",
+        "bonded": "Bonded Warehouse",
+        "crossDocking": "Cross-Docking",
+        "highSecurity": "High Security",
+        "lashing": "Lashing/Loading",
+        "standardStorage": "Standard Storage"
+      }
+    },
+    "dialogs": {
+      "addTitle": "Add New Warehouse",
+      "editTitle": "Edit Warehouse Details",
+      "locationTitle": "Facility Location",
+      "capacityTitle": "Operational Capacity",
+      "createButton": "Create Warehouse",
+      "updateButton": "Save Changes",
+      "steps": {
+        "basicInfo": "Basic Info",
+        "location": "Location",
+        "capacity": "Capacity"
+      },
+      "status": {
+        "open": "OPEN",
+        "closed": "CLOSED"
+      },
+      "details": {
+        "overview": "Overview",
+        "inventory": "Inventory",
+        "zones": "Zones",
+        "locationDetails": "Location Details",
+        "address": "Address",
+        "cityCountry": "City / Country",
+        "operations": "Operations",
+        "facilityType": "Facility Type",
+        "operatingHours": "Operating Hours",
+        "manager": "Manager",
+        "notAssigned": "Not Assigned",
+        "uniqueSkus": "Unique SKUs",
+        "capacityUtilization": "Capacity Utilization",
+        "palletStorage": "Pallet Storage",
+        "standardEuroPallets": "Standard & Euro Pallets",
+        "used": "Used",
+        "totalCapacity": "Total Capacity",
+        "volumeCapacity": "Volume Capacity",
+        "totalCubicMeters": "Total cubic meters (m³)",
+        "m3Used": "m³ Used",
+        "m3TotalCapacity": "m³ Total Capacity",
+        "facilityCapabilities": "Facility Capabilities",
+        "managedFacility": "Managed Facility",
+        "standardStorage": "Standard Storage",
+        "currentInventory": "Current Inventory",
+        "itemsStoredIn": "Items stored in"
+      },
+      "fields": {
+        "identity": "Facility Identity",
+        "name": "Warehouse Name",
+        "namePlaceholder": "e.g. North East Distribution Hub",
+        "code": "Warehouse Code (Optional)",
+        "codePlaceholder": "e.g. WH-001 (Leave blank to auto-generate)",
+        "type": "Warehouse Type",
+        "operatingHours": "Operating Hours",
+        "is247": "24/7 Operation",
+        "openingTime": "Opening Time",
+        "closingTime": "Closing Time",
+        "timezone": "Timezone",
+        "facilityAddress": "Facility Address",
+        "streetAddress": "Street Address",
+        "streetPlaceholder": "e.g. 123 Logistics Way, Industrial District",
+        "city": "City",
+        "cityPlaceholder": "e.g. Manchester",
+        "country": "Country",
+        "countryPlaceholder": "e.g. United Kingdom",
+        "postalCode": "Postal Code",
+        "postalPlaceholder": "e.g. M1 1AA",
+        "manager": "Warehouse Manager",
+        "unassigned": "Unassigned",
+        "locationPreview": "Location Preview",
+        "mapPending": "Map integration pending exact coordinates",
+        "palletPositions": "Total Pallet Positions",
+        "palletPositionsPlaceholder": "e.g. 5000",
+        "volume": "Cargo Volume (m³)",
+        "volumePlaceholder": "e.g. 100000",
+        "specifications": "Facility Specifications",
+        "guidance": "Operational Guidance Notes",
+        "guidanceText": "Ensure that hazardous material certifications are up-to-date and facility complies with local safety standards before finalizing."
+      },
+      "zones": {
+        "title": "Warehouse Zones",
+        "subtitle": "Define the physical zones (A, B, C…) in this warehouse and their pallet capacity. Inventory and the warehouse worker panel locate items against these zones.",
+        "empty": "No zones defined yet",
+        "emptyDesc": "Create at least one zone (e.g. A, B, C) before you can assign locations to items.",
+        "addZone": "Add Zone",
+        "editZone": "Edit Zone",
+        "deleteZone": "Delete Zone",
+        "deleteZoneConfirm": "Are you sure you want to delete zone \"{code}\"?",
+        "code": "Zone Code",
+        "codePlaceholder": "e.g. A, B1, COLD-01",
+        "name": "Zone Name (Optional)",
+        "namePlaceholder": "e.g. Ground Floor Shelving",
+        "capacityPallets": "Pallet Capacity",
+        "capacityPalletsPlaceholder": "e.g. 500",
+        "usedOfCapacity": "{used} / {capacity} pallets",
+        "codeRequired": "Zone code is required",
+        "save": "Save",
+        "cancel": "Cancel"
+      }
+    },
+    "fields": {
+      "code": "Code",
+      "type": "Type",
+      "timezone": "Timezone",
+      "address": "Address",
+      "city": "City",
+      "country": "Country",
+      "capacity": "Capacity"
+    }
+  },
+  "toasts": {
+    "successAdd": "Successfully added!",
+    "successUpdate": "Successfully updated!",
+    "successDelete": "Successfully deleted!",
+    "errorGeneric": "Something went wrong.",
+    "errorAuth": "Invalid credentials.",
+    "loading": "Please wait...",
+    "saving": "Saving...",
+    "successDocumentDelete": "Document successfully deleted!",
+    "errorDocumentDelete": "An error occurred while deleting the document.",
+    "errorNoConnection": "Document connection not found.",
+    "errorNoPermission": "File access permission could not be obtained.",
+    "errorUpload": "An error occurred while uploading the file.",
+    "demoActionDisabled": "This action is disabled in the live demo.",
+    "featureComingSoon": "This feature is coming soon.",
+    "successInvite": "Invitation sent!",
+    "successJoinRequestSent": "Request sent! Waiting for approval.",
+    "successJoinRequestAccepted": "Join request accepted!",
+    "successJoinRequestRejected": "Join request rejected.",
+    "errorJoinRequestDuplicate": "A join request is already pending for this company."
+  },
+  "notifications": {
+    "title": "Notifications",
+    "catchUp": "Catch Up",
+    "initializing": "Initializing stream...",
+    "systemClear": "System clear."
+  },
+  "maps": {
+    "searchAddress": "Search for an address...",
+    "calculatingRoute": "Calculating route...",
+    "unableCalculateRoute": "Unable to calculate directions. Please verify addresses.",
+    "apiError": "Maps API Configuration Error",
+    "apiErrorDesc": "The Google Maps service could not be loaded. This may be due to an invalid API key or network restricted access.",
+    "initializing": "INITIALIZING MAP SERVICES...",
+    "clickToMark": "Click anywhere on the map to mark a location.",
+    "demo": {
+      "title": "Google Maps Integration Components",
+      "subtitle": "Modular and production-ready Google Maps React components",
+      "addressTitle": "1. Address Input & Marker",
+      "addressDesc": "Search for an address and see it on the map.",
+      "pickerTitle": "2. Map Picker",
+      "pickerDesc": "Click on the map to select any point.",
+      "routeTitle": "3. Route Directions",
+      "routeDesc": "Visualizing travel routes with distance and duration.",
+      "lat": "Lat",
+      "lng": "Lng",
+      "address": "Address",
+      "picked": "Picked",
+      "selected": "Selected"
+    }
+  },
+  "footer": {
+    "description": "Smart logistics tracking and fleet visibility platform.",
+    "product": "Product",
+    "features": "Features",
+    "pricing": "Pricing",
+    "roadmap": "Roadmap",
+    "company": "Company",
+    "about": "About",
+    "blog": "Blog",
+    "careers": "Careers",
+    "legal": "Legal",
+    "privacyPolicy": "Privacy Policy",
+    "termsOfService": "Terms of Service",
+    "rights": "All rights reserved.",
+    "builtFor": "Built for modern logistics.",
+    "copyright": "© {year} LogiTrack. All rights reserved.",
+    "security": "Security",
+    "status": "Status"
+  },
+  "settings": {
+    "dialogs": {
+      "systemConfiguration": "System Configuration",
+      "adjustRegional": "Adjust regional markers & global preferences",
+      "tabs": {
+        "appearance": "Appearance",
+        "notifications": "Notifications",
+        "regional": "Regional",
+        "localization": "Localization",
+        "signals": "Signals",
+        "visualEngine": "Visual Engine"
+      },
+      "success": {
+        "regional": "Regional markers synchronized globally.",
+        "notifications": "Notification webhooks updated!"
+      },
+      "appearance": {
+        "desc": "The appearance settings dynamically transform the color matrices and surface shaders across the entire LogiTrack application.",
+        "modes": {
+          "polar": "Polar",
+          "nebula": "Nebula",
+          "adaptive": "Adaptive",
+          "polarDesc": "High contrast UI",
+          "nebulaDesc": "Deep space aesthetic",
+          "adaptiveDesc": "Synchronized with OS",
+          "projectionActive": "PROJECTION ACTIVE"
+        }
+      },
+      "notifications": {
+        "emailChannels": "EMAIL CHANNELS",
+        "realTimeSignals": "REAL-TIME SIGNALS",
+        "fleetStatus": "Fleet Status Reports",
+        "fleetStatusDesc": "Automated updates for active shipment transitions",
+        "preventiveMaintenance": "Preventive Maintenance",
+        "preventiveMaintenanceDesc": "Proactive reminders for scheduled vehicle service",
+        "executiveKpi": "Executive KPI Summaries",
+        "executiveKpiDesc": "Analytics digest delivered every Monday morning",
+        "dynamicRouting": "Dynamic Routing",
+        "dynamicRoutingDesc": "In-app alerts for newly assigned logistics paths",
+        "dynamicRoutingEmailDesc": "Email a copy when a new logistics path is assigned to you",
+        "networkAnomalies": "Network Anomalies",
+        "networkAnomaliesDesc": "In-app alerts regarding logistics delays or disruptions",
+        "networkAnomaliesEmailDesc": "Email a copy when a delay or disruption is detected",
+        "updateWebhooks": "Update Webhooks"
+      },
+      "regional": {
+        "currencies": {
+          "dollar": "Dollar",
+          "euro": "Euro",
+          "lira": "Lira",
+          "pound": "Pound"
+        },
+        "timezones": {
+          "universal": "Universal Coordinate (UTC)",
+          "istanbul": "Istanbul (GMT+3)",
+          "centralEurope": "Central Europe (GMT+1)",
+          "easternTime": "Eastern Time (GMT-5)",
+          "pacificTime": "Pacific Time (GMT-8)",
+          "tokyoSeoul": "Tokyo/Seoul (GMT+9)"
+        },
+        "dateFormats": {
+          "standard": "Standard (MM/DD/YYYY)",
+          "international": "International (DD/MM/YYYY)"
+        },
+        "timeFormat": "Time Format",
+        "timeFormats": {
+          "hour": "Hour"
+        }
+      }
+    }
+  },
+  "documentViewer": {
+    "pdfDocument": "PDF Document",
+    "imageFile": "Image File",
+    "openInNewTab": "Open in New Tab",
+    "downloadFile": "Download File",
+    "loading": "Securely loading document...",
+    "previewUnavailable": "Preview Unavailable",
+    "previewError": "High-security documents or specific file formats may not be visible in the embedded browser viewer.",
+    "openInSecureViewer": "Open in Secure Viewer"
+  },
+  "profile": {
+    "title": "My Profile",
+    "subtitle": "Manage your personal information & preferences",
+    "tabs": {
+      "account": "Account Info",
+      "security": "Credentials"
+    },
+    "status": {
+      "synchronizing": "SYNCHRONIZING...",
+      "finalizing": "Finalizing...",
+      "upgrading": "Upgrading..."
+    },
+    "messages": {
+      "loadError": "Failed to load database Profile.",
+      "saveSuccess": "Profile synchronized successfully.",
+      "networkError": "Network synchronization error.",
+      "passwordSuccess": "Credentials updated!",
+      "verificationError": "Verification failure."
+    },
+    "account": {
+      "verifiedMember": "Verified Member",
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "adminEmail": "Administrative Email",
+      "emailHelper": "Immutable account identifier. Contact IT for changes.",
+      "syncButton": "Synchronize Profile"
+    },
+    "security": {
+      "bannerTitle": "Security Best Practices",
+      "bannerDesc": "We recommend a minimum of 12 characters including uppercase, numbers, and specialized symbols to protect your account.",
+      "currentPassword": "Current Password",
+      "newPassword": "New Secure Password",
+      "confirmPassword": "Confirm New Password",
+      "entropyLevel": "Entropy Level",
+      "matchError": "Verification failed. Passwords must match exactly.",
+      "updateButton": "Update Credentials",
+      "strengths": {
+        "vulnerable": "Vulnerable",
+        "acceptable": "Acceptable",
+        "robust": "Robust"
+      }
+    }
+  },
+  "dashboard": {
+    "header": {
+      "internalConsole": "Internal Console"
+    },
+    "fleet": {
+      "status": "Fleet Status",
+      "activeUnits": "Active Units",
+      "totalFleet": "Total Fleet",
+      "fleetId": "Fleet ID",
+      "currentOperator": "Current operator",
+      "noDriver": "No driver assigned",
+      "signal": "SIGNAL",
+      "live": "LIVE",
+      "syncing": "SYNCING",
+      "kmh": "KM/H"
+    },
+    "warehouse": {
+      "capacityUtilization": "Capacity Utilization",
+      "pallets": "Pallets",
+      "recentMovements": "Recent Stock Movements",
+      "loadingMovements": "Loading movements...",
+      "noMovements": "No recent movements recorded yet.",
+      "warehouse": "WAREHOUSE",
+      "itemSku": "ITEM / SKU",
+      "type": "TYPE",
+      "quantity": "QUANTITY",
+      "timestamp": "TIMESTAMP",
+      "listTitle": "Warehouse List",
+      "noWarehouses": "No warehouses found",
+      "code": "Code",
+      "name": "Name",
+      "typeCity": "Type / City",
+      "capacityPallets": "Capacity (Pallets)",
+      "capacityVolume": "Capacity (Volume)",
+      "utilized": "{percent}% Utilized",
+      "space": "{percent}% Space",
+      "operatingHours": "Operating Hours",
+      "viewDetails": "View Details",
+      "editWarehouse": "Edit Warehouse",
+      "deleteFactory": "Delete Factory"
+    },
+    "overview": {
+      "actionRequired": {
+        "title": "Action Required",
+        "pendingCount": "{count} Pending",
+        "allClear": "All clear! No urgent actions required.",
+        "ISSUE_ALERT": "{priority} · {status}",
+        "DOC_EXPIRES": "Expires {date}",
+        "DOC_EXPIRY_APPROACHING": "Expiry approaching",
+        "DOC_EXPIRED_DETAIL": "The {docType} document for vehicle {owner} expired on {date}",
+        "DOC_EXPIRED_DETAIL_DRIVER": "The {docType} document for driver {owner} expired on {date}",
+        "DOC_EXPIRED_DETAIL_NONE": "The {docType} document expired on {date}",
+        "DOC_EXPIRING_DETAIL": "The {docType} document for vehicle {owner} expires on {date}",
+        "DOC_EXPIRING_DETAIL_DRIVER": "The {docType} document for driver {owner} expires on {date}",
+        "DOC_EXPIRING_DETAIL_NONE": "The {docType} document expires on {date}",
+        "badgeExpired": "EXPIRED",
+        "badgeExpiringSoon": "EXPIRING SOON",
+        "expiredDaysAgo": "{days} days overdue",
+        "expiresInDays": "{days} days left",
+        "expiresToday": "Expires today"
+      },
+      "dailyOperations": {
+        "title": "Today's Operations",
+        "plannedRoutes": "Planned Routes",
+        "completedDeliveries": "Completed Deliveries",
+        "failedDeliveries": "Failed Deliveries",
+        "avgDuration": "Avg. Duration (Min)",
+        "fuelConsumed": "Fuel Consumed (L)"
+      },
+      "fuelConsumption": {
+        "title": "Fuel Consumption",
+        "noLogs": "No fuel logs found for the last 30 days"
+      },
+      "inventoryAlerts": {
+        "title": "Low Stock Alerts",
+        "itemCount": "{count} Items",
+        "healthy": "Inventory levels are healthy",
+        "table": {
+          "item": "Item",
+          "warehouse": "Warehouse",
+          "qty": "Qty",
+          "min": "Min"
+        }
+      },
+      "shipmentVolume": {
+        "title": "7-Day Shipment Volume",
+        "noHistory": "No shipment history available",
+        "shipmentsCount": "{count} shipments"
+      },
+      "warehouseThroughput": {
+        "title": "Warehouse Throughput",
+        "itemsPicked": "Items Picked Today",
+        "itemsPacked": "Items Packed Today",
+        "netDifference": "Net Difference"
+      },
+      "shipmentsByStatus": {
+        "title": "Shipments by Status",
+        "noShipments": "No shipments found",
+        "total": "Total"
+      },
+      "warehouseUtilization": {
+        "title": "Warehouse Utilization",
+        "noWarehouses": "No warehouses found",
+        "palletsUnit": "{used} / {total} pallets",
+        "volumeUnit": "{used} / {total} m³"
+      }
+    },
+    "users": {
+      "fullName": "Full Name",
+      "email": "Email",
+      "role": "Role",
+      "noUsers": "No users found.",
+      "userList": "User List"
+    }
+  },
+  "reports": {
+    "title": "Operational Reports",
+    "subtitle": "Data-driven insights for shipments, fleet, and inventory",
+    "comingSoonDescription": "The Operational Reports module is currently under development. Soon you will be able to explore data-driven insights for shipments, fleet efficiency, and inventory valuation.",
+    "tabs": {
+      "shipment": "Shipment Analytics",
+      "fleet": "Fleet Efficiency",
+      "inventory": "Inventory Valuation"
+    },
+    "metrics": {
+      "totalShipments": "Total Shipments",
+      "onTimeRate": "On-Time Rate",
+      "avgDeliveryTime": "Avg Delivery Time",
+      "pendingOrders": "Pending Orders",
+      "activeVehicles": "Active Vehicles",
+      "avgFuelCons": "Avg Fuel Cons.",
+      "maintenanceCost": "Maintenance Cost",
+      "totalDistance": "Total Distance",
+      "totalInventoryValue": "Total Inventory Value",
+      "stockTurnover": "Stock Turnover",
+      "deadStock": "Dead Stock",
+      "lowStockSKUs": "Low Stock SKUs",
+      "daysUnits": "{count} Days"
+    },
+    "charts": {
+      "fleet": {
+        "noData": "No fleet data available",
+        "highMaintenance": "Highest Maintenance Costs",
+        "maintenanceCostLabel": "Maintenance Cost ($)",
+        "consumptionVsOdometer": "Fuel Consumption vs Odometer",
+        "fleetLabel": "Fleet",
+        "odometerLabel": "Odometer (km)",
+        "consumptionLabel": "Consumption (L/100km)"
+      },
+      "inventory": {
+        "valueTitle": "Inventory Value",
+        "valueSubtitle": "Value distribution by category",
+        "countTitle": "SKU Count",
+        "countSubtitle": "Items count by category"
+      },
+      "shipment": {
+        "analyticsTitle": "Shipment Analytics",
+        "volumeByRoute": "Volume by Route",
+        "volumeByRouteSubtitle": "Total shipments per route code",
+        "statusDistribution": "Status Distribution"
+      },
+      "inventoryCategories": {
+        "Electronics": "Electronics",
+        "Furniture": "Furniture",
+        "Apparel": "Apparel",
+        "Industrial": "Industrial",
+        "Automotive Parts": "Automotive Parts",
+        "Perishable": "Perishable",
+        "General Cargo": "General Cargo",
+        "Hazardous Material": "Hazardous Material",
+        "Textile": "Textile",
+        "Construction Materials": "Construction Materials"
+      }
+    }
+  },
+  "analytics": {
+    "title": "Business Analytics",
+    "subtitle": "Executive overview of operational performance and financial trends",
+    "comingSoonDescription": "The Business Analytics module is currently under development. Soon you will be able to explore executive dashboards, cost trends, and performance forecasting for your fleet.",
+    "periods": {
+      "last7Days": "Last 7 Days",
+      "last30Days": "Last 30 Days",
+      "lastQuarter": "Last Quarter",
+      "yearToDate": "Year to Date"
+    },
+    "exportReport": "Export Report",
+    "costs": {
+      "title": "Operational Cost Trends",
+      "subtitle": "Last 6 Months",
+      "breakdown": "Cost Breakdown",
+      "categories": {
+        "fuel": "Fuel",
+        "maintenance": "Maintenance",
+        "overhead": "Overhead",
+        "salaries": "Driver Salaries",
+        "insuranceOps": "Insurance/Ops"
+      }
+    },
+    "forecasting": {
+      "title": "Demand Forecast",
+      "aiPowered": "AI Powered",
+      "subtitle": "Predicted shipment volume for next 3 weeks",
+      "weekPrefix": "W",
+      "actualVolume": "Actual Volume",
+      "predicted": "Predicted"
+    },
+    "performance": {
+      "onTimeDelivery": "On-Time Delivery",
+      "fleetUtilization": "Fleet Utilization",
+      "customerSatisfaction": "Customer Satisfaction",
+      "target": "Target: {value}%",
+      "realTime": "Real-time metric",
+      "reviews": "Based on {count} Reviews"
+    }
+  },
+  "roles": {
+    "ADMIN": "Administrator",
+    "MANAGER": "Manager",
+    "DRIVER": "Driver",
+    "OPERATOR": "Operator",
+    "OWNER": "Owner",
+    "MANAGEMENT": "Management"
+  },
+  "fuel": {
+    "title": "Fuel Management",
+    "addLog": "Add Fuel Log",
+    "addLogDesc": "Record fuel purchase for this vehicle.",
+    "noLogs": "No fuel logs found.",
+    "history": "Fuel History",
+    "info": "Fuel Information",
+    "fields": {
+      "date": "Date",
+      "volume": "Volume (L)",
+      "cost": "Total Cost",
+      "odometer": "Odometer (km)",
+      "location": "Location",
+      "fuelType": "Fuel Type",
+      "driver": "Driver"
+    },
+    "dialogs": {
+      "addTitle": "Add Fuel Log",
+      "success": "Fuel log added successfully",
+      "error": "Failed to add fuel log"
+    },
+    "pageSubtitle": "Manage fuel logs, track consumption, and monitor vehicle efficiency",
+    "comingSoonDescription": "We are currently building the advanced fuel management module. This feature will allow you to track fuel consumption per vehicle, integrate with fuel cards, and generate efficiency reports."
+  },
+  "warehouseWorker": {
+    "backToPanel": "Back to panel",
+    "noWarehouseAssigned": "No warehouse assigned",
+    "warehouseWorker": "Warehouse Worker",
+    "justNow": "just now",
+    "ago": "ago",
+    "unrecognizedItem": "Unrecognized item",
+    "noInventoryToScan": "No inventory to scan in this warehouse",
+    "logged": "Logged",
+    "couldNotLog": "Could not log movement",
+    "adjusted": "Stock adjusted",
+    "adjustNoChange": "Count matches system — no change",
+    "couldNotAdjust": "Could not adjust stock",
+    "taskComplete": "Task complete",
+    "couldNotUpdateTask": "Could not update task",
+    "restockRequested": "Restock requested",
+    "couldNotRequestRestock": "Could not request restock",
+    "issueReported": "Issue reported to supervisor",
+    "couldNotReportIssue": "Could not report issue",
+    "readOnlyRole": "Your role has view-only access to this panel",
+    "unassignedZone": "Unassigned",
+    "unassignedPallets": "{count} pallets have no zone assigned",
+    "unassignedPalletsHint": "These are excluded from the zone bars until they are placed.",
+    "high": "high",
+    "med": "med",
+    "low": "low",
+    "ui": {
+      "aisles": "Aisles 1–48",
+      "liveMovements": "Live stock movements",
+      "type": "Type",
+      "item": "Item",
+      "qty": "Qty",
+      "zone": "Zone",
+      "by": "By",
+      "time": "Time",
+      "scanPlaceholder": "Scan barcode or type a SKU…",
+      "scanBtn": "Scan",
+      "scanHint": "Press Enter to confirm, or use scanner.",
+      "simScan": "Simulate scan",
+      "logPick": "Log Pick",
+      "logPack": "Log Pack",
+      "logStockIn": "Log Stock In",
+      "logPutaway": "Log Putaway",
+      "logAdjust": "Adjust Count",
+      "cancelScan": "Cancel",
+      "adjustTitle": "Cycle count adjustment",
+      "adjustExpected": "System expected",
+      "adjustCounted": "Counted",
+      "adjustDiff": "Difference",
+      "adjustSurplus": "surplus",
+      "adjustShort": "short",
+      "adjustMatch": "matches",
+      "adjustReason": "Reason",
+      "adjustReasonPlaceholder": "e.g. damaged, miscount, found on floor…",
+      "adjustSubmit": "Submit adjustment",
+      "adjustUnknownSku": "No system record for this SKU — adjustment unavailable.",
+      "doneBtn": "Done",
+      "advanceBtn": "Advance",
+      "startBtn": "Start",
+      "completeBtn": "Complete",
+      "decreaseQty": "Remove one unit",
+      "increaseQty": "Add one unit",
+      "PICK": "PICK",
+      "PACK": "PACK",
+      "PUT": "PUT",
+      "scanLog": "Scan & log",
+      "pickZone": "Pick zone",
+      "myTaskQueue": "My task queue",
+      "openTasksCount": "open",
+      "taskQueueEmpty": "No tasks in your queue right now.",
+      "noMovements": "No movements yet",
+      "noMovementsDesc": "Live stock movements will be listed here.",
+      "highPriority": "high priority",
+      "nextTask": "Do this next",
+      "nextTaskStart": "Start",
+      "nextTaskAllClear": "All caught up",
+      "nextTaskAllClearSub": "No open tasks — nice work.",
+      "taskCompleteNoScan": "Task completed — but no items were scanned this session",
+      "taskZoneMismatch": "you're in a different zone",
+      "allAssignedTasks": "All assigned tasks",
+      "siteCapacity": "Site capacity",
+      "zoneNearFull": "Zone near full",
+      "palletPositions": "Pallet positions",
+      "palletPositionsUsed": "pallet positions used",
+      "positionsFree": "positions free",
+      "capacityActionTitle": "Zone near capacity — action needed",
+      "capacityStopPutaway": "stop putaway here",
+      "capacityDivertTo": "Divert to",
+      "capacityNoAlternative": "No zone below 70% — escalate to a supervisor for space.",
+      "activeLabel": "ACTIVE",
+      "controlPanel": "Control panel",
+      "activePickZone": "Active pick zone",
+      "quickActions": "Quick actions",
+      "requestRestockZone": "Request restock — Zone",
+      "restockDialogTitle": "Request restock",
+      "restockDialogSubtitle": "Pick the item that ran low and how many units you need",
+      "restockDialogZone": "Zone",
+      "restockDialogItem": "Item",
+      "restockDialogItemPlaceholder": "Search by SKU or name…",
+      "restockDialogNoMatch": "No item matches — try another SKU or name",
+      "restockDialogNoItemsInZone": "No items recorded in this zone",
+      "restockDialogQty": "Quantity",
+      "restockDialogAvailable": "available",
+      "restockDialogMin": "min",
+      "restockDialogSuggested": "Suggested",
+      "restockDialogSubmit": "Send request",
+      "restockDialogSelectItem": "Select an item to continue",
+      "reportIssue": "Report an issue",
+      "lowStockTitle": "Low stock",
+      "lowStockNone": "All items above reorder point.",
+      "lowStockUnitsLeft": "available / min",
+      "lowStockBadge": "LOW",
+      "restockSku": "Restock",
+      "scanLogMovements": "Scan & log movements",
+      "scanSubtitle": "Scan an item, confirm the quantity, and log it as a pick or pack",
+      "scanAnItem": "Scan an item",
+      "liveActivity": "Live activity",
+      "liveActivitySubtitle": "Every stock movement across the site, newest first",
+      "RESTOCK": "RESTOCK",
+      "RESTOCK_REQUEST": "RESTOCK REQ",
+      "PUTAWAY": "PUTAWAY",
+      "STOCK_IN": "STOCK IN",
+      "ADJUSTMENT": "ADJUSTMENT"
+    },
+    "nav": {
+      "overview": "Overview",
+      "scan": "Scan",
+      "tasks": "Tasks",
+      "capacity": "Capacity",
+      "activity": "Activity"
+    },
+    "status": {},
+    "dashboard": {
+      "picksToday": "Picks today",
+      "packsToday": "Packs today",
+      "throughput": "Throughput",
+      "unitsHr": "units/hr",
+      "latestTasks": "Latest tasks",
+      "viewAll": "View all",
+      "zones": "Zones",
+      "liveFeed": "Live feed",
+      "system": "System",
+      "you": "You"
+    },
+    "tasksView": {
+      "title": "Tasks",
+      "sub": "Assigned workflow",
+      "done": "done",
+      "units": "units",
+      "scanToComplete": "Scan to complete",
+      "completed": "Completed"
+    },
+    "capacityView": {
+      "title": "Capacity",
+      "sub": "Real-time pallet usage",
+      "free": "Free",
+      "used": "Used",
+      "zoneUtilization": "Zone Utilization"
+    },
+    "activityView": {
+      "title": "Activity",
+      "sub": "Warehouse feed",
+      "type": "Type",
+      "item": "Item",
+      "zone": "Zone",
+      "qty": "Qty",
+      "user": "User",
+      "time": "Time"
+    },
+    "scanView": {
+      "title": "Scan",
+      "sub": "Barcode scanner",
+      "manualEntry": "Manual entry...",
+      "simulateScan": "Simulate scan",
+      "scanned": "Scanned",
+      "zone": "Zone",
+      "quantity": "Quantity",
+      "pick": "Pick",
+      "pack": "Pack"
+    }
+  },
+  "driverConsole": {
+    "driverConsole": "Driver Console",
+    "backToPanel": "Back to panel",
+    "noDriverProfile": "No driver profile linked to this account",
+    "dutyChanged": "Duty status updated",
+    "couldNotChangeDuty": "Could not update duty status",
+    "stopMarkedArrived": "Stop marked as arrived",
+    "stopMarkedPending": "Stop marked as pending",
+    "couldNotUpdateStop": "Could not update stop",
+    "fuelLogged": "Fuel log added",
+    "couldNotLogFuel": "Could not add fuel log",
+    "issueReported": "Issue reported",
+    "couldNotReportIssue": "Could not report issue",
+    "shipmentStatusUpdated": "Shipment status updated",
+    "couldNotUpdateShipment": "Could not update shipment status",
+    "nav": {
+      "dashboard": "Dashboard",
+      "route": "Route",
+      "shipments": "Shipments",
+      "vehicle": "Vehicle",
+      "documents": "Documents"
+    },
+    "duty": {
+      "ON_JOB": "On Job",
+      "OFF_DUTY": "Off Duty",
+      "ON_LEAVE": "On Leave"
+    },
+    "dashboard": {
+      "dutyStatus": "Duty Status",
+      "confirmDutyChangeTitle": "Active route in progress",
+      "confirmDutyChangeBody": "You have an active route today. Are you sure you want to switch to \"{status}\"?",
+      "confirmYes": "Yes, switch",
+      "confirmCancel": "Cancel",
+      "todaysActiveRoute": "Today's Active Route",
+      "stopsRemaining": "stops remaining",
+      "departure": "Departure",
+      "viewRoute": "View Route →",
+      "safetyScore": "Safety Score",
+      "safetyScoreSub": "30-day average",
+      "efficiencyScore": "Efficiency",
+      "efficiencyScoreSub": "On-time delivery rate",
+      "rating": "Rating",
+      "ratingSub": "Customer feedback",
+      "nextStop": "Next Stop",
+      "eta": "ETA",
+      "arrived": "Arrived / Complete",
+      "noRouteToday": "No route assigned today",
+      "noRouteTodaySub": "A new route will appear here once assigned. You can update your status in the meantime.",
+      "goOffDuty": "Go Off Duty",
+      "licenseExpiringSoon": "License expires in {days} days"
+    },
+    "route": {
+      "optimizeRoute": "Optimize Route",
+      "comingSoon": "Coming soon",
+      "shapeUnavailable": "Route calculation failed — showing stop locations only. Deviation checks are disabled for this route.",
+      "deviationWarning": "Route deviation detected — tolerance of {buffer} m exceeded.",
+      "stop": "Stop",
+      "arrivedBtn": "Arrived",
+      "done": "DONE"
+    },
+    "shipmentsView": {
+      "all": "All",
+      "PENDING": "Pending",
+      "IN_TRANSIT": "In Transit",
+      "DELIVERED": "Delivered",
+      "DELAYED": "Delayed",
+      "slaRisk": "SLA RISK",
+      "stopsComplete": "stops complete"
+    },
+    "vehicleView": {
+      "assignedVehicle": "Assigned Vehicle",
+      "fuel": "Fuel",
+      "odometer": "Odometer",
+      "addFuelLog": "Add Fuel Log",
+      "volumeLiter": "Liters",
+      "cost": "Cost",
+      "odometerKm": "Odometer (km)",
+      "submitFuelLog": "Add Log",
+      "reportIssue": "Report an Issue",
+      "issueTitle": "Short title",
+      "priorityLow": "Low",
+      "priorityMedium": "Medium",
+      "priorityHigh": "High",
+      "submitIssue": "Report Issue"
+    },
+    "documentsView": {
+      "profile": "Profile",
+      "hazmatCertified": "Hazmat Certified",
+      "languages": "Languages",
+      "expiresOn": "Expires",
+      "ACTIVE": "ACTIVE",
+      "MISSING": "MISSING",
+      "EXPIRING_SOON": "EXPIRING SOON",
+      "EXPIRED": "EXPIRED"
+    }
+  },
+  "onboarding": {
+    "welcomeTitle": "Welcome to {name}",
+    "welcomeSubtitle": "You have successfully registered your account. To proceed to the dashboard, you need to be associated with a company",
+    "createTitle": "Create a New Company",
+    "createDescription": "Register a new logistics or transport company. You will be set as the initial Administrator with full control.",
+    "createButton": "Create Company",
+    "createRequiresAccess": "Creating a company requires an active plan or trial. Request a demo to get started, or join an existing company instead.",
+    "joinTitle": "Join an Existing Company",
+    "joinDescription": "If your company already uses LogiTrack, you can request to join using an invite code or your company email.",
+    "joinButton": "Join Company",
+    "joinDialogTitle": "Join a Company",
+    "joinDialogSubtitle": "We matched your email domain against registered companies.",
+    "joinNoMatchTitle": "No company found",
+    "joinNoMatchDescription": "No company is registered with your email domain yet. Ask your admin to add it, or create a new company instead.",
+    "joinMatchesFound": "Select the company you'd like to join",
+    "joinSubmit": "Request to Join",
+    "joinPendingTitle": "Your request to join {company} is pending approval",
+    "joinPendingDescription": "An admin at {company} needs to approve your request before you can access the dashboard.",
+    "cancelRequest": "Cancel Request",
+    "pendingInvitations": "Pending Invitations",
+    "youHaveBeenInvited": "You have been invited!",
+    "invitedYouToJoinAs": "{company} has invited you to join as a {role}.",
+    "decline": "Decline",
+    "acceptInvitation": "Accept Invitation",
+    "accepting": "Accepting...",
+    "declining": "Declining...",
+    "invitationAccepted": "Invitation accepted!",
+    "invitationDeclined": "Invitation declined.",
+    "requestDemoButton": "Request a Demo",
+    "verifyGateTitle": "Verify your email to continue",
+    "verifyGateBody": "We sent a verification link to {email}. Confirm it before creating or joining a company.",
+    "verifyGateResendButton": "Resend verification email",
+    "verifyGateResent": "Verification email sent — check your inbox."
+  },
+  "pendingAccess": {
+    "title": "Setting up your access",
+    "subtitle": "Your account is ready. We're activating your workspace access — this usually takes just a moment.",
+    "checking": "Checking your access…",
+    "grantedTitle": "Access granted!",
+    "grantedSubtitle": "Redirecting you to your workspace…",
+    "hint": "This page updates automatically. You don't need to refresh.",
+    "checkNow": "Check now",
+    "signOut": "Sign out",
+    "help": "Waiting longer than expected? Contact support and we'll sort it out."
+  },
+  "users": {
+    "title": "User Management",
+    "subtitle": "Manage company users, roles, and access permissions",
+    "comingSoonDescription": "The User Management module is currently under development. Soon you will be able to invite team members, assign specific roles (e.g. Dispatcher, Manager, Admin), and track user activity logs."
+  },
+  "admin": {
+    "title": "Admin Console",
+    "subtitle": "Platform administration and service diagnostics",
+    "badge": "Platform Admin",
+    "nav": {
+      "overview": "Overview",
+      "platform": "Platform",
+      "tenants": "Tenants",
+      "users": "Users",
+      "sessions": "Sessions",
+      "audit": "Audit Logs",
+      "observability": "Observability",
+      "health": "Health Checks",
+      "database": "Database",
+      "sandbox": "Service Sandbox",
+      "sandboxApi": "API Tester",
+      "sandboxWebsocket": "WebSocket & SSE",
+      "sandboxEmail": "Email & SMTP",
+      "sandboxQueue": "Queue Monitor",
+      "sandboxNotifications": "Notifications",
+      "system": "System",
+      "flags": "Feature Flags",
+      "settings": "Environment",
+      "deleted": "Deleted Records",
+      "demoRequests": "Demo Requests"
+    },
+    "header": {
+      "search": "Search or jump to…",
+      "commandHint": "Ctrl K",
+      "allSystems": "All systems operational",
+      "degraded": "Degraded performance",
+      "outage": "Service outage",
+      "checking": "Checking services…",
+      "backToApp": "Back to app",
+      "signOut": "Sign out"
+    },
+    "palette": {
+      "placeholder": "Type a command or search…",
+      "empty": "No results found.",
+      "groupNavigation": "Navigation",
+      "groupActions": "Actions",
+      "close": "Close"
+    },
+    "status": {
+      "up": "Operational",
+      "degraded": "Degraded",
+      "down": "Down",
+      "unknown": "Unknown"
+    },
+    "common": {
+      "refresh": "Refresh",
+      "retry": "Retry",
+      "loading": "Loading…",
+      "error": "Something went wrong",
+      "noData": "No data available",
+      "lastChecked": "Last checked",
+      "latency": "Latency",
+      "sensitive": "Sensitive",
+      "readOnly": "Read only",
+      "simulated": "Simulated"
+    },
+    "overview": {
+      "kpi": {
+        "tenants": "Tenants",
+        "users": "Total Users",
+        "activeSessions": "Active Sessions",
+        "signIns": "Sign-ins",
+        "shipments": "Shipments Created",
+        "failedSignIns": "Failed Sign-ins"
+      },
+      "ranges": {
+        "1h": "1H",
+        "24h": "24H",
+        "7d": "7D",
+        "30d": "30D"
+      },
+      "charts": {
+        "activityTitle": "Platform Activity",
+        "activitySubtitle": "Sign-ins and new users over the selected range",
+        "signIns": "Sign-ins",
+        "signups": "New users",
+        "subscriptionsTitle": "Subscription Mix",
+        "subscriptionsSubtitle": "Distribution across all accounts",
+        "tenantsTitle": "Most Active Tenants",
+        "tenantsSubtitle": "Ranked by shipment volume"
+      },
+      "table": {
+        "tenant": "Tenant",
+        "users": "Users",
+        "shipments": "Shipments",
+        "created": "Created"
+      },
+      "telemetryNotice": "Host metrics (CPU, memory, request rate, p99 latency) are not shown — this deployment has no APM data source connected.",
+      "generatedAt": "Updated"
+    },
+    "sandbox": {
+      "api": {
+        "title": "API Tester",
+        "subtitle": "Replay this application's own REST endpoints",
+        "presets": "Presets",
+        "method": "Method",
+        "path": "Path",
+        "headers": "Headers",
+        "query": "Query Params",
+        "body": "Body (JSON)",
+        "send": "Send Request",
+        "sending": "Sending…",
+        "reset": "Reset",
+        "response": "Response",
+        "status": "Status",
+        "duration": "Time",
+        "size": "Size",
+        "noResponse": "Send a request to see the response here.",
+        "keyPlaceholder": "Header name",
+        "valuePlaceholder": "Value",
+        "queryKeyPlaceholder": "Param name",
+        "addRow": "Add row",
+        "scopeNotice": "Only this app's /api/* routes can be called. Absolute URLs and external hosts are rejected by the server.",
+        "bodyInvalid": "Body must be valid JSON"
+      },
+      "email": {
+        "title": "Email & SMTP Tester",
+        "subtitle": "Send a real message through Resend using production templates",
+        "recipient": "Recipient",
+        "recipientPlaceholder": "you@example.com",
+        "template": "Template",
+        "language": "Language",
+        "subject": "Subject",
+        "html": "HTML body",
+        "send": "Send Test Email",
+        "sending": "Sending…",
+        "warning": "This sends a REAL email through Resend. Use an address you control.",
+        "templates": {
+          "verification": "Email verification",
+          "passwordReset": "Password reset",
+          "companyWelcome": "Company welcome",
+          "securityAlert": "Security alert",
+          "notification": "Notification",
+          "custom": "Custom HTML"
+        },
+        "success": "Email dispatched",
+        "failure": "Delivery failed"
+      },
+      "queue": {
+        "title": "Queue & Cache Monitor",
+        "subtitle": "Live Redis keyspace and rate-limit state",
+        "totalKeys": "Keys scanned",
+        "namespaces": "Namespaces",
+        "rateLimitKeys": "Active rate-limit windows",
+        "latency": "Probe latency",
+        "unreachable": "Redis is unreachable",
+        "truncated": "Scan capped — the keyspace is larger than shown.",
+        "live": "Live",
+        "noBullmq": "This application does not use BullMQ or a job queue library, so there are no jobs to retry or drain. What is shown is the real Redis cache and rate-limiter state.",
+        "namespace": "Namespace",
+        "keyCount": "Keys"
+      },
+      "stream": {
+        "title": "Event Stream Tester",
+        "subtitle": "Connect to a live Server-Sent Events endpoint",
+        "connect": "Connect",
+        "disconnect": "Disconnect",
+        "clear": "Clear",
+        "status": "Status",
+        "events": "Events",
+        "noEvents": "No events yet. Connect to start receiving.",
+        "statuses": {
+          "idle": "Idle",
+          "connecting": "Connecting…",
+          "open": "Connected",
+          "closed": "Closed",
+          "error": "Error"
+        },
+        "wsNotice": "This tester uses Server-Sent Events (SSE). A raw WebSocket tester is not included because this deployment exposes no WebSocket endpoint."
+      },
+      "notImplemented": {
+        "payments": "Payment Gateway Sandbox",
+        "paymentsBody": "No payment provider (Stripe, Iyzico) is integrated in this codebase, so there is nothing to test. This page is intentionally left unimplemented rather than simulated, so the console never implies coverage that does not exist."
+      }
+    },
+    "data": {
+      "tenants": {
+        "title": "Tenants",
+        "subtitle": "Every company on the platform",
+        "name": "Name",
+        "domain": "Domain",
+        "users": "Users",
+        "vehicles": "Vehicles",
+        "shipments": "Shipments",
+        "created": "Created"
+      },
+      "users": {
+        "title": "Users",
+        "subtitle": "Manage accounts across all tenants",
+        "search": "Search by name or email",
+        "status": "Status",
+        "allStatuses": "All statuses",
+        "user": "User",
+        "email": "Email",
+        "role": "Role",
+        "tenant": "Tenant",
+        "sessions": "Sessions",
+        "lastLogin": "Last login",
+        "verified": "Verified",
+        "unverified": "Unverified",
+        "never": "Never",
+        "actions": "Actions",
+        "activate": "Activate",
+        "deactivate": "Deactivate",
+        "suspend": "Suspend",
+        "revokeSessions": "Sign out everywhere",
+        "statuses": {
+          "ACTIVE": "Active",
+          "INACTIVE": "Inactive",
+          "SUSPENDED": "Suspended"
+        },
+        "confirmSuspend": "Suspend this account? All active sessions will be terminated immediately.",
+        "confirmRevoke": "Sign this user out of every device?",
+        "selfActionBlocked": "You cannot change your own account status."
+      },
+      "sessions": {
+        "title": "Sessions",
+        "subtitle": "Live sessions across the platform",
+        "user": "User",
+        "device": "Device",
+        "ip": "IP address",
+        "lastActivity": "Last activity",
+        "expires": "Expires",
+        "state": "State",
+        "active": "Active",
+        "revoked": "Revoked",
+        "expired": "Expired",
+        "kill": "Revoke",
+        "confirmKill": "Revoke this session? The user will be signed out immediately.",
+        "unknownDevice": "Unknown device"
+      },
+      "audit": {
+        "title": "Audit Logs",
+        "subtitle": "Immutable record of security-relevant events",
+        "action": "Action",
+        "allActions": "All actions",
+        "search": "Search by email or IP",
+        "actor": "Actor",
+        "ip": "IP",
+        "when": "When",
+        "metadata": "Metadata",
+        "immutableNotice": "This log is append-only. The console provides no way to edit or delete entries.",
+        "system": "System",
+        "noLiveLogsNotice": "There is no separate live log stream: app/lib/logger.ts writes only to the process console (stdout/stderr) and persists nothing, so there is no store this console could read from. This audit trail is the real, persisted, queryable record of security-relevant events."
+      },
+      "database": {
+        "title": "Database Browser",
+        "subtitle": "Read-only view of platform records",
+        "model": "Table",
+        "readOnlyNotice": "No editing. Rows can be soft-deleted (hidden and restorable) but never edited or erased, and tables holding credentials (users, sessions, tokens) are excluded entirely.",
+        "rows": "rows"
+      },
+      "flags": {
+        "title": "Feature Flags",
+        "subtitle": "Toggle platform capabilities without a deploy",
+        "flag": "Flag",
+        "state": "State",
+        "updated": "Last changed",
+        "never": "Never changed",
+        "enabled": "On",
+        "disabled": "Off"
+      },
+      "env": {
+        "title": "Environment",
+        "subtitle": "Deployment configuration",
+        "variable": "Variable",
+        "value": "Value",
+        "notSet": "(not set)",
+        "maskNotice": "Secret values are masked server-side and never sent to the browser. Only the last four characters of long values are shown, so two keys can be told apart without either being readable."
+      },
+      "masquerade": {
+        "title": "User Masquerade",
+        "unavailable": "Not available",
+        "body": "Signing in as another user is not implemented. The session token in this application carries no impersonation marker, so a masquerade session would be indistinguishable from a genuine login — in the audit trail, to the tenant's own users, and to any downstream service. Shipping it without that marker would make every action taken while impersonating unattributable. Implementing it safely requires an `impersonatedBy` claim in the JWT, a shortened token lifetime, a persistent banner in the app shell, and dedicated audit actions."
+      },
+      "announcement": {
+        "title": "Announcement Banner",
+        "subtitle": "Broadcast a message to every signed-in user",
+        "message": "Message",
+        "messagePlaceholder": "Scheduled maintenance tonight at 22:00 UTC…",
+        "severity": "Severity",
+        "severities": {
+          "info": "Info",
+          "warning": "Warning",
+          "critical": "Critical"
+        },
+        "publish": "Publish",
+        "clear": "Take down",
+        "active": "Live",
+        "inactive": "Not published",
+        "updated": "Last changed",
+        "preview": "Preview",
+        "charCount": "characters",
+        "plainTextNotice": "The banner is rendered as plain text. HTML and markup are not interpreted."
+      },
+      "demoRequests": {
+        "title": "Demo Requests",
+        "subtitle": "Review incoming demo requests and grant trial access",
+        "requester": "Requester",
+        "type": "Type",
+        "account": "Account",
+        "status": "Status",
+        "received": "Received",
+        "trialDays": "Trial",
+        "days": "{days} days",
+        "approve": "Approve",
+        "regrant": "Re-grant",
+        "reject": "Reject",
+        "reopen": "Reopen",
+        "until": "until",
+        "noAccount": "No account",
+        "noAccountHint": "No account exists for this email yet, so approving cannot grant a trial. They will receive one when they sign up.",
+        "noRequests": "No requests here.",
+        "invalidDays": "Trial length must be a whole number between 1 and 365 days.",
+        "approvedWithTrial": "Approved — {days}-day trial granted",
+        "approvedNoAccount": "Approved, but no account exists for that email yet — nothing was granted.",
+        "statusUpdated": "Status updated",
+        "filters": {
+          "PENDING": "Pending",
+          "APPROVED": "Approved",
+          "REJECTED": "Rejected",
+          "ALL": "All requests"
+        },
+        "statuses": {
+          "PENDING": "Pending",
+          "APPROVED": "Approved",
+          "REJECTED": "Rejected"
+        }
+      },
+      "deletion": {
+        "delete": "Delete",
+        "restore": "Restore",
+        "deleted": "Deleted",
+        "deletedAt": "Deleted at",
+        "confirmTitle": "Delete this record?",
+        "confirmBody": "The record will be hidden everywhere in the application. It is not erased from the database and can be restored later.",
+        "confirmCompanyTitle": "Delete this tenant?",
+        "confirmCompanyBody": "This hides the company AND every one of its users, and signs them all out immediately. Vehicles, shipments and other records become unreachable with it. This can be restored, but the affected users must sign in again.",
+        "typeToConfirm": "Type the company name to confirm:",
+        "cancel": "Cancel",
+        "confirmDelete": "Yes, delete",
+        "softDeleteNotice": "Deletes are reversible. Records are hidden from the application, not erased — the audit trail and referential integrity stay intact.",
+        "restoreTitle": "Deleted Records",
+        "restoreSubtitle": "Review and restore soft-deleted records",
+        "entity": "Type",
+        "record": "Record",
+        "noDeleted": "Nothing has been deleted.",
+        "deleteSuccess": "Record deleted",
+        "restoreSuccess": "Record restored",
+        "cascadeUsers": "users also hidden and signed out",
+        "cannotDeleteSelf": "You cannot delete your own account",
+        "cannotDeleteAdmin": "Platform administrators cannot be deleted",
+        "hardDelete": "Erase permanently",
+        "confirmHardDeleteTitle": "Permanently erase this user?",
+        "confirmHardDeleteBody": "This removes the user from the database. It cannot be undone. Their audit log, inventory and shipment history entries are kept but no longer show who made them; invitations they sent are deleted.",
+        "typeToConfirmEmail": "Type the user's email to confirm:",
+        "confirmHardDelete": "Yes, erase permanently",
+        "hardDeleteSuccess": "User permanently erased",
+        "entities": {
+          "user": "User",
+          "company": "Tenant",
+          "vehicle": "Vehicle",
+          "trailer": "Trailer",
+          "shipment": "Shipment",
+          "route": "Route",
+          "warehouse": "Warehouse",
+          "customer": "Customer",
+          "driver": "Driver",
+          "inventory": "Inventory"
+        }
+      }
+    }
+  }
+}

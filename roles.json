@@ -1,0 +1,85 @@
+[
+  {
+    "id": "role_admin",
+    "name": "Administrator",
+    "names": [
+      "Super Admin",
+      "Company Admin",
+      "Administrator",
+      "Admin",
+      "companyadmin",
+      "superadmin"
+    ],
+    "description": "Full access to all system resources",
+    "permissions": [
+      "*"
+    ]
+  },
+  {
+    "id": "role_manager",
+    "name": "Warehouse Manager",
+    "names": [
+      "Manager",
+      "Operations Manager",
+      "Fleet Manager",
+      "Warehouse Manager",
+      "operations manager",
+      "fleet manager"
+    ],
+    "description": "Manage warehouse operations, inventory, and local staff",
+    "permissions": [
+      "warehouse:read",
+      "warehouse:write",
+      "inventory:read",
+      "inventory:write",
+      "staff:read",
+      "staff:write",
+      "reports:read"
+    ]
+  },
+  {
+    "id": "role_dispatcher",
+    "name": "Dispatcher",
+    "names": [
+      "Dispatcher"
+    ],
+    "description": "Manage routes, shipments, and fleet coordination",
+    "permissions": [
+      "routes:read",
+      "routes:write",
+      "shipments:read",
+      "shipments:write",
+      "fleet:read",
+      "drivers:read"
+    ]
+  },
+  {
+    "id": "role_warehouse",
+    "name": "Warehouse Operator",
+    "names": [
+      "Warehouse Operator",
+      "Warehouse",
+      "warehouseoperator",
+      "warehouse operator",
+      "warehouse specialist"
+    ],
+    "description": "Inventory and stock management",
+    "permissions": [
+      "MANAGE_INVENTORY",
+      "VIEW_SHIPMENTS"
+    ]
+  },
+  {
+    "id": "role_driver",
+    "name": "Driver",
+    "names": [
+      "Driver"
+    ],
+    "description": "View assigned routes and update shipment status",
+    "permissions": [
+      "routes:read_own",
+      "shipments:read_own",
+      "shipments:update_status"
+    ]
+  }
+]

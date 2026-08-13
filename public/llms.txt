@@ -1,0 +1,54 @@
+# LogiTrack
+
+> LogiTrack is an enterprise-grade, AI-powered logistics and fleet management platform. Manage shipments, routes, vehicles, drivers, warehouses, and fuel operations from a single intelligent dashboard with real-time tracking and advanced analytics.
+
+## Documentation
+
+- [Home](https://logitrack.emreceyhan.xyz/en): Landing page with platform overview, social proof, and key features.
+- [Features](https://logitrack.emreceyhan.xyz/en/features): Detailed breakdown of enterprise logistics capabilities including real-time tracking, route intelligence, and telemetry.
+- [Pricing](https://logitrack.emreceyhan.xyz/en/pricing): Flexible pricing plans for SMB and enterprise logistics operations.
+- [How It Works](https://logitrack.emreceyhan.xyz/en/how-it-works): Step-by-step guide explaining the platform workflow from onboarding to live operations.
+- [About Us](https://logitrack.emreceyhan.xyz/en/about): Company mission, vision, and the engineering team behind LogiTrack.
+
+## Platform Pages
+
+- [Global Tracking](https://logitrack.emreceyhan.xyz/en/global-tracking): Real-time visibility across every continent with sub-second precision.
+- [Route Intelligence](https://logitrack.emreceyhan.xyz/en/route-intelligence): AI-powered route optimization to reduce fuel costs and delivery times.
+- [Telemetry Hub](https://logitrack.emreceyhan.xyz/en/telemetry-hub): Aggregate and analyze telemetry data from thousands of IoT devices and vehicles.
+- [Security Center](https://logitrack.emreceyhan.xyz/en/security-center): Zero-trust security, encryption, and compliance for mission-critical logistics.
+
+## Solutions Pages
+
+- [Enterprise](https://logitrack.emreceyhan.xyz/en/enterprise): Custom deployment options and dedicated infrastructure for managing 10,000+ shipments.
+- [SMB Logistics](https://logitrack.emreceyhan.xyz/en/smb-logistics): Enterprise-grade logistics tools packaged for small and medium businesses.
+- [Supply Chain](https://logitrack.emreceyhan.xyz/en/supply-chain): End-to-end supply chain orchestration from raw materials to last-mile delivery.
+- [Custom API](https://logitrack.emreceyhan.xyz/en/custom-api): Robust, high-performance APIs for custom logistics integrations and advanced automation.
+
+## Company Pages
+
+- [Our Mission](https://logitrack.emreceyhan.xyz/en/our-mission): Democratizing global logistics through AI and machine learning.
+- [Engineering](https://logitrack.emreceyhan.xyz/en/engineering): Built on cutting-edge cloud-native architecture for real-time data processing.
+- [Press Kit](https://logitrack.emreceyhan.xyz/en/press-kit): Brand assets, press releases, and media resources.
+- [Careers](https://logitrack.emreceyhan.xyz/en/careers): Join a team of engineers, designers, and logistics experts.
+
+## Support Pages
+
+- [Developer Docs](https://logitrack.emreceyhan.xyz/en/developer-docs): Comprehensive API documentation, SDKs, and integration guides.
+- [Help Center](https://logitrack.emreceyhan.xyz/en/help-center): Knowledge base, technical support, and community forums.
+- [Privacy](https://logitrack.emreceyhan.xyz/en/privacy): Data protection, rights, and transparency policies.
+- [Service Level Agreement (SLA)](https://logitrack.emreceyhan.xyz/en/sla): Industry-leading uptime guarantees and incident reporting.
+
+## Get Started
+
+- [Sign Up](https://logitrack.emreceyhan.xyz/en/auth/sign-up): Create an account and onboard a company to start using the platform.
+- [Sign In](https://logitrack.emreceyhan.xyz/en/auth/sign-in): Existing user login.
+
+Note: the dashboard itself (shipments, routes, vehicles, drivers, warehouses,
+inventory, fuel, customers, analytics, reports, users, company settings) is a
+private, authenticated application surface — it requires an account and is
+not publicly crawlable or indexable. The pages listed above are the complete
+set of public marketing/documentation content.
+
+## Optional
+
+- [Turkish Version](https://logitrack.emreceyhan.xyz/tr): Full Turkish language support for all platform pages.

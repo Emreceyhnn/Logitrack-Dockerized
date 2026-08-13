@@ -1,0 +1,62 @@
+name: Logitrack CI Pipeline
+
+on:
+  push:
+    branches: ["main", "master"]
+  pull_request:
+    branches: ["main", "master"]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-test:
+    name: Build & Test
+    runs-on: ubuntu-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+      DATABASE_URL: "postgresql://user:pass@localhost:5432/db"
+      KV_REST_API_URL: "https://dummy.upstash.io"
+      KV_REST_API_TOKEN: "dummy"
+      # Dummy values so module-scope env validation passes in unit tests.
+      # Live-service tests (*.live.test.*) are excluded from `npm test` and
+      # only run locally via `npm run test:live` with real credentials.
+      JWT_SECRET: "ci-dummy-jwt-secret-at-least-32-chars-long"
+      NEXT_PUBLIC_SUPABASE_URL: "https://dummy.supabase.co"
+      SUPABASE_SERVICE_ROLE_KEY: "ci-dummy-service-role-key"
+
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: ⚙️ Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+
+      - name: 📦 Install Dependencies
+        run: npm install
+
+      - name: 🗄️ Generate Prisma Client
+        run: npm run db:generate
+
+      - name: 🔍 Lint Code
+        run: npm run lint
+
+      - name: ʦ Type Check
+        run: npx tsc --noEmit
+
+      - name: 💾 Next.js Build Cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.npm
+            ${{ github.workspace }}/.next/cache
+          key: ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json') }}-${{ hashFiles('**/*.js', '**/*.jsx', '**/*.ts', '**/*.tsx') }}
+          restore-keys: |
+            ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json') }}-
+
+      - name: 🏗️ Build Project
+        run: npm run build

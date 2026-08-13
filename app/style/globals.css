@@ -1,0 +1,180 @@
+/*
+ * Poppins is loaded via `next/font/google` in app/[lang]/layout.tsx, which
+ * self-hosts the files, preloads them, and exposes them through the
+ * `--font-poppins` CSS variable. The old `@import url(fonts.googleapis.com)`
+ * was render-blocking, created a request waterfall, and pulled all 9 weights;
+ * next/font eliminates the external request and the font-swap layout shift.
+ */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family:
+    var(--font-poppins),
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+img,
+picture,
+video,
+canvas,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+input,
+button,
+textarea,
+select {
+  font: inherit;
+}
+
+/* Google Places Autocomplete dropdown menu */
+.pac-container {
+  z-index: 9999 !important;
+}
+
+/* -------------------------------- LANDING PAGE UTILITIES ------------------------------- */
+
+.bg-hero-glow {
+  background: radial-gradient(
+    circle at 50% 40%,
+    rgba(0, 242, 255, 0.05) 0%,
+    rgba(16, 20, 26, 1) 75%
+  );
+}
+
+.glass-panel {
+  background: rgba(28, 32, 38, 0.8);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.08),
+    0 20px 40px -12px rgba(0, 0, 0, 0.4);
+}
+
+.glass-inner {
+  background: rgba(255, 255, 255, 0.04);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+}
+
+.bg-grid-pattern {
+  background-image:
+    linear-gradient(rgba(0, 242, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 242, 255, 0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+.text-glow {
+  text-shadow: 0 0 15px rgba(0, 242, 255, 0.3);
+}
+
+@keyframes scanline {
+  0% {
+    transform: translateY(-100%);
+  }
+  100% {
+    transform: translateY(100vh);
+  }
+}
+
+@keyframes marquee {
+  0% {
+    transform: translateY(0%);
+  }
+  100% {
+    transform: translateY(-50%);
+  }
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes spin-slow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-scanline {
+  animation: scanline 15s linear infinite;
+}
+
+.animate-spin-slow {
+  animation: spin-slow 120s linear infinite;
+}
+
+.animate-spin {
+  animation: spin-slow 1s linear infinite;
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.perspective-1000 {
+  perspective: 1000px;
+}
+
+/* Remove outline completely from all focused elements */
+*:focus,
+*:focus-visible,
+input:focus,
+input:focus-visible,
+button:focus,
+button:focus-visible,
+textarea:focus,
+textarea:focus-visible,
+select:focus,
+select:focus-visible {
+  outline: none !important;
+}
+
+
+/* Skip link: visually hidden until keyboard-focused (WCAG 2.4.1) */
+.skip-link {
+  position: absolute;
+  top: -100px;
+  left: 16px;
+  z-index: 2000;
+  padding: 10px 16px;
+  background: #1976d2;
+  color: #fff;
+  border-radius: 8px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: top 0.15s ease-in-out;
+}
+
+.skip-link:focus-visible {
+  top: 16px;
+}

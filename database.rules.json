@@ -1,0 +1,42 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+
+    "vehicles": {
+      "locations": {
+        "$companyId": {
+          ".read": "auth != null && auth.token.companyId === $companyId"
+        }
+      },
+      "registry": {
+        "$companyId": {
+          ".read": "auth != null && auth.token.companyId === $companyId"
+        }
+      }
+    },
+
+    "notifications": {
+      "broadcast": {
+        ".read": "auth != null"
+      },
+      "inbox": {
+        "$userId": {
+          ".read": "auth != null && auth.uid === $userId"
+        }
+      },
+      "company": {
+        "$companyId": {
+          "all": {
+            ".read": "auth != null && auth.token.companyId === $companyId"
+          },
+          "role": {
+            "$roleId": {
+              ".read": "auth != null && auth.token.companyId === $companyId && auth.token.roleId === $roleId"
+            }
+          }
+        }
+      }
+    }
+  }
+}
