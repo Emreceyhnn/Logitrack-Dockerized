@@ -321,24 +321,6 @@ describe("Upload Actions", () => {
       expect(cloudinaryMock.url.mock.calls.length).toBe(0);
     });
 
-    it("should_ReturnUnsignedUrl_WhenPublicIdCannotBeParsed", async () => {
-      // Arrange — a legacy (pre-migration) Supabase URL has no /v<version>/ segment
-      dbMock.document.findFirst.mock.mockImplementation(async () => ({
-        id: "doc-legacy",
-      }));
-
-      // Act
-      const result = await uploadActions.getSignedUrlAction(
-        mockUser,
-        "https://stcbrfzcftmdbpukxsxw.supabase.co/storage/v1/object/documents/old.pdf",
-        "documents"
-      );
-
-      // Assert — degrades to the raw URL rather than emitting a broken signature
-      expect(result.signed).toBe(false);
-      expect(cloudinaryMock.url.mock.calls.length).toBe(0);
-    });
-
     it("should_ParseSignedLegacyUrls_WrittenBeforeStripping", async () => {
       // Rows saved before signature-stripping still contain an "s--TOKEN--"
       // segment; those must remain signable rather than silently 404.

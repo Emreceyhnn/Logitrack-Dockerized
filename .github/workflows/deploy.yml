@@ -1,0 +1,58 @@
+name: Deploy to VPS
+
+on:
+  workflow_run:
+    workflows: ["Docker Publish"]
+    types: [completed]
+    branches: ["main", "master"]
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: https://logitrack.example.com
+    steps:
+      - name: Deploy edilecek immutable image tag'ini hesapla
+        id: image
+        run: |
+          echo "sha_short=${GITHUB_SHA:0:7}" >> "$GITHUB_OUTPUT"
+        env:
+          GITHUB_SHA: ${{ github.event.workflow_run.head_sha }}
+
+      - name: SSH and Deploy on VPS
+        uses: appleboy/ssh-action@029f5b4aeeeb58fdfe1410a5d17f967dacf36262 # v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          envs: IMAGE_TAG
+          script: |
+            set -e
+            cd /opt/logitrack # VPS'deki proje dizininiz
+            docker pull emrecyhn/logitrack:${IMAGE_TAG}
+            docker tag emrecyhn/logitrack:${IMAGE_TAG} emrecyhn/logitrack:latest
+            docker compose down
+            docker compose up -d
+            docker image prune -f
+
+            # Deploy sonrası health check — nginx'in /healthz endpoint'i sadece
+            # compose network'ünde/host'ta erişilebilir olduğundan kontrol VPS
+            # içinden, aynı SSH oturumunda yapılır.
+            for i in $(seq 1 10); do
+              STATUS=$(curl -s -o /dev/null -w "%{http_code}" "http://localhost/healthz" || echo "000")
+              if [ "$STATUS" = "200" ]; then
+                echo "Deploy başarılı, servis ayakta (HTTP $STATUS)."
+                exit 0
+              fi
+              echo "Bekleniyor... deneme $i (HTTP $STATUS)"
+              sleep 5
+            done
+            echo "Health check başarısız! Deploy edilen sürüm sağlıksız olabilir."
+            exit 1
+        env:
+          IMAGE_TAG: ${{ steps.image.outputs.sha_short }}

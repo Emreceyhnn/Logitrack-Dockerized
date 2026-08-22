@@ -11,7 +11,7 @@ Built with **Next.js 16 (App Router)**, **React 19**, **TypeScript**, **Prisma 7
 - **Shipment management** — full shipment lifecycle with a strict status state machine (including `FAILED` / `RETURNED` / `DELAYED` states), priorities, service types, multi-stop support, item-level tracking, and audit history.
 - **Route planning & dispatch** — routes with ordered stops, driver/vehicle assignment with conflict and capacity guards, and route status tracking. Turn-by-turn routing via **Valhalla** and polyline decoding for map display.
 - **Live fleet tracking** — real-time vehicle positions on **Leaflet** maps, powered by **Firebase Realtime Database**.
-- **Fleet & maintenance** — vehicles, trailers and trailer assignments, fuel logs, maintenance records with status/type tracking, and document management (with signed document access via Supabase Storage).
+- **Fleet & maintenance** — vehicles, trailers and trailer assignments, fuel logs, maintenance records with status/type tracking, and document management (with signed document access via Cloudinary).
 - **Warehouse operations** — warehouses, zones, warehouse tasks (pick/pack/etc. with priorities), inventory and inventory movements, plus a dedicated **warehouse-worker** UI surface.
 - **Customer management** — customers with multiple locations and Google Places address autocomplete.
 - **Analytics & reports** — operational dashboards and reports built on MUI X Charts.
@@ -90,7 +90,7 @@ The Prisma schema (~27 models) centers on `Company` as the tenant root, with `Us
 | Database | PostgreSQL (Neon serverless) + Prisma 7 |
 | Cache / sessions / rate limit | Upstash Redis |
 | Realtime tracking | Firebase Realtime Database (+ firebase-admin) |
-| File storage | Supabase Storage (signed URLs) |
+| File storage | Cloudinary (signed URLs) |
 | Maps & routing | Leaflet / react-leaflet, Valhalla, Google Places autocomplete |
 | Auth | jose (JWT), bcryptjs |
 | Validation | Zod (server) / Yup + Formik (client) |
@@ -103,7 +103,7 @@ The Prisma schema (~27 models) centers on `Company` as the tenant root, with `Us
 
 - Node.js 20+
 - A PostgreSQL database (Neon recommended)
-- Upstash Redis, Firebase, and Supabase projects (see env vars below)
+- Upstash Redis, Firebase, and Cloudinary projects (see env vars below)
 
 ### Setup
 
@@ -133,7 +133,7 @@ See [`.env.example`](.env.example) for the full list. Key groups:
 | Auth | `JWT_SECRET` (required at startup), `REFRESH_SECRET` |
 | Redis | `KV_REST_API_URL`, `KV_REST_API_TOKEN`, `REDIS_URL`, … |
 | Firebase | `NEXT_PUBLIC_FIREBASE_*`, `FIREBASE_CLIENT_EMAIL`, `FIREBASE_PRIVATE_KEY` |
-| Supabase | `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY` |
+| Cloudinary | `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET` |
 | Maps | `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY`, `GOOGLE_MAPS_API_KEY` |
 | FX rates | `EXCHANGE_RATE_API_KEY`, `EXCHANGE_RATE_BASE_URL` |
 | Admin console | `PLATFORM_ADMIN_USER_IDS` (see below) |

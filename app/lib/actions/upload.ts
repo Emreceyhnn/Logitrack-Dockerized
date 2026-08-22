@@ -207,7 +207,7 @@ interface ParsedAssetRef {
  * resource_type is read from the path rather than inferred from the file
  * extension: a signature is only valid for the resource_type the asset was
  * actually stored under, and the URL is the one authoritative record of that.
- * 
+ *
  * tr-bir teslimat URL'sinden Cloudinary public_id ve resource_type değerlerini çıkarır
  * en-extracts the Cloudinary public_id and resource_type from a delivery URL
  * input (fileUrl: string)
@@ -217,10 +217,6 @@ function parseAssetRef(fileUrl: string): ParsedAssetRef | null {
   try {
     const { hostname, pathname } = new URL(fileUrl);
 
-    // Legacy pre-migration URLs (e.g. Supabase) are not signable here, and
-    // their paths can contain version-looking segments ("/storage/v1/object/")
-    // that would otherwise parse into a bogus public_id and produce a broken
-    // signed link. Only Cloudinary-hosted assets get signed.
     if (!/(^|\.)res\.cloudinary\.com$/.test(hostname)) {
       return null;
     }
@@ -326,8 +322,7 @@ export const getSignedUrlAction = authenticatedAction(
         sign_url: true,
         secure: true,
         ...(attachmentFlag ? { flags: attachmentFlag } : {}),
-        // Cloudinary signatures are permanent unless the URL also carries an
-        // expiry, so set one to match the old 1-hour Supabase signed URLs.
+
         expires_at: Math.floor(Date.now() / 1000) + SIGNED_URL_TTL_SECONDS,
       });
 

@@ -77,7 +77,7 @@ Use PostgreSQL with Prisma ORM.
 - Prisma provides type-safe database access and migration management
 - We can use PostgreSQL's full-text search instead of adding Elasticsearch
 - Team needs PostgreSQL knowledge (standard skill, low risk)
-- Hosting on managed service (Supabase, Neon, or RDS)
+- Hosting on managed service (Neon or RDS)
 ```
 
 ### ADR Lifecycle
