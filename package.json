@@ -9,7 +9,7 @@
   "scripts": {
     "analyze": "cross-env ANALYZE=true npm run build",
     "dev": "next dev",
-    "build": "prisma generate && eslint && next build",
+    "build": "prisma generate && eslint && next build && prisma db push --skip-generate",
     "start": "dotenv -e .env -- node .next/standalone/server.js",
     "lint": "eslint",
     "lint:fix": "eslint --fix",

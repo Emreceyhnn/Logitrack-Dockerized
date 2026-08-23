@@ -1,22 +1,4 @@
 services:
-  # Publishes the site through Cloudflare without opening a port on this
-  # machine: cloudflared dials OUT to Cloudflare's edge and traffic arrives
-  # over that connection. No inbound firewall rule, no port forwarding.
-  #
-  # It targets nginx (not web directly) so public traffic goes through the same
-  # rate limiting, caching and header handling as local traffic.
-  cloudflared:
-    image: cloudflare/cloudflared:latest
-    command: tunnel --no-autoupdate run
-    environment:
-      # Set in .env — the token grants full control of the tunnel, so it is
-      # kept out of this file (.env is gitignored, docker-compose.yml is not).
-      TUNNEL_TOKEN: ${CLOUDFLARE_TUNNEL_TOKEN:?CLOUDFLARE_TUNNEL_TOKEN is not set in .env}
-    depends_on:
-      nginx:
-        condition: service_healthy
-    restart: unless-stopped
-
   nginx:
     image: nginx:1.27-alpine
     ports:
