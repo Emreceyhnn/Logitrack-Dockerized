@@ -135,8 +135,6 @@ const ENV_REGISTRY: { key: string; secret: boolean }[] = [
   { key: "VERCEL_REGION", secret: false },
   { key: "DATABASE_URL", secret: true },
   { key: "JWT_SECRET", secret: true },
-  { key: "RESEND_API_KEY", secret: true },
-  { key: "RESEND_FROM_EMAIL", secret: false },
   { key: "REDIS_URL", secret: true },
   { key: "CLOUDINARY_CLOUD_NAME", secret: false },
   { key: "CLOUDINARY_API_KEY", secret: true },

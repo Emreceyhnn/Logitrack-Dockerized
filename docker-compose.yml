@@ -51,12 +51,12 @@ services:
     environment:
       # Overrides the .env value: inside the container `localhost` is the web
       # container itself, so the database has to be reached by service name.
-      # The role is `admin`, not `postgres` — the postgres_data volume was
-      # initialized with POSTGRES_USER=admin and already holds the migrated
-      # schema. POSTGRES_USER only takes effect on an empty data directory, so
-      # these must keep matching the volume or auth fails with a misleading
-      # "credentials are not valid" (really: role does not exist).
-      DATABASE_URL: "postgresql://admin:3121283455Em!@postgres:5432/logitrack?schema=public"
+      # The role/password/db come from POSTGRES_* in .env — they must keep
+      # matching the postgres service below (and the postgres_data volume,
+      # which only re-applies POSTGRES_USER/PASSWORD on an empty data
+      # directory) or auth fails with a misleading "credentials are not
+      # valid" (really: role does not exist).
+      DATABASE_URL: "postgresql://${POSTGRES_USER:?POSTGRES_USER is not set in .env}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is not set in .env}@postgres:5432/${POSTGRES_DB:?POSTGRES_DB is not set in .env}?schema=public"
       REDIS_URL: "redis://redis:6379"
     restart: unless-stopped
     # node-alpine has no curl/wget by default, so the check is done with Node
@@ -83,9 +83,13 @@ services:
   postgres:
     image: postgres:17-alpine
     environment:
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: 3121283455Em!
-      POSTGRES_DB: logitrack
+      # Set in .env — kept out of this file since docker-compose.yml is
+      # tracked in git (.env is gitignored). See DATABASE_URL above: the web
+      # service's connection string is built from these same three values,
+      # so they only need to be correct in one place.
+      POSTGRES_USER: ${POSTGRES_USER:?POSTGRES_USER is not set in .env}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is not set in .env}
+      POSTGRES_DB: ${POSTGRES_DB:?POSTGRES_DB is not set in .env}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
@@ -94,7 +98,7 @@ services:
       # would listen on every interface.
       - "127.0.0.1:5432:5432"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U admin -d logitrack"]
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -126,6 +130,19 @@ services:
       timeout: 3s
       retries: 10
     restart: unless-stopped
+
+  email-service:
+    image: emrecyhn/logitrack-email-service:latest
+    restart: always
+    environment:
+      - EMAIL_HOST=${EMAIL_HOST:?EMAIL_HOST is not set in .env}
+      - EMAIL_PORT=${EMAIL_PORT:?EMAIL_PORT is not set in .env}
+      - EMAIL_USER=${EMAIL_USER:?EMAIL_USER is not set in .env}
+      - EMAIL_PASS=${EMAIL_PASS:?EMAIL_PASS is not set in .env}
+      - FROM_EMAIL=${EMAIL_FROM_ADDRESS:?EMAIL_FROM_ADDRESS is not set in .env}
+      - LOGITRACK_BASE_URL=${NEXT_PUBLIC_BASE_URL:?NEXT_PUBLIC_BASE_URL is not set in .env}
+    depends_on:
+      - redis
 
 volumes:
   postgres_data:
