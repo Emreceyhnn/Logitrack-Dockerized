@@ -4,12 +4,6 @@ import { headers } from "next/headers";
 import { redis } from "@/app/lib/redis";
 import { logger } from "@/app/lib/logger";
 import { ValidationError } from "@/app/lib/errors";
-import { sendEmail } from "@/app/lib/services/email";
-import { buildEmailVerificationEmail } from "@/app/lib/templates/emailVerificationEmail";
-import { buildPasswordResetEmail } from "@/app/lib/templates/passwordResetEmail";
-import { buildCompanyWelcomeEmail } from "@/app/lib/templates/companyWelcomeEmail";
-import { buildSecurityAlertEmail } from "@/app/lib/templates/securityAlertEmail";
-import { buildNotificationEmail } from "@/app/lib/templates/notificationEmail";
 import type {
   ApiRequestPayload,
   ApiResponseResult,
@@ -242,57 +236,58 @@ export async function executeApiRequest(
 const SAMPLE_URL = "https://example.invalid/sandbox-test-link";
 
 /**
- * tr-Seçilen şablonu gerçek builder ile render eder.
- * en-Renders the chosen template using the app's real builders, so the tester
- *    proves what production actually sends rather than an approximation.
+ * tr-Seçilen şablon için LogiTrack Email Service'e gönderilecek isim ve örnek veriyi hazırlar.
+ * en-Maps the chosen template to the LogiTrack Email Service's template name and sample data,
+ *    so the tester proves what production actually sends rather than an approximation.
  * input (payload: EmailTestPayload)
- * output ({ subject: string; html: string; text?: string })
+ * output ({ template?: string; data?: Record<string, unknown>; subject?: string; html?: string })
  */
 function renderTemplate(payload: EmailTestPayload): {
-  subject: string;
-  html: string;
-  text?: string;
+  template?: string;
+  data?: Record<string, unknown>;
+  subject?: string;
+  html?: string;
 } {
-  const lang = payload.lang;
-
   switch (payload.template) {
     case "verification":
-      return buildEmailVerificationEmail({
-        verifyUrl: SAMPLE_URL,
-        userName: "Sandbox Tester",
-        lang,
-        expiryHours: 24,
-      });
+      return {
+        template: "emailVerification",
+        data: { verifyUrl: SAMPLE_URL, userName: "Sandbox Tester", expiryHours: 24 },
+      };
     case "passwordReset":
-      return buildPasswordResetEmail({
-        resetUrl: SAMPLE_URL,
-        userName: "Sandbox Tester",
-        lang,
-        expiryMinutes: 60,
-      });
+      return {
+        template: "passwordReset",
+        data: { resetUrl: SAMPLE_URL, userName: "Sandbox Tester", expiryMinutes: 60 },
+      };
     case "companyWelcome":
-      return buildCompanyWelcomeEmail({
-        companyName: "Sandbox Logistics",
-        roleName: "Administrator",
-        addedByName: "Admin Console",
-        lang,
-      });
+      return {
+        template: "companyWelcome",
+        data: {
+          companyName: "Sandbox Logistics",
+          roleName: "Administrator",
+          addedByName: "Admin Console",
+        },
+      };
     case "securityAlert":
-      return buildSecurityAlertEmail({
-        kind: "PASSWORD_CHANGED",
-        userName: "Sandbox Tester",
-        ipAddress: "203.0.113.7",
-        deviceInfo: "Admin Console Sandbox",
-        lang,
-      });
+      return {
+        template: "securityAlert",
+        data: {
+          kind: "PASSWORD_CHANGED",
+          userName: "Sandbox Tester",
+          ipAddress: "203.0.113.7",
+          deviceInfo: "Admin Console Sandbox",
+        },
+      };
     case "notification":
-      return buildNotificationEmail({
-        title: "Sandbox notification",
-        message:
-          "This is a test notification dispatched from the admin console.",
-        type: "INFO",
-        lang,
-      });
+      return {
+        template: "notification",
+        data: {
+          title: "Sandbox notification",
+          message:
+            "This is a test notification dispatched from the admin console.",
+          type: "INFO",
+        },
+      };
     case "custom": {
       const subject = payload.subject?.trim();
       const html = payload.html?.trim();
@@ -311,8 +306,8 @@ function renderTemplate(payload: EmailTestPayload): {
 
 /**
  * tr-Gerçek bir test e-postası gönderir.
- * en-Sends a REAL email through Resend. This is not a simulation: the address
- *    receives an actual message, which is why the UI labels it as such.
+ * en-Sends a REAL email through the LogiTrack Email Service. This is not a simulation: the
+ *    address receives an actual message, which is why the UI labels it as such.
  * input (payload: EmailTestPayload)
  * output (Promise<EmailTestResult>)
  */
@@ -328,9 +323,10 @@ export async function sendTestEmail(
     });
   }
 
-  if (!process.env.RESEND_API_KEY) {
+  const emailServiceUrl = process.env.EMAIL_SERVICE_URL;
+  if (!emailServiceUrl) {
     throw new ValidationError(
-      "Email delivery is not configured (RESEND_API_KEY is unset)"
+      "Email delivery is not configured (EMAIL_SERVICE_URL is unset)"
     );
   }
 
@@ -338,18 +334,35 @@ export async function sendTestEmail(
   const startedAt = Date.now();
 
   try {
-    await sendEmail({
-      to,
-      subject: `[Sandbox] ${rendered.subject}`,
-      html: rendered.html,
-      ...(rendered.text ? { text: rendered.text } : {}),
+    const response = await fetch(`${emailServiceUrl}/send`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        to,
+        lang: payload.lang,
+        ...(rendered.template
+          ? { template: rendered.template, data: rendered.data }
+          : {}),
+        subject: rendered.subject
+          ? `[Sandbox] ${rendered.subject}`
+          : undefined,
+        html: rendered.html,
+      }),
     });
+
+    const body = (await response.json().catch(() => ({}))) as {
+      success?: boolean;
+      messageId?: string;
+      error?: string;
+    };
+
+    if (!response.ok || body.success === false) {
+      throw new Error(body.error || `Email service responded with ${response.status}`);
+    }
 
     return {
       ok: true,
-      // sendEmail does not surface the provider id; the send either completed
-      // or threw, and claiming an id we do not have would be a lie.
-      messageId: null,
+      messageId: body.messageId ?? null,
       durationMs: Date.now() - startedAt,
       message: `Email dispatched to ${to}`,
       sentAt: new Date().toISOString(),

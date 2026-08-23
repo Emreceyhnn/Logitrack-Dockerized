@@ -145,22 +145,25 @@ export async function getHealthMatrix(): Promise<ServiceHealth[]> {
     }),
   ];
 
-  // Resend — verify the API key is accepted. This lists domains rather than
-  // sending mail, so the probe costs nothing and spams nobody.
-  if (process.env.RESEND_API_KEY) {
+  // LogiTrack Email Service — verify the microservice is reachable. This hits
+  // its own /health endpoint rather than sending mail, so the probe costs
+  // nothing and spams nobody.
+  const emailServiceUrl = process.env.EMAIL_SERVICE_URL;
+  if (emailServiceUrl) {
     checks.push(
-      probe("email", "Email (Resend)", async () => {
-        const res = await fetch("https://api.resend.com/domains", {
-          headers: { Authorization: `Bearer ${process.env.RESEND_API_KEY}` },
+      probe("email", "Email (LogiTrack Email Service)", async () => {
+        const res = await fetch(`${emailServiceUrl}/health`, {
           cache: "no-store",
         });
         if (!res.ok) {
-          throw new Error(`Resend responded ${res.status}`);
+          throw new Error(`Email service responded ${res.status}`);
         }
       })
     );
   } else {
-    checks.push(Promise.resolve(notConfigured("email", "Email (Resend)")));
+    checks.push(
+      Promise.resolve(notConfigured("email", "Email (LogiTrack Email Service)"))
+    );
   }
 
   // Cloudinary — the ping endpoint is purpose-built for health checks.

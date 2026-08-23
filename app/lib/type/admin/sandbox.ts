@@ -6,8 +6,8 @@
  * SCOPE NOTE — what the sandbox does and does not do:
  *   - API Tester    → replays this app's OWN /api/* routes. Arbitrary URLs are
  *                     rejected server-side; see the SSRF note on `endpoint`.
- *   - Email Tester  → sends REAL mail through Resend using the app's real
- *                     templates. Not a simulation.
+ *   - Email Tester  → sends REAL mail through the LogiTrack Email Service
+ *                     using the app's real templates. Not a simulation.
  *   - Queue Monitor → reports REAL Redis/Upstash state (keys, memory, cache
  *                     namespaces). This app has no BullMQ, so there is no job
  *                     retry/drain surface to expose and none is faked.
@@ -89,7 +89,7 @@ export interface EmailTestPayload {
 
 export interface EmailTestResult {
   ok: boolean;
-  /** Resend message id when the send succeeded. */
+  /** Email service message id when the send succeeded. */
   messageId: string | null;
   durationMs: number;
   message: string;

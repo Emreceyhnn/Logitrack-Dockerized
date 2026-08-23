@@ -166,7 +166,7 @@ Denied attempts are audited too — a non-admin probing the console is a securit
 | Area | Route | Notes |
 |---|---|---|
 | Overview | `/admin` | KPIs + activity charts, all from real rows |
-| Health matrix | `/admin/health` | Live probes: Postgres, Redis, Resend, Cloudinary, Firebase, Valhalla |
+| Health matrix | `/admin/health` | Live probes: Postgres, Redis, LogiTrack Email Service, Cloudinary, Firebase, Valhalla |
 | Tenants / Users / Sessions | `/admin/{tenants,users,sessions}` | Suspend, deactivate, kill sessions |
 | Audit logs | `/admin/audit` | Append-only; no edit or delete route exists |
 | Database browser | `/admin/database` | Read + soft-delete only; closed model allowlist, no editing |
@@ -202,7 +202,7 @@ This is not a shortcut — it is the only correct option here. Almost every fore
 - **API tester is SSRF-guarded.** `assertSafeApiPath` rejects absolute URLs, protocol-relative paths, `file:`, traversal escapes and cloud-metadata IPs; only this app's own `/api/*` is reachable. Covered by 18 tests.
 - **`set-cookie` / `authorization` response headers are redacted** before reaching the browser.
 - **No credential columns are ever selected** — `User.password`, `User.googleId`, `Session.token`, `Session.refreshToken`. Covered by tests.
-- **The email tester sends real mail** through Resend using production templates, and says so in the UI.
+- **The email tester sends real mail** through the LogiTrack Email Service using production templates, and says so in the UI.
 
 ## 📜 Scripts
 

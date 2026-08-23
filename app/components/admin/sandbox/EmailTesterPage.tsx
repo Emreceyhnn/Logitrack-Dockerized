@@ -33,8 +33,8 @@ const TEMPLATES: EmailTemplateKey[] = [
 
 /**
  * tr-E-posta test aracı sayfası.
- * en-Email tester. Sends a REAL message through Resend using the app's own
- *    templates, so the result reflects what production actually delivers.
+ * en-Email tester. Sends a REAL message through the LogiTrack Email Service using
+ *    the app's own templates, so the result reflects what production actually delivers.
  * input (SandboxPageProps)
  * output (JSX.Element)
  */

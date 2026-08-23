@@ -1,33 +1,8 @@
-import { Resend } from "resend";
 import { logger } from "@/app/lib/logger";
-import { buildDriverInviteEmail } from "@/app/lib/templates/driverInviteEmail";
-import { buildNotificationEmail, NotificationEmailKind } from "@/app/lib/templates/notificationEmail";
-import { buildWeeklyReportEmail, WeeklyReportEmailData } from "@/app/lib/templates/weeklyReportEmail";
-import { buildPasswordResetEmail } from "@/app/lib/templates/passwordResetEmail";
-import { buildEmailVerificationEmail } from "@/app/lib/templates/emailVerificationEmail";
-import { buildCompanyWelcomeEmail } from "@/app/lib/templates/companyWelcomeEmail";
-import { buildInvitationOutcomeEmail } from "@/app/lib/templates/invitationOutcomeEmail";
-import { buildSecurityAlertEmail, SecurityAlertKind } from "@/app/lib/templates/securityAlertEmail";
-import { buildSubscriptionEmail, SubscriptionEmailKind } from "@/app/lib/templates/subscriptionEmail";
 import { withEmailRetry } from "./emailRetry";
 
-let resendClient: Resend | null = null;
-/**
- * tr-description
- * en-description
- * input ()
- * output (Resend)
- *
- */
-function getResendClient(): Resend {
-  if (!resendClient) {
-    const apiKey = process.env.RESEND_API_KEY;
-    if (!apiKey)
-      throw new Error("RESEND_API_KEY environment variable is not defined");
-    resendClient = new Resend(apiKey);
-  }
-  return resendClient;
-}
+const EMAIL_SERVICE_URL =
+  process.env.EMAIL_SERVICE_URL || "http://localhost:3030";
 
 export interface SendEmailOptions {
   to: string | string[];
@@ -39,65 +14,97 @@ export interface SendEmailOptions {
 
 interface DispatchPayload {
   to: string | string[];
-  subject: string;
-  html: string;
+  subject?: string | undefined;
+  html?: string | undefined;
   text?: string | undefined;
   from?: string | undefined;
+  template?: string | undefined;
+  lang?: "en" | "tr" | undefined;
+  data?: Record<string, unknown> | undefined;
+}
+
+export type SecurityAlertKind =
+  | "PASSWORD_CHANGED"
+  | "PASSWORD_RESET"
+  | "EMAIL_CHANGED";
+
+export type SubscriptionEmailKind =
+  | "TRIAL_ENDING"
+  | "TRIAL_ENDED"
+  | "PLAN_ACTIVATED";
+
+export type NotificationEmailKind = "INFO" | "WARNING" | "SUCCESS" | "ERROR";
+
+export interface WeeklyReportEmailData {
+  companyName: string;
+  weekLabel: string;
+  lang?: "en" | "tr" | undefined;
+  stats: {
+    newShipments: number;
+    deliveredShipments: number;
+    delayedShipments: number;
+    completedRoutes: number;
+    activeVehicles: number;
+    totalVehicles: number;
+    upcomingMaintenance: number;
+  };
 }
 
 /**
- * tr-Tüm giden e-postaların tek geçiş noktası. Resend hatayı fırlatmak yerine `{ error }`
- *    olarak döndürür; bu hata yeniden deneme döngüsünün görebilmesi için fırlatılır.
- *    Geçici hatalarda (429/5xx/ağ) üstel bekleme ile yeniden denenir, kalıcı hatalarda
- *    (geçersiz adres, doğrulanmamış alan adı) ilk denemede vazgeçilir.
- * en-The single choke point for every outbound email. Resend reports failures by returning
- *    `{ error }` rather than throwing, so the error is rethrown here for the retry loop to see.
- *    Transient failures (429/5xx/network) are retried with exponential backoff; permanent ones
- *    (invalid address, unverified domain) fail on the first attempt.
+ * tr-Tüm giden e-postaların tek geçiş noktası. LogiTrack Email Service'in `/send` uç noktasına
+ *    POST atar. Servis hatayı HTTP durum koduyla bildirir; bu hata yeniden deneme döngüsünün
+ *    görebilmesi için fırlatılır. Geçici hatalarda (429/5xx/ağ) üstel bekleme ile yeniden denenir,
+ *    kalıcı hatalarda (400 — geçersiz adres/parametre) ilk denemede vazgeçilir.
+ * en-The single choke point for every outbound email. POSTs to the LogiTrack Email Service's
+ *    `/send` endpoint. The service reports failures via HTTP status; that error is rethrown here
+ *    for the retry loop to see. Transient failures (429/5xx/network) are retried with exponential
+ *    backoff; permanent ones (400 — invalid address/params) fail on the first attempt.
  * input (payload: DispatchPayload, context: string)
- * output (Promise<string | undefined>) — the Resend message id when available
+ * output (Promise<string | undefined>) — the provider's message id when available
  */
 async function dispatchEmail(
   payload: DispatchPayload,
   context: string
 ): Promise<string | undefined> {
   return withEmailRetry(async () => {
-    const resend = getResendClient();
-    const { data, error } = await resend.emails.send({
-      from:
-        payload.from ||
-        process.env.RESEND_FROM_EMAIL ||
-        "LogiTrack <noreply@resend.dev>",
-      to: payload.to,
-      subject: payload.subject,
-      html: payload.html,
-      ...(payload.text ? { text: payload.text } : {}),
+    const response = await fetch(`${EMAIL_SERVICE_URL}/send`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
     });
 
-    if (error) {
-      // Preserve Resend's fields (name/statusCode) so isRetryableEmailError can
-      // classify this correctly instead of falling back to string matching.
-      throw Object.assign(new Error(error.message), {
-        name: error.name,
-        statusCode: (error as { statusCode?: number }).statusCode,
-      });
+    const body = (await response.json().catch(() => ({}))) as {
+      success?: boolean;
+      messageId?: string;
+      error?: string;
+    };
+
+    if (!response.ok || body.success === false) {
+      // Preserve the HTTP status so isRetryableEmailError can classify this
+      // correctly instead of falling back to string matching.
+      throw Object.assign(
+        new Error(body.error || `Email service responded with ${response.status}`),
+        { statusCode: response.status }
+      );
     }
 
-    return data?.id;
+    return body.messageId;
   }, context);
 }
 
 /**
- * tr-Resend kullanarak genel bir e-posta gönderir. RESEND_API_KEY yapılandırılmamışsa e-postayı göndermek yerine günlüğe kaydeder.
- * en-Sends a generic email using Resend. If RESEND_API_KEY isn't configured, logs the email instead of sending it.
+ * tr-LogiTrack Email Service üzerinden genel bir e-posta gönderir. EMAIL_SERVICE_URL yapılandırılmamışsa
+ *    e-postayı göndermek yerine günlüğe kaydeder.
+ * en-Sends a generic email via the LogiTrack Email Service. If EMAIL_SERVICE_URL isn't configured,
+ *    logs the email instead of sending it.
  * input (options: SendEmailOptions)
  * output (Promise<void>)
  *
  */
 export async function sendEmail(options: SendEmailOptions): Promise<void> {
-  if (!process.env.RESEND_API_KEY) {
+  if (!process.env.EMAIL_SERVICE_URL) {
     logger.warn(
-      `[email] RESEND_API_KEY not set — email to ${options.to}: ${options.subject}`
+      `[email] EMAIL_SERVICE_URL not set — email to ${options.to}: ${options.subject}`
     );
     return;
   }
@@ -120,9 +127,9 @@ export async function sendEmail(options: SendEmailOptions): Promise<void> {
 
 /**
  * tr-Belirtilen dile uygun güzel HTML şablonuyla sürücüye davet e-postası gönderir.
- *    RESEND_API_KEY tanımlı değilse (yerel/dev ortam) e-posta göndermez, sadece günlüğe kaydeder.
- * en-Sends a driver invite email using a rich bilingual HTML template (TR/EN).
- *    If RESEND_API_KEY is not set (local/dev), logs the invite URL instead of sending.
+ *    EMAIL_SERVICE_URL tanımlı değilse (yerel/dev ortam) e-posta göndermez, sadece günlüğe kaydeder.
+ * en-Sends a driver invite email using the "driverInvite" template (TR/EN).
+ *    If EMAIL_SERVICE_URL is not set (local/dev), logs the invite URL instead of sending.
  * input (to: string, inviteUrl: string, companyName: string, lang?: "en" | "tr", expiryDays?: number)
  * output (Promise<void>)
  *
@@ -135,23 +142,20 @@ export async function sendCompanyInviteEmail(
   lang: "en" | "tr" = "en",
   expiryDays: number = 7
 ): Promise<void> {
-  if (!process.env.RESEND_API_KEY) {
+  if (!process.env.EMAIL_SERVICE_URL) {
     logger.warn(
-      `[email] RESEND_API_KEY not set — invite URL for ${to} (lang:${lang}): ${inviteUrl}`
+      `[email] EMAIL_SERVICE_URL not set — invite URL for ${to} (lang:${lang}): ${inviteUrl}`
     );
     return;
   }
   try {
-    const { subject, html, text } = buildDriverInviteEmail({
-      companyName,
-      inviteUrl,
-      roleName,
-      lang,
-      expiryDays,
-    });
-
     const id = await dispatchEmail(
-      { to, subject, html, text },
+      {
+        to,
+        template: "driverInvite",
+        lang,
+        data: { companyName, inviteUrl, roleName, expiryDays },
+      },
       "sendCompanyInviteEmail"
     );
 
@@ -165,10 +169,10 @@ export async function sendCompanyInviteEmail(
 }
 
 /**
- * tr-Şifre sıfırlama bağlantısını gönderir. Diğer gönderim fonksiyonlarının aksine, RESEND_API_KEY
+ * tr-Şifre sıfırlama bağlantısını gönderir. Diğer gönderim fonksiyonlarının aksine, EMAIL_SERVICE_URL
  *    tanımlı değilse sessizce geçmez — hata fırlatır. Sessiz bir başarısızlık, kullanıcının
  *    "bağlantı gönderildi" mesajını görüp hiçbir zaman e-posta almaması demektir.
- * en-Sends the password reset link. Unlike the other senders, this one THROWS when RESEND_API_KEY
+ * en-Sends the password reset link. Unlike the other senders, this one THROWS when EMAIL_SERVICE_URL
  *    is missing instead of silently logging: a silent no-op here means the user is told "link sent"
  *    and is permanently locked out of their account. A hard failure is the safer outcome.
  * input (to: string, resetUrl: string, userName?: string, lang?: "en" | "tr", expiryMinutes?: number)
@@ -181,24 +185,22 @@ export async function sendPasswordResetEmail(
   lang: "en" | "tr" = "en",
   expiryMinutes: number = 60
 ): Promise<void> {
-  if (!process.env.RESEND_API_KEY) {
+  if (!process.env.EMAIL_SERVICE_URL) {
     logger.error(
-      "[email] RESEND_API_KEY is not set — password reset email cannot be delivered. " +
-      "Refusing to report success for an email that was never sent."
+      "[email] EMAIL_SERVICE_URL is not set — password reset email cannot be delivered. " +
+        "Refusing to report success for an email that was never sent."
     );
     throw new Error("Email delivery is not configured");
   }
 
-  const { subject, html, text } = buildPasswordResetEmail({
-    resetUrl,
-    ...(userName ? { userName } : {}),
-    lang,
-    expiryMinutes,
-  });
-
   // Never log resetUrl — it is a bearer credential until it is used.
   const id = await dispatchEmail(
-    { to, subject, html, text },
+    {
+      to,
+      template: "passwordReset",
+      lang,
+      data: { resetUrl, userName, expiryMinutes },
+    },
     "sendPasswordResetEmail"
   );
 
@@ -214,7 +216,7 @@ export async function sendPasswordResetEmail(
  *    must still exist and the user can request a new link — failing registration over a mail
  *    outage would be far worse than an unverified account.
  * input (to: string, verifyUrl: string, userName?: string, lang?: "en" | "tr", expiryHours?: number)
- * output (Promise<boolean>) — true when handed off to Resend, false otherwise
+ * output (Promise<boolean>) — true when handed off to the email service, false otherwise
  */
 export async function sendEmailVerificationEmail(
   to: string,
@@ -223,39 +225,36 @@ export async function sendEmailVerificationEmail(
   lang: "en" | "tr" = "en",
   expiryHours: number = 24
 ): Promise<boolean> {
-  if (!process.env.RESEND_API_KEY) {
+  if (!process.env.EMAIL_SERVICE_URL) {
     logger.error(
-      `[email] RESEND_API_KEY not set — verification email for ${to} was not sent.`
+      `[email] EMAIL_SERVICE_URL not set — verification email for ${to} was not sent.`
     );
     return false;
   }
 
   try {
-    const { subject, html, text } = buildEmailVerificationEmail({
-      verifyUrl,
-      ...(userName ? { userName } : {}),
-      lang,
-      expiryHours,
-    });
-
     // Never log verifyUrl — it is a bearer credential until it is used.
     const id = await dispatchEmail(
-      { to, subject, html, text },
+      {
+        to,
+        template: "emailVerification",
+        lang,
+        data: { verifyUrl, userName, expiryHours },
+      },
       "sendEmailVerificationEmail"
     );
 
     logger.info(`[email] Verification email sent → ${to} (id: ${id})`);
     return true;
   } catch (error) {
-    // Log the provider's own fields, not just `message`. Resend distinguishes
-    // an unverified sending domain (403), an invalid recipient (422) and a bad
-    // key (401) via `name`/`statusCode`; collapsing them to a bare string threw
-    // away the only information that identifies which one occurred.
-    const e = error as { name?: string; statusCode?: number; message?: string };
+    // Log the service's own fields, not just `message`. The email service
+    // distinguishes an unreachable SMTP host (5xx) from bad request params
+    // (400) via `statusCode`; collapsing them to a bare string threw away
+    // the only information that identifies which one occurred.
+    const e = error as { statusCode?: number; message?: string };
     logger.error(
       `[email] sendEmailVerificationEmail failed for ${to} — ` +
-        `name=${e.name ?? "n/a"} statusCode=${e.statusCode ?? "n/a"} ` +
-        `message=${e.message ?? String(error)}`
+        `statusCode=${e.statusCode ?? "n/a"} message=${e.message ?? String(error)}`
     );
     return false;
   }
@@ -271,30 +270,39 @@ export async function sendEmailVerificationEmail(
  */
 export async function sendCompanyWelcomeEmail(
   recipient: { email: string; lang?: "en" | "tr" | undefined },
-  data: { companyName: string; roleName: string; addedByName?: string | undefined }
+  data: {
+    companyName: string;
+    roleName: string;
+    addedByName?: string | undefined;
+  }
 ): Promise<void> {
-  if (!process.env.RESEND_API_KEY) {
+  if (!process.env.EMAIL_SERVICE_URL) {
     logger.warn(
-      `[email] RESEND_API_KEY not set — welcome email for ${recipient.email} (${data.companyName}) not sent`
+      `[email] EMAIL_SERVICE_URL not set — welcome email for ${recipient.email} (${data.companyName}) not sent`
     );
     return;
   }
 
   try {
-    const { subject, html, text } = buildCompanyWelcomeEmail({
-      companyName: data.companyName,
-      roleName: data.roleName,
-      addedByName: data.addedByName,
-      lang: recipient.lang,
-    });
-
     await dispatchEmail(
-      { to: recipient.email, subject, html, text },
+      {
+        to: recipient.email,
+        template: "companyWelcome",
+        lang: recipient.lang,
+        data: {
+          companyName: data.companyName,
+          roleName: data.roleName,
+          addedByName: data.addedByName,
+        },
+      },
       "sendCompanyWelcomeEmail"
     );
   } catch (error) {
     const msg = error instanceof Error ? error.message : String(error);
-    logger.error(`[email] sendCompanyWelcomeEmail failed for ${recipient.email}:`, msg);
+    logger.error(
+      `[email] sendCompanyWelcomeEmail failed for ${recipient.email}:`,
+      msg
+    );
   }
 }
 
@@ -315,29 +323,34 @@ export async function sendInvitationOutcomeEmail(
     outcome: "ACCEPTED" | "DECLINED";
   }
 ): Promise<void> {
-  if (!process.env.RESEND_API_KEY) {
+  if (!process.env.EMAIL_SERVICE_URL) {
     logger.warn(
-      `[email] RESEND_API_KEY not set — invitation ${data.outcome} notice for ${recipient.email} not sent`
+      `[email] EMAIL_SERVICE_URL not set — invitation ${data.outcome} notice for ${recipient.email} not sent`
     );
     return;
   }
 
   try {
-    const { subject, html, text } = buildInvitationOutcomeEmail({
-      inviteeEmail: data.inviteeEmail,
-      inviteeName: data.inviteeName,
-      companyName: data.companyName,
-      outcome: data.outcome,
-      lang: recipient.lang,
-    });
-
     await dispatchEmail(
-      { to: recipient.email, subject, html, text },
+      {
+        to: recipient.email,
+        template: "invitationOutcome",
+        lang: recipient.lang,
+        data: {
+          inviteeEmail: data.inviteeEmail,
+          inviteeName: data.inviteeName,
+          companyName: data.companyName,
+          outcome: data.outcome,
+        },
+      },
       "sendInvitationOutcomeEmail"
     );
   } catch (error) {
     const msg = error instanceof Error ? error.message : String(error);
-    logger.error(`[email] sendInvitationOutcomeEmail failed for ${recipient.email}:`, msg);
+    logger.error(
+      `[email] sendInvitationOutcomeEmail failed for ${recipient.email}:`,
+      msg
+    );
   }
 }
 
@@ -361,24 +374,26 @@ export async function sendSecurityAlertEmail(
     deviceInfo?: string | undefined;
   }
 ): Promise<void> {
-  if (!process.env.RESEND_API_KEY) {
+  if (!process.env.EMAIL_SERVICE_URL) {
     logger.error(
-      `[email] RESEND_API_KEY not set — SECURITY ALERT (${data.kind}) for ${recipient.email} was not delivered.`
+      `[email] EMAIL_SERVICE_URL not set — SECURITY ALERT (${data.kind}) for ${recipient.email} was not delivered.`
     );
     return;
   }
 
   try {
-    const { subject, html, text } = buildSecurityAlertEmail({
-      kind: data.kind,
-      userName: data.userName,
-      ipAddress: data.ipAddress,
-      deviceInfo: data.deviceInfo,
-      lang: recipient.lang,
-    });
-
     await dispatchEmail(
-      { to: recipient.email, subject, html, text },
+      {
+        to: recipient.email,
+        template: "securityAlert",
+        lang: recipient.lang,
+        data: {
+          kind: data.kind,
+          userName: data.userName,
+          ipAddress: data.ipAddress,
+          deviceInfo: data.deviceInfo,
+        },
+      },
       "sendSecurityAlertEmail"
     );
   } catch (error) {
@@ -395,7 +410,7 @@ export async function sendSecurityAlertEmail(
  * tr-Abonelik yaşam döngüsü e-postası gönderir (deneme bitişi, plan aktivasyonu).
  * en-Sends a subscription lifecycle email (trial expiry, plan activation).
  * input (recipient: { email: string; lang?: "en" | "tr" }, data: { kind: SubscriptionEmailKind; daysRemaining?: number; planName?: string })
- * output (Promise<boolean>) — true when handed off to Resend
+ * output (Promise<boolean>) — true when handed off to the email service
  */
 export async function sendSubscriptionEmail(
   recipient: { email: string; lang?: "en" | "tr" | undefined },
@@ -406,24 +421,26 @@ export async function sendSubscriptionEmail(
     planName?: string | undefined;
   }
 ): Promise<boolean> {
-  if (!process.env.RESEND_API_KEY) {
+  if (!process.env.EMAIL_SERVICE_URL) {
     logger.warn(
-      `[email] RESEND_API_KEY not set — subscription email (${data.kind}) for ${recipient.email} not sent`
+      `[email] EMAIL_SERVICE_URL not set — subscription email (${data.kind}) for ${recipient.email} not sent`
     );
     return false;
   }
 
   try {
-    const { subject, html, text } = buildSubscriptionEmail({
-      kind: data.kind,
-      userName: data.userName,
-      daysRemaining: data.daysRemaining,
-      planName: data.planName,
-      lang: recipient.lang,
-    });
-
     await dispatchEmail(
-      { to: recipient.email, subject, html, text },
+      {
+        to: recipient.email,
+        template: "subscription",
+        lang: recipient.lang,
+        data: {
+          kind: data.kind,
+          userName: data.userName,
+          daysRemaining: data.daysRemaining,
+          planName: data.planName,
+        },
+      },
       "sendSubscriptionEmail"
     );
     return true;
@@ -439,44 +456,53 @@ export async function sendSubscriptionEmail(
 
 /**
  * tr-Sevkiyat/bakım gibi olay tabanlı bildirimler için toplu e-posta gönderir. Her alıcı e-postası ayrı bir gönderim
- *    olarak işlenir; bir alıcının başarısız olması diğerlerini etkilemez. RESEND_API_KEY tanımlı değilse günlüğe kaydeder.
+ *    olarak işlenir; bir alıcının başarısız olması diğerlerini etkilemez. EMAIL_SERVICE_URL tanımlı değilse günlüğe kaydeder.
  * en-Sends event-driven notification emails (shipment/maintenance) to a batch of recipients. Each recipient is sent
- *    independently so one failure doesn't block the rest. If RESEND_API_KEY is not set, logs instead of sending.
+ *    independently so one failure doesn't block the rest. If EMAIL_SERVICE_URL is not set, logs instead of sending.
  * input (recipients: { email: string; lang?: "en" | "tr" }[], notification: { title: string; message: string; type: NotificationEmailKind; link?: string })
  * output (Promise<void>)
  */
 export async function sendNotificationEmail(
   recipients: { email: string; lang?: "en" | "tr" | undefined }[],
-  notification: { title: string; message: string; type: NotificationEmailKind; link?: string | undefined }
+  notification: {
+    title: string;
+    message: string;
+    type: NotificationEmailKind;
+    link?: string | undefined;
+  }
 ): Promise<void> {
   if (recipients.length === 0) return;
 
-  if (!process.env.RESEND_API_KEY) {
+  if (!process.env.EMAIL_SERVICE_URL) {
     logger.warn(
-      `[email] RESEND_API_KEY not set — notification email "${notification.title}" not sent to ${recipients.length} recipient(s)`
+      `[email] EMAIL_SERVICE_URL not set — notification email "${notification.title}" not sent to ${recipients.length} recipient(s)`
     );
     return;
   }
 
-
   await Promise.all(
     recipients.map(async (recipient) => {
       try {
-        const { subject, html, text } = buildNotificationEmail({
-          title: notification.title,
-          message: notification.message,
-          type: notification.type,
-          link: notification.link,
-          lang: recipient.lang,
-        });
-
         await dispatchEmail(
-          { to: recipient.email, subject, html, text },
+          {
+            to: recipient.email,
+            template: "notification",
+            lang: recipient.lang,
+            data: {
+              title: notification.title,
+              message: notification.message,
+              type: notification.type,
+              link: notification.link,
+            },
+          },
           "sendNotificationEmail"
         );
       } catch (error) {
         const msg = error instanceof Error ? error.message : String(error);
-        logger.error(`[email] sendNotificationEmail failed for ${recipient.email}:`, msg);
+        logger.error(
+          `[email] sendNotificationEmail failed for ${recipient.email}:`,
+          msg
+        );
       }
     })
   );
@@ -484,9 +510,9 @@ export async function sendNotificationEmail(
 
 /**
  * tr-Haftalık özet raporunu bir alıcı grubuna gönderir. Her alıcı e-postası ayrı bir gönderim olarak işlenir;
- *    bir alıcının başarısız olması diğerlerini etkilemez. RESEND_API_KEY tanımlı değilse günlüğe kaydeder.
+ *    bir alıcının başarısız olması diğerlerini etkilemez. EMAIL_SERVICE_URL tanımlı değilse günlüğe kaydeder.
  * en-Sends the weekly summary report to a batch of recipients. Each recipient is sent independently so one
- *    failure doesn't block the rest. If RESEND_API_KEY is not set, logs instead of sending.
+ *    failure doesn't block the rest. If EMAIL_SERVICE_URL is not set, logs instead of sending.
  * input (recipients: { email: string; lang?: "en" | "tr" }[], report: Omit<WeeklyReportEmailData, "lang">)
  * output (Promise<void>)
  */
@@ -496,31 +522,36 @@ export async function sendWeeklyReportEmail(
 ): Promise<void> {
   if (recipients.length === 0) return;
 
-  if (!process.env.RESEND_API_KEY) {
+  if (!process.env.EMAIL_SERVICE_URL) {
     logger.warn(
-      `[email] RESEND_API_KEY not set — weekly report for "${report.companyName}" not sent to ${recipients.length} recipient(s)`
+      `[email] EMAIL_SERVICE_URL not set — weekly report for "${report.companyName}" not sent to ${recipients.length} recipient(s)`
     );
     return;
   }
 
-
   await Promise.all(
     recipients.map(async (recipient) => {
       try {
-        const { subject, html, text } = buildWeeklyReportEmail({
-          ...report,
-          lang: recipient.lang,
-        });
-
         await dispatchEmail(
-          { to: recipient.email, subject, html, text },
+          {
+            to: recipient.email,
+            template: "weeklyReport",
+            lang: recipient.lang,
+            data: {
+              companyName: report.companyName,
+              weekLabel: report.weekLabel,
+              stats: report.stats,
+            },
+          },
           "sendWeeklyReportEmail"
         );
       } catch (error) {
         const msg = error instanceof Error ? error.message : String(error);
-        logger.error(`[email] sendWeeklyReportEmail failed for ${recipient.email}:`, msg);
+        logger.error(
+          `[email] sendWeeklyReportEmail failed for ${recipient.email}:`,
+          msg
+        );
       }
     })
   );
 }
-

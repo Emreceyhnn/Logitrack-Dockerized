@@ -3,13 +3,13 @@ import { logger } from "@/app/lib/logger";
 /**
  * Retry policy for outbound email.
  *
- * Resend fails in two very different ways and they must not be treated alike:
+ * The LogiTrack Email Service fails in two very different ways and they must
+ * not be treated alike:
  *
  *   - Transient (429 rate limit, 5xx, network reset): the same request would
  *     likely succeed a moment later, so retrying is correct.
- *   - Permanent (422 invalid address, 403 unverified domain, 401 bad key):
- *     retrying burns quota and delays the caller for a result that cannot
- *     change. These fail immediately.
+ *   - Permanent (400 invalid address/params): retrying burns quota and delays
+ *     the caller for a result that cannot change. These fail immediately.
  *
  * Retries are in-process and bounded: this runs inside a serverless request,
  * so a long backoff would just hit the function timeout. Three attempts over
@@ -21,15 +21,14 @@ const MAX_ATTEMPTS = 3;
 const BASE_DELAY_MS = 300;
 
 /**
- * Resend enforces 10 requests/second (`ratelimit-policy: 10;w=1`). Batch senders
- * fan out with Promise.all, so a company with 60 drivers would fire 60 requests
- * at once and have most of them rejected with 429 — and because every retry
- * lands in the same one-second window, backoff alone cannot recover them.
+ * Batch senders fan out with Promise.all, so a company with 60 drivers would
+ * fire 60 requests at once against the email microservice's own SMTP transport
+ * — and because every retry lands in the same one-second window, backoff alone
+ * cannot recover a self-inflicted burst.
  *
  * This gate serialises outbound sends to a fixed minimum spacing, which keeps
- * the burst under the published limit instead of relying on retries to mop up
- * self-inflicted rate limiting. Headroom is deliberate: the limit is per
- * account, so concurrent serverless invocations share it.
+ * the burst under a sane rate instead of relying on retries to mop up
+ * self-inflicted rate limiting.
  */
 const MAX_SENDS_PER_SECOND = 8;
 const MIN_SEND_SPACING_MS = Math.ceil(1000 / MAX_SENDS_PER_SECOND);
@@ -68,7 +67,7 @@ const RETRYABLE_NAMES = new Set([
   "application_error",
 ]);
 
-export interface ResendLikeError {
+export interface EmailServiceError {
   name?: string | undefined;
   message?: string | undefined;
   statusCode?: number | undefined;
@@ -85,7 +84,7 @@ export interface ResendLikeError {
 export function isRetryableEmailError(error: unknown): boolean {
   if (!error) return false;
 
-  const candidate = error as ResendLikeError;
+  const candidate = error as EmailServiceError;
 
   if (typeof candidate.statusCode === "number") {
     return RETRYABLE_STATUS.has(candidate.statusCode);

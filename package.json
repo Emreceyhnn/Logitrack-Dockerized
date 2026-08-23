@@ -60,7 +60,6 @@
     "react-google-autocomplete": "^2.7.5",
     "react-leaflet": "^5.0.0",
     "redis": "^5.12.1",
-    "resend": "^6.17.2",
     "sharp": "^0.34.5",
     "sonner": "^2.0.7",
     "ws": "^8.21.0",
