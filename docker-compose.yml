@@ -18,11 +18,10 @@ services:
     restart: unless-stopped
 
   web:
-    image: logitrack:latest
-    build:
-      context: .
-      secrets:
-        - dotenv
+    # Pulled from the registry, not built here: the VPS only has this file, .env
+    # and nginx/ — there is no source tree to build from. The image is built and
+    # pushed from the dev machine (see README), so a deploy is pull + up.
+    image: emrecyhn/logitrack:latest
     # No `ports:` — the app is reachable only through nginx on the compose
     # network. Publishing 3000 as well would let clients bypass the proxy (and
     # its rate limits) entirely.
@@ -121,7 +120,7 @@ services:
       - EMAIL_PORT=${EMAIL_PORT:?EMAIL_PORT is not set in .env}
       - EMAIL_USER=${EMAIL_USER:?EMAIL_USER is not set in .env}
       - EMAIL_PASS=${EMAIL_PASS:?EMAIL_PASS is not set in .env}
-      - FROM_EMAIL=${EMAIL_FROM_ADDRESS:?EMAIL_FROM_ADDRESS is not set in .env}
+      - FROM_EMAIL=${EMAIL_FROM:?EMAIL_FROM is not set in .env}
       - LOGITRACK_BASE_URL=${NEXT_PUBLIC_BASE_URL:?NEXT_PUBLIC_BASE_URL is not set in .env}
     depends_on:
       - redis
@@ -130,9 +129,3 @@ volumes:
   postgres_data:
   redis_data:
   nginx_cache:
-
-secrets:
-  # Mounted only during `docker compose build` so `next build` can inline the
-  # NEXT_PUBLIC_* values into the client bundle. Never copied into the image.
-  dotenv:
-    file: .env
