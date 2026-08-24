@@ -9,6 +9,7 @@ import { assertShipmentTransition } from "../utils/shipmentTransitions";
 import { assertRouteCapacity } from "../utils/routeCapacity";
 import { invalidateShipmentCache } from "./cache";
 import { controllerGuard } from "../utils/controllerGuard";
+import { logReportEvent } from "@/app/lib/services/reportEvents";
 
 /**
  * tr-belirtilen sevkiyata bir sürücü atar ve durumunu günceller
@@ -52,20 +53,34 @@ export const assignDriverToShipment = authenticatedAction(
         throw new Error("Driver is on leave and cannot be assigned");
       }
 
-      const updatedShipment = await db.shipment.update({
-        where: { id: shipmentId },
-        data: {
-          driverId,
-          status: ShipmentStatus.ASSIGNED,
-          history: {
-            create: {
-              status: ShipmentStatus.ASSIGNED,
-              companyId: companyId!,
-              description: `Driver assigned`,
-              createdById: userId,
+      const updatedShipment = await db.$transaction(async (tx) => {
+        const shipment = await tx.shipment.update({
+          where: { id: shipmentId },
+          data: {
+            driverId,
+            status: ShipmentStatus.ASSIGNED,
+            history: {
+              create: {
+                status: ShipmentStatus.ASSIGNED,
+                companyId: companyId!,
+                description: `Driver assigned`,
+                createdById: userId,
+              },
             },
           },
-        },
+        });
+
+        await logReportEvent(tx, {
+          eventType: "DRIVER_ASSIGNED",
+          occurredAt: new Date(),
+          companyId: companyId!,
+          subjectType: "SHIPMENT",
+          subjectId: shipmentId,
+          driverId,
+          sourceEventId: `driver-assigned-${shipmentId}-${driverId}-${shipment.updatedAt.getTime()}`,
+        });
+
+        return shipment;
       });
 
       await invalidateShipmentCache(companyId!, shipmentId);
@@ -209,7 +224,14 @@ export const updateShipmentStatus = authenticatedAction(
 
       const existingShipment = await db.shipment.findFirst({
         where: { id: shipmentId, companyId: companyId! },
-        select: { companyId: true, status: true },
+        select: {
+          companyId: true,
+          status: true,
+          createdAt: true,
+          originWarehouseId: true,
+          driverId: true,
+          customerId: true,
+        },
       });
 
       if (!existingShipment) {
@@ -226,20 +248,58 @@ export const updateShipmentStatus = authenticatedAction(
         );
       }
 
-      const updatedShipment = await db.shipment.update({
-        where: { id: shipmentId },
-        data: {
-          status,
-          history: {
-            create: {
-              status,
-              companyId: companyId!,
-              location: location ?? null,
-              description: description || `Status updated to ${status}`,
-              createdById: userId,
+      const updatedShipment = await db.$transaction(async (tx) => {
+        const shipment = await tx.shipment.update({
+          where: { id: shipmentId },
+          data: {
+            status,
+            history: {
+              create: {
+                status,
+                companyId: companyId!,
+                location: location ?? null,
+                description: description || `Status updated to ${status}`,
+                createdById: userId,
+              },
             },
           },
-        },
+        });
+
+        if (status === ShipmentStatus.DELIVERED) {
+          const deliveredAt = shipment.updatedAt;
+          await logReportEvent(tx, {
+            eventType: "ORDER_DELIVERED",
+            occurredAt: deliveredAt,
+            companyId: companyId!,
+            subjectType: "SHIPMENT",
+            subjectId: shipmentId,
+            warehouseId: existingShipment.originWarehouseId,
+            driverId: existingShipment.driverId,
+            customerId: existingShipment.customerId,
+            durationSec: Math.max(
+              0,
+              Math.floor(
+                (deliveredAt.getTime() - existingShipment.createdAt.getTime()) / 1000
+              )
+            ),
+            sourceEventId: `order-delivered-${shipmentId}`,
+          });
+        } else if (status === ShipmentStatus.FAILED) {
+          await logReportEvent(tx, {
+            eventType: "DELIVERY_FAILED",
+            occurredAt: shipment.updatedAt,
+            companyId: companyId!,
+            subjectType: "SHIPMENT",
+            subjectId: shipmentId,
+            warehouseId: existingShipment.originWarehouseId,
+            driverId: existingShipment.driverId,
+            customerId: existingShipment.customerId,
+            payload: description ? { reason: description } : null,
+            sourceEventId: `delivery-failed-${shipmentId}-${shipment.updatedAt.getTime()}`,
+          });
+        }
+
+        return shipment;
       });
 
       await invalidateShipmentCache(companyId!, shipmentId);

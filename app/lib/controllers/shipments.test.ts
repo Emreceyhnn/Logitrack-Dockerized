@@ -31,6 +31,7 @@ const dbMock = {
     create: mock.fn(),
   },
   $transaction: mock.fn(async (cb) => cb(dbMock)),
+  $executeRaw: mock.fn(async () => 1),
 };
 
 // Redis & Cache Mock
@@ -140,6 +141,7 @@ describe("Shipments Controller", () => {
       dbMock.shipment.create.mock.mockImplementation(async (args: Record<string, unknown>) => ({
         id: "shipment-1",
         trackingId: "TRK-123456",
+        createdAt: new Date("2026-08-02T10:00:00.000Z"),
         ...args.data,
       }));
 
@@ -198,11 +200,16 @@ describe("Shipments Controller", () => {
       dbMock.shipment.findFirst.mock.mockImplementation(async () => ({
         companyId: "company-1",
         status: ShipmentStatus.ASSIGNED,
+        createdAt: new Date("2026-08-01T08:00:00.000Z"),
+        originWarehouseId: "warehouse-1",
+        driverId: "driver-1",
+        customerId: "customer-1",
       }));
       dbMock.shipment.update.mock.mockImplementation(async (args: Record<string, unknown>) => ({
         id: "shipment-1",
         trackingId: "TRK-123456",
         status: args.data.status,
+        updatedAt: new Date("2026-08-02T10:00:00.000Z"),
       }));
     });
 
@@ -304,6 +311,10 @@ describe("Shipments Controller", () => {
       dbMock.shipment.findFirst.mock.mockImplementation(async () => ({
         companyId: "company-1",
         status: ShipmentStatus.IN_TRANSIT,
+        createdAt: new Date("2026-08-01T08:00:00.000Z"),
+        originWarehouseId: "warehouse-1",
+        driverId: "driver-1",
+        customerId: "customer-1",
       }));
 
       // Act
@@ -389,6 +400,10 @@ describe("Shipments Controller", () => {
       dbMock.shipment.findFirst.mock.mockImplementation(async () => ({
         companyId: "company-1",
         status: ShipmentStatus.IN_TRANSIT,
+        createdAt: new Date("2026-08-01T08:00:00.000Z"),
+        originWarehouseId: "warehouse-1",
+        driverId: "driver-1",
+        customerId: "customer-1",
       }));
 
       // Act

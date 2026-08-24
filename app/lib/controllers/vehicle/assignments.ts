@@ -6,6 +6,7 @@ import { checkPermission } from "../utils/checkPermission";
 import { authenticatedAction } from "../../auth-middleware";
 import { invalidateVehicleCache } from "./cache";
 import { controllerGuard } from "../utils/controllerGuard";
+import { logReportEvent } from "@/app/lib/services/reportEvents";
 
 /**
  * tr-belirtilen araca bir sürücü atar ve önceki sürücü/araç eşleşmelerini günceller
@@ -58,6 +59,16 @@ export const assignDriverToVehicle = authenticatedAction(
           await tx.driver.update({
             where: { id: driverId },
             data: { currentVehicleId: vehicleId },
+          });
+
+          await logReportEvent(tx, {
+            eventType: "VEHICLE_ASSIGNED",
+            occurredAt: new Date(),
+            companyId,
+            subjectType: "VEHICLE",
+            subjectId: vehicleId,
+            driverId,
+            sourceEventId: `vehicle-assigned-${vehicleId}-${driverId}-${Date.now()}`,
           });
         } else {
           const currentDriverOfVehicle = await tx.driver.findFirst({

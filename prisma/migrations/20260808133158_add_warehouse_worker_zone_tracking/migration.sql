@@ -1,12 +1,13 @@
+-- NOTE: this migration was originally generated against a database that did not
+-- yet have 20260806120000_add_issue_warehouse_zone applied, so it re-declared
+-- "issues"."warehouseId"/"zone", their foreign key, and a bare warehouseId
+-- index. Those statements are removed here: they fail with 42701 (column
+-- already exists) on any database that applied the earlier migration, and the
+-- schema tracks the composite @@index([warehouseId, status]) from that
+-- migration, not the single-column one this file added.
+--
+-- The zone column on inventory_movements is what this migration actually
+-- contributes, and it is kept.
+
 -- AlterTable
 ALTER TABLE "inventory_movements" ADD COLUMN     "zone" TEXT;
-
--- AlterTable
-ALTER TABLE "issues" ADD COLUMN     "warehouseId" TEXT,
-ADD COLUMN     "zone" TEXT;
-
--- CreateIndex
-CREATE INDEX "issues_warehouseId_idx" ON "issues"("warehouseId");
-
--- AddForeignKey
-ALTER TABLE "issues" ADD CONSTRAINT "issues_warehouseId_fkey" FOREIGN KEY ("warehouseId") REFERENCES "warehouses"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

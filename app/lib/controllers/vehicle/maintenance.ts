@@ -7,6 +7,7 @@ import { checkPermission } from "../utils/checkPermission";
 import { authenticatedAction } from "../../auth-middleware";
 import { invalidateVehicleCache } from "./cache";
 import { controllerGuard } from "../utils/controllerGuard";
+import { logReportEvent } from "@/app/lib/services/reportEvents";
 
 /**
  * tr-araca yeni bir bakım kaydı ekler, para birimini dönüştürür ve bildirim gönderir
@@ -48,16 +49,31 @@ export const addMaintenanceRecord = authenticatedAction(
 
       // Store the cost exactly as the user entered it, in their chosen currency.
       // The UI uses formatFrom(cost, currency) to convert to the viewer's currency at render time.
-      const record = await db.maintenanceRecord.create({
-        data: {
-          vehicleId,
+      const record = await db.$transaction(async (tx) => {
+        const created = await tx.maintenanceRecord.create({
+          data: {
+            vehicleId,
+            companyId,
+            ...recordData,
+            cost: recordData.cost,
+            originalCost: recordData.cost,
+            originalCurrency: recordData.currency || "USD",
+            currency: recordData.currency || "USD",
+          },
+        });
+
+        await logReportEvent(tx, {
+          eventType: "MAINTENANCE_SCHEDULED",
+          occurredAt: created.createdAt,
           companyId,
-          ...recordData,
-          cost: recordData.cost,
-          originalCost: recordData.cost,
-          originalCurrency: recordData.currency || "USD",
-          currency: recordData.currency || "USD",
-        },
+          subjectType: "MAINTENANCE_RECORD",
+          subjectId: created.id,
+          amount: Number(created.cost),
+          payload: { vehicleId, type: created.type, status: created.status },
+          sourceEventId: `maintenance-scheduled-${created.id}`,
+        });
+
+        return created;
       });
 
       await invalidateVehicleCache(companyId, vehicleId);
@@ -131,10 +147,27 @@ export const updateMaintenanceRecord = authenticatedAction(
         finalData.currency = data.currency;
       }
 
-      const updatedRecord = await db.maintenanceRecord.update({
-        where: { id: recordId },
-        data: finalData,
-        include: { vehicle: { select: { plate: true, id: true } } },
+      const updatedRecord = await db.$transaction(async (tx) => {
+        const updated = await tx.maintenanceRecord.update({
+          where: { id: recordId },
+          data: finalData,
+          include: { vehicle: { select: { plate: true, id: true } } },
+        });
+
+        if (data.status === "COMPLETED" && foundRecord.status !== "COMPLETED") {
+          await logReportEvent(tx, {
+            eventType: "MAINTENANCE_COMPLETED",
+            occurredAt: new Date(),
+            companyId,
+            subjectType: "MAINTENANCE_RECORD",
+            subjectId: recordId,
+            amount: Number(updated.cost),
+            payload: { vehicleId: updated.vehicle.id, type: updated.type },
+            sourceEventId: `maintenance-completed-${recordId}`,
+          });
+        }
+
+        return updated;
       });
 
       // Dispatch Notification if status changed

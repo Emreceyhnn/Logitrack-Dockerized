@@ -19,10 +19,15 @@ const dbMock = {
     findFirst: mock.fn(),
   },
   inventoryMovement: {
-    create: mock.fn(),
+    create: mock.fn(async (args: { data: Record<string, unknown> }) => ({
+      id: "movement-1",
+      date: new Date("2026-08-02T10:00:00.000Z"),
+      ...args.data,
+    })),
     findMany: mock.fn(),
   },
   $transaction: mock.fn(async (cb) => cb(dbMock)),
+  $executeRaw: mock.fn(async () => 1),
 };
 
 // Cache & Redis Mock
@@ -133,7 +138,13 @@ describe("Inventory Controller", () => {
       }));
       dbMock.inventory.findFirst.mock.mockImplementation(async () => null); // SKU doesn't exist
       
-      const expectedItem = { id: "inv-1", sku: "TEST-SKU", name: "Laptop", quantity: 50 };
+      const expectedItem = {
+        id: "inv-1",
+        sku: "TEST-SKU",
+        name: "Laptop",
+        quantity: 50,
+        createdAt: new Date("2026-08-02T10:00:00.000Z"),
+      };
       dbMock.inventory.create.mock.mockImplementation(async () => expectedItem);
 
       // Act

@@ -8,11 +8,29 @@ import { rejects } from "node:assert";
 type MockedTx = {
   inventoryMovement: { create: ReturnType<typeof mock.fn> };
   inventory: { update: ReturnType<typeof mock.fn> };
+  issue: { create: ReturnType<typeof mock.fn> };
+  warehouseTask: { update: ReturnType<typeof mock.fn> };
+  $executeRaw: ReturnType<typeof mock.fn>;
 };
 
 const txMock: MockedTx = {
-  inventoryMovement: { create: mock.fn() },
+  inventoryMovement: {
+    create: mock.fn(async (args: { data: Record<string, unknown> }) => ({
+      id: "movement-1",
+      date: new Date("2026-08-02T10:00:00.000Z"),
+      ...args.data,
+    })),
+  },
   inventory: { update: mock.fn() },
+  issue: {
+    create: mock.fn(async (args: { data: Record<string, unknown> }) => ({
+      id: "issue-1",
+      createdAt: new Date("2026-08-02T10:00:00.000Z"),
+      ...args.data,
+    })),
+  },
+  warehouseTask: { update: mock.fn() },
+  $executeRaw: mock.fn(async () => 1),
 };
 
 const dbMock = {
@@ -89,6 +107,8 @@ describe("WarehouseWorker Controller", () => {
     dbMock.issue.create.mock.resetCalls();
     txMock.inventoryMovement.create.mock.resetCalls();
     txMock.inventory.update.mock.resetCalls();
+    txMock.issue.create.mock.resetCalls();
+    txMock.warehouseTask.update.mock.resetCalls();
     checkPermissionMock.checkPermission.mock.resetCalls();
     nextCacheMock.revalidatePath.mock.resetCalls();
     notifyRestockMock.notifyManagerOfRestockRequest.mock.resetCalls();
@@ -210,6 +230,7 @@ describe("WarehouseWorker Controller", () => {
       }));
       txMock.inventoryMovement.create.mock.mockImplementationOnce(async () => ({
         id: "mv-adj",
+        date: new Date("2026-08-02T10:00:00.000Z"),
       }));
 
       const res = await controller.adjustWarehouseStock(
@@ -245,6 +266,7 @@ describe("WarehouseWorker Controller", () => {
       }));
       txMock.inventoryMovement.create.mock.mockImplementationOnce(async () => ({
         id: "mv-adj2",
+        date: new Date("2026-08-02T10:00:00.000Z"),
       }));
 
       const res = await controller.adjustWarehouseStock(
@@ -337,7 +359,7 @@ describe("WarehouseWorker Controller", () => {
 
       const res = await controller.advanceWarehouseTask(user, "t-1", 5);
       expect(res).toEqual({ success: true, done: 10, complete: true });
-      const updateArg = dbMock.warehouseTask.update.mock.calls[0].arguments[0];
+      const updateArg = txMock.warehouseTask.update.mock.calls[0].arguments[0];
       expect(updateArg.data.status).toBe("COMPLETED");
       expect(updateArg.data.doneUnits).toBe(10);
     });
@@ -440,8 +462,9 @@ describe("WarehouseWorker Controller", () => {
         id: "wh-1",
         companyId: "company-1",
       }));
-      dbMock.issue.create.mock.mockImplementationOnce(async () => ({
+      txMock.issue.create.mock.mockImplementationOnce(async () => ({
         id: "issue-1",
+        createdAt: new Date("2026-08-02T10:00:00.000Z"),
       }));
 
       const res = await controller.reportWarehouseIssue(
@@ -450,7 +473,7 @@ describe("WarehouseWorker Controller", () => {
         "  Forklift arızalı  "
       );
       expect(res).toEqual({ success: true, issueId: "issue-1" });
-      const createArg = dbMock.issue.create.mock.calls[0].arguments[0];
+      const createArg = txMock.issue.create.mock.calls[0].arguments[0];
       expect(createArg.data.title).toBe("Forklift arızalı");
       expect(createArg.data.status).toBe("OPEN");
     });
@@ -460,8 +483,9 @@ describe("WarehouseWorker Controller", () => {
         id: "wh-1",
         companyId: "company-1",
       }));
-      dbMock.issue.create.mock.mockImplementationOnce(async () => ({
+      txMock.issue.create.mock.mockImplementationOnce(async () => ({
         id: "issue-2",
+        createdAt: new Date("2026-08-02T10:00:00.000Z"),
       }));
 
       await controller.reportWarehouseIssue(
@@ -471,7 +495,7 @@ describe("WarehouseWorker Controller", () => {
         undefined,
         " A "
       );
-      const createArg = dbMock.issue.create.mock.calls[0].arguments[0];
+      const createArg = txMock.issue.create.mock.calls[0].arguments[0];
       // Previously the warehouse was verified but never written, leaving floor
       // reports unfilterable by site.
       expect(createArg.data.warehouseId).toBe("wh-1");

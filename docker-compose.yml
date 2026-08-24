@@ -39,6 +39,10 @@ services:
       # valid" (really: role does not exist).
       DATABASE_URL: "postgresql://${POSTGRES_USER:?POSTGRES_USER is not set in .env}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is not set in .env}@postgres:5432/${POSTGRES_DB:?POSTGRES_DB is not set in .env}?schema=public"
       REDIS_URL: "redis://redis:6379"
+      # Pinned here because env_file wins over the image ENV: a PORT meant for
+      # local dev (3030) would otherwise move the server off the port nginx
+      # proxies to and the healthcheck probes, leaving the container unhealthy.
+      PORT: "3000"
     restart: unless-stopped
     # node-alpine has no curl/wget by default, so the check is done with Node
     # itself. Any HTTP status counts as healthy — a redirect still proves the

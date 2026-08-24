@@ -12,6 +12,7 @@ import { checkPermission } from "../utils/checkPermission";
 import { authenticatedAction } from "../../auth-middleware";
 import { invalidateVehicleCache } from "./cache";
 import { controllerGuard } from "../utils/controllerGuard";
+import { logReportEvent } from "@/app/lib/services/reportEvents";
 
 /**
  * tr-belirtilen araç için yeni bir sorun/arıza kaydı oluşturur ve bildirim gönderir
@@ -49,17 +50,32 @@ export const createVehicleIssue = authenticatedAction(
         throw new Error("Vehicle not found or unauthorized");
       }
 
-      const issue = await db.issue.create({
-        data: {
-          title: issueData.title,
-          type: issueData.type,
-          priority: issueData.priority,
-          description: issueData.description || null,
-          status: IssueStatus.OPEN,
-          vehicleId,
-          driverId: issueData.driverId ?? null,
+      const issue = await db.$transaction(async (tx) => {
+        const created = await tx.issue.create({
+          data: {
+            title: issueData.title,
+            type: issueData.type,
+            priority: issueData.priority,
+            description: issueData.description || null,
+            status: IssueStatus.OPEN,
+            vehicleId,
+            driverId: issueData.driverId ?? null,
+            companyId,
+          },
+        });
+
+        await logReportEvent(tx, {
+          eventType: "ISSUE_OPENED",
+          occurredAt: created.createdAt,
           companyId,
-        },
+          subjectType: "ISSUE",
+          subjectId: created.id,
+          driverId: issueData.driverId ?? null,
+          payload: { source: "vehicle", type: created.type, priority: created.priority, vehicleId },
+          sourceEventId: `issue-opened-${created.id}`,
+        });
+
+        return created;
       });
 
       await invalidateVehicleCache(companyId, vehicleId);
@@ -163,17 +179,37 @@ export const updateIssue = authenticatedAction(
 
       const foundIssue = await db.issue.findFirst({
         where: { id: issueId, companyId },
-        select: { companyId: true, vehicleId: true },
+        select: { companyId: true, vehicleId: true, driverId: true, status: true },
       });
 
       if (!foundIssue) {
         throw new Error("Issue not found or unauthorized");
       }
 
-      const updatedIssue = await db.issue.update({
-        where: { id: issueId },
-        data,
-        include: { vehicle: { select: { plate: true } } },
+      const updatedIssue = await db.$transaction(async (tx) => {
+        const updated = await tx.issue.update({
+          where: { id: issueId },
+          data,
+          include: { vehicle: { select: { plate: true } } },
+        });
+
+        if (
+          (data.status === "RESOLVED" || data.status === "CLOSED") &&
+          foundIssue.status !== data.status
+        ) {
+          await logReportEvent(tx, {
+            eventType: "ISSUE_RESOLVED",
+            occurredAt: new Date(),
+            companyId,
+            subjectType: "ISSUE",
+            subjectId: issueId,
+            driverId: foundIssue.driverId,
+            payload: { status: data.status },
+            sourceEventId: `issue-resolved-${issueId}`,
+          });
+        }
+
+        return updated;
       });
 
       await invalidateVehicleCache(

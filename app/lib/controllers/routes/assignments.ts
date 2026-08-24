@@ -13,6 +13,7 @@ import { isTerminalShipmentStatus } from "../utils/shipmentTransitions";
 import { invalidateRouteCache } from "./cache";
 import { ROUTE_TRANSITIONS } from "./types";
 import { controllerGuard } from "../utils/controllerGuard";
+import { logReportEvent } from "@/app/lib/services/reportEvents";
 
 /**
  * tr-belirtilen rotaya bir sürücü atar
@@ -327,6 +328,16 @@ export const updateRouteStatus = authenticatedAction(
                 link: `/routes`,
               }
             );
+
+            await logReportEvent(tx, {
+              eventType: "ROUTE_STARTED",
+              occurredAt: newRoute.startTime ?? new Date(),
+              companyId: companyId!,
+              subjectType: "ROUTE",
+              subjectId: routeId,
+              driverId: route.driverId,
+              sourceEventId: `route-started-${routeId}`,
+            });
         } else if (status === "COMPLETED") {
           // Vehicle to AVAILABLE, Driver to OFF_DUTY, Shipments to DELIVERED
           if (route.vehicleId) {
@@ -342,6 +353,7 @@ export const updateRouteStatus = authenticatedAction(
             });
           }
             if (activeShipmentIds.length > 0) {
+              const deliveredAt = newRoute.endTime ?? new Date();
               await tx.shipment.updateMany({
                 where: { id: { in: activeShipmentIds } },
                 data: { status: "DELIVERED" },
@@ -356,6 +368,28 @@ export const updateRouteStatus = authenticatedAction(
                     description: "Route completed - Shipment completed",
                     createdById: userId || null,
                   },
+                });
+
+                // This bulk path bypasses updateShipmentStatus (assign.ts),
+                // which is the usual place ORDER_DELIVERED is logged — so the
+                // event has to be written here too, or every delivery that
+                // completes via route completion goes unreported.
+                await logReportEvent(tx, {
+                  eventType: "ORDER_DELIVERED",
+                  occurredAt: deliveredAt,
+                  companyId: companyId!,
+                  subjectType: "SHIPMENT",
+                  subjectId: shipment.id,
+                  warehouseId: shipment.originWarehouseId,
+                  driverId: route.driverId,
+                  customerId: shipment.customerId,
+                  durationSec: Math.max(
+                    0,
+                    Math.floor(
+                      (deliveredAt.getTime() - shipment.createdAt.getTime()) / 1000
+                    )
+                  ),
+                  sourceEventId: `order-delivered-${shipment.id}`,
                 });
               }
             }
@@ -377,6 +411,17 @@ export const updateRouteStatus = authenticatedAction(
                 link: `/routes`,
               }
             );
+
+            await logReportEvent(tx, {
+              eventType: "ROUTE_COMPLETED",
+              occurredAt: newRoute.endTime ?? new Date(),
+              companyId: companyId!,
+              subjectType: "ROUTE",
+              subjectId: routeId,
+              driverId: route.driverId,
+              quantity: activeShipmentIds.length,
+              sourceEventId: `route-completed-${routeId}`,
+            });
         } else if (status === "CANCELED") {
           // Vehicle to AVAILABLE, Driver to OFF_DUTY
           if (route.vehicleId) {

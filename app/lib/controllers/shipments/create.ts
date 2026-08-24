@@ -18,6 +18,7 @@ import type { CustomerWithLocations, ShipmentStopInput } from "./types";
 import { toBaseUnitQuantity } from "./types";
 import { createShipmentSchema } from "../../validation/serverSchemas";
 import { NotFoundError } from "../../errors";
+import { logReportEvent } from "@/app/lib/services/reportEvents";
 
 /**
  * tr-yeni bir sevkiyat oluşturur, rota kapasitelerini kontrol eder ve gerekirse depo stoğunu ayırır
@@ -347,6 +348,21 @@ export const createShipment = authenticatedAction(
               })
             );
           }
+
+          await logReportEvent(tx, {
+            eventType: "SHIPMENT_CREATED",
+            occurredAt: shipment.createdAt,
+            companyId,
+            subjectType: "SHIPMENT",
+            subjectId: shipment.id,
+            warehouseId: shipment.originWarehouseId,
+            driverId: shipment.driverId,
+            customerId: shipment.customerId,
+            quantity: calculatedItemsCount,
+            weightKg,
+            volumeM3,
+            sourceEventId: `shipment-created-${shipment.id}`,
+          });
 
           return shipment;
         }

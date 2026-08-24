@@ -9,6 +9,7 @@ import { invalidateWarehouseCache } from "./cache";
 import { invalidateInventoryCache } from "../inventory/cache";
 import { controllerGuard } from "../utils/controllerGuard";
 import { INCLUDE_DELETED } from "../../softDelete";
+import { logReportEvent } from "@/app/lib/services/reportEvents";
 
 /**
  * tr-depoya yeni bir envanter/stok kalemi ekler ve ilk giriş hareketini (putaway) kaydeder
@@ -128,6 +129,19 @@ export const addInventoryItem = authenticatedAction(
           },
         });
 
+        await logReportEvent(tx, {
+          eventType: "INBOUND_RECEIVED",
+          occurredAt: newItem.createdAt,
+          companyId: user.companyId!,
+          subjectType: "INVENTORY",
+          subjectId: newItem.id,
+          warehouseId,
+          zoneId: trimmedZone,
+          quantity,
+          payload: { sku: itemSku, initial: true },
+          sourceEventId: `inbound-received-inventory-${newItem.id}`,
+        });
+
         return newItem;
       });
 
@@ -145,6 +159,26 @@ export const addInventoryItem = authenticatedAction(
             link: `/inventory?warehouseId=${result.warehouseId}`,
           }
         );
+
+        // Best-effort: a failed event write here must not roll back the
+        // inventory item that was already created and notified about.
+        await db.$transaction(async (tx) => {
+          await logReportEvent(tx, {
+            eventType: "LOW_STOCK",
+            occurredAt: new Date(),
+            companyId: user.companyId!,
+            subjectType: "INVENTORY",
+            subjectId: result.id,
+            warehouseId: result.warehouseId,
+            zoneId: result.zone,
+            quantity: result.quantity,
+            payload: { sku: result.sku, minStock: result.minStock },
+            sourceEventId: `low-stock-${result.id}-${result.updatedAt.getTime()}`,
+          });
+        }).catch(() => {
+          // Non-critical: low-stock is a reporting signal, not a domain
+          // guarantee — the item creation above must not be undone by this.
+        });
       }
 
       return result;
@@ -211,7 +245,7 @@ export const updateInventoryItem = authenticatedAction(
           typeof data.quantity === "number" &&
           data.quantity !== currentItem.quantity
         ) {
-          await tx.inventoryMovement.create({
+          const mv = await tx.inventoryMovement.create({
             data: {
               warehouseId: currentItem.warehouseId,
               sku:
@@ -222,6 +256,18 @@ export const updateInventoryItem = authenticatedAction(
               userId: user.id,
               companyId: user.companyId!,
             },
+          });
+
+          await logReportEvent(tx, {
+            eventType: "STOCK_ADJUSTED",
+            occurredAt: mv.date,
+            companyId: user.companyId!,
+            subjectType: "INVENTORY_MOVEMENT",
+            subjectId: mv.id,
+            warehouseId: currentItem.warehouseId,
+            quantity: data.quantity - currentItem.quantity,
+            payload: { sku: mv.sku },
+            sourceEventId: `stock-adjusted-${mv.id}`,
           });
         }
 
@@ -241,6 +287,23 @@ export const updateInventoryItem = authenticatedAction(
             link: `/inventory?warehouseId=${updatedItem.warehouseId}`,
           }
         );
+
+        // Best-effort, same reasoning as addInventoryItem: must not roll
+        // back the already-committed inventory update above.
+        await db.$transaction(async (tx) => {
+          await logReportEvent(tx, {
+            eventType: "LOW_STOCK",
+            occurredAt: new Date(),
+            companyId: user.companyId!,
+            subjectType: "INVENTORY",
+            subjectId: updatedItem.id,
+            warehouseId: updatedItem.warehouseId,
+            zoneId: updatedItem.zone,
+            quantity: updatedItem.quantity,
+            payload: { sku: updatedItem.sku, minStock: updatedItem.minStock },
+            sourceEventId: `low-stock-${updatedItem.id}-${updatedItem.updatedAt.getTime()}`,
+          });
+        }).catch(() => {});
       }
 
       return updatedItem;

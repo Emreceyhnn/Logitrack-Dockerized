@@ -17,6 +17,7 @@ import {
   UpdateInventoryInput,
 } from "../../type/inventory";
 import { invalidateInventoryCache } from "./cache";
+import { logReportEvent } from "@/app/lib/services/reportEvents";
 
 /**
  * tr-yeni bir stok kalemi oluşturur
@@ -88,6 +89,18 @@ export const createInventoryItem = authenticatedAction(
             userId,
             companyId,
           },
+        });
+
+        await logReportEvent(tx, {
+          eventType: "INBOUND_RECEIVED",
+          occurredAt: item.createdAt,
+          companyId,
+          subjectType: "INVENTORY",
+          subjectId: item.id,
+          warehouseId: parsed.warehouseId,
+          quantity: parsed.quantity,
+          payload: { sku: itemSku, initial: true },
+          sourceEventId: `inbound-received-inventory-${item.id}`,
         });
 
         return { newItem: item };
@@ -232,7 +245,7 @@ export const adjustInventoryStock = authenticatedAction(
           throw new Error("Insufficient stock: adjustment would result in negative quantity");
         }
 
-        await tx.inventoryMovement.create({
+        const mv = await tx.inventoryMovement.create({
           data: {
             warehouseId: item.warehouseId,
             sku: item.sku,
@@ -242,6 +255,18 @@ export const adjustInventoryStock = authenticatedAction(
             userId,
             companyId,
           },
+        });
+
+        await logReportEvent(tx, {
+          eventType: "STOCK_ADJUSTED",
+          occurredAt: mv.date,
+          companyId,
+          subjectType: "INVENTORY_MOVEMENT",
+          subjectId: mv.id,
+          warehouseId: item.warehouseId,
+          quantity: parsed.delta,
+          payload: { sku: item.sku, movementType: parsed.type, notes: parsed.notes ?? null },
+          sourceEventId: `stock-adjusted-${mv.id}`,
         });
 
         return item;
@@ -324,27 +349,43 @@ export const logWarehouseFulfillment = authenticatedAction(
         throw new NotFoundError("Inventory SKU");
       }
 
-      const movement = await db.inventoryMovement.create({
-        data: {
-          warehouseId: parsed.warehouseId,
-          sku: parsed.sku,
-          quantity: parsed.type === "PICK" ? -parsed.quantity : parsed.quantity,
-          type: parsed.type,
-          userId,
-          companyId,
-          date: new Date(),
-        }
-      });
+      const movement = await db.$transaction(async (tx) => {
+        const mv = await tx.inventoryMovement.create({
+          data: {
+            warehouseId: parsed.warehouseId,
+            sku: parsed.sku,
+            quantity: parsed.type === "PICK" ? -parsed.quantity : parsed.quantity,
+            type: parsed.type,
+            userId,
+            companyId,
+            date: new Date(),
+          }
+        });
 
-      if (parsed.type === "PICK") {
-         await db.inventory.update({
-            where: { id: inventoryNode.id },
-            data: {
-              quantity: { decrement: parsed.quantity },
-              allocatedQuantity: { decrement: parsed.quantity }
-            }
-         });
-      }
+        if (parsed.type === "PICK") {
+           await tx.inventory.update({
+              where: { id: inventoryNode.id },
+              data: {
+                quantity: { decrement: parsed.quantity },
+                allocatedQuantity: { decrement: parsed.quantity }
+              }
+           });
+        }
+
+        await logReportEvent(tx, {
+          eventType: parsed.type === "PICK" ? "PICK_COMPLETED" : "PACK_COMPLETED",
+          occurredAt: mv.date,
+          companyId,
+          subjectType: "INVENTORY_MOVEMENT",
+          subjectId: mv.id,
+          warehouseId: parsed.warehouseId,
+          quantity: parsed.quantity,
+          payload: { sku: parsed.sku },
+          sourceEventId: `${parsed.type === "PICK" ? "pick" : "pack"}-completed-${mv.id}`,
+        });
+
+        return mv;
+      });
 
       await invalidateInventoryCache(companyId, inventoryNode.id);
       return { success: true, movement };

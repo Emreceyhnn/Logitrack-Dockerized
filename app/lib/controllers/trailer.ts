@@ -18,6 +18,7 @@ import { trailerSchema } from "../validation/serverSchemas";
 import { controllerGuard } from "./utils/controllerGuard";
 import { createCacheManager } from "./utils/cacheFactory";
 import { NotFoundError, NoCompanyError, ConflictError } from "../errors";
+import { logReportEvent } from "@/app/lib/services/reportEvents";
 
 // ── Cache manager ─────────────────────────────────────────────────────────────
 const trailerCache = createCacheManager("trailers", TRAILER_CACHE_TTL);
@@ -346,13 +347,23 @@ export const assignTrailerToVehicle = authenticatedAction(
           });
 
           // Create new assignment record
-          await tx.trailerAssignment.create({
+          const assignment = await tx.trailerAssignment.create({
             data: {
               trailerId,
               vehicleId,
               companyId: companyId!,
               assignedAt: new Date()
             }
+          });
+
+          await logReportEvent(tx, {
+            eventType: "TRAILER_ASSIGNED",
+            occurredAt: assignment.assignedAt,
+            companyId: companyId!,
+            subjectType: "TRAILER",
+            subjectId: trailerId,
+            payload: { vehicleId },
+            sourceEventId: `trailer-assigned-${assignment.id}`,
           });
         } else {
           // Detach

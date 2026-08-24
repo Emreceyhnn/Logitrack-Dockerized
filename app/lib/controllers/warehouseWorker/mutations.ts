@@ -6,6 +6,7 @@ import { checkPermission } from "../utils/checkPermission";
 import { controllerGuard } from "../utils/controllerGuard";
 import { WW_WRITE_ROLES, assertWarehouseAccess } from "./shared";
 import { notifyManagerOfRestockRequest } from "./notifyRestock";
+import { logReportEvent } from "@/app/lib/services/reportEvents";
 
 /**
  * Log a stock movement from the warehouse floor. PICK removes on-hand stock;
@@ -85,6 +86,21 @@ export const logWarehouseMovement = authenticatedAction(
             await tx.inventory.update({
               where: { id: inventoryNode.id },
               data: { quantity: { increment: quantity } },
+            });
+          }
+
+          if (isInbound) {
+            await logReportEvent(tx, {
+              eventType: "INBOUND_RECEIVED",
+              occurredAt: mv.date,
+              companyId,
+              subjectType: "INVENTORY_MOVEMENT",
+              subjectId: mv.id,
+              warehouseId,
+              zoneId: mv.zone,
+              quantity,
+              payload: { sku, kind },
+              sourceEventId: `inbound-received-${mv.id}`,
             });
           }
 
@@ -174,6 +190,19 @@ export const adjustWarehouseStock = authenticatedAction(
         await tx.inventory.update({
           where: { id: inventoryNode.id },
           data: { quantity: counted },
+        });
+
+        await logReportEvent(tx, {
+          eventType: "STOCK_ADJUSTED",
+          occurredAt: mv.date,
+          companyId,
+          subjectType: "INVENTORY_MOVEMENT",
+          subjectId: mv.id,
+          warehouseId,
+          zoneId: mv.zone,
+          quantity: delta,
+          payload: { sku, reason: note, counted, systemExpected },
+          sourceEventId: `stock-adjusted-${mv.id}`,
         });
 
         return mv;
@@ -291,6 +320,27 @@ export const advanceWarehouseTask = authenticatedAction(
             });
           }
         }
+
+        if (complete) {
+          const eventType =
+            task.kind === "PICK"
+              ? "PICK_COMPLETED"
+              : task.kind === "PACK"
+                ? "PACK_COMPLETED"
+                : "PUTAWAY_COMPLETED";
+          await logReportEvent(tx, {
+            eventType,
+            occurredAt: new Date(),
+            companyId,
+            subjectType: "WAREHOUSE_TASK",
+            subjectId: taskId,
+            warehouseId: task.warehouseId,
+            zoneId: task.zone,
+            quantity: task.totalUnits,
+            payload: { sku: task.sku, orderRef: task.orderRef },
+            sourceEventId: `task-completed-${taskId}`,
+          });
+        }
       });
 
       return { success: true, done: nextDone, complete };
@@ -402,17 +452,33 @@ export const reportWarehouseIssue = authenticatedAction(
         user.roleName
       );
 
-      const issue = await db.issue.create({
-        data: {
-          title: title?.trim() || "Warehouse floor issue",
-          description: description?.trim() || null,
-          type: "OTHER",
-          priority: "MEDIUM",
-          status: "OPEN",
-          warehouseId,
-          zone: zone?.trim() || null,
+      const issue = await db.$transaction(async (tx) => {
+        const created = await tx.issue.create({
+          data: {
+            title: title?.trim() || "Warehouse floor issue",
+            description: description?.trim() || null,
+            type: "OTHER",
+            priority: "MEDIUM",
+            status: "OPEN",
+            warehouseId,
+            zone: zone?.trim() || null,
+            companyId,
+          },
+        });
+
+        await logReportEvent(tx, {
+          eventType: "ISSUE_OPENED",
+          occurredAt: created.createdAt,
           companyId,
-        },
+          subjectType: "ISSUE",
+          subjectId: created.id,
+          warehouseId,
+          zoneId: zone?.trim() || null,
+          payload: { source: "warehouse", type: created.type, priority: created.priority },
+          sourceEventId: `issue-opened-${created.id}`,
+        });
+
+        return created;
       });
 
       return { success: true, issueId: issue.id };
