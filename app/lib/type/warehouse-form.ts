@@ -8,6 +8,8 @@ export interface WarehouseBasicInfo {
   closingTime?: string;
   is247: boolean;
   timezone: string;
+  /** "HH:mm", warehouse-local time. Optional — no cut-off means the metric is n/a, not a false miss. */
+  cutoffTime?: string;
 }
 
 export interface WarehouseLocation {

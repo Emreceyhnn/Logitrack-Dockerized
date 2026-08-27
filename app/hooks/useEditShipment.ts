@@ -72,6 +72,7 @@ export const useEditShipment = (open: boolean, onClose: () => void, onSuccess?: 
         slaDeadline: null, originWarehouseId: "", originLat: undefined, originLng: undefined,
         destination: "", destinationLat: undefined, destinationLng: undefined, customerId: "",
         customerLocationId: "", contactEmail: "", billingAccount: "Standard Billing (Net 30)",
+        revenue: "", extraCostAmount: "", extraCostNote: "",
         weightKg: 0, volumeM3: 0, palletCount: 0, cargoType: "General Cargo", assignedRouteId: null,
         trailerId: null, driverId: null, inventoryItems: [], stops: [],
       };
@@ -86,6 +87,9 @@ export const useEditShipment = (open: boolean, onClose: () => void, onSuccess?: 
       destination: shipment.destination || "", destinationLat: shipment.destinationLat ?? undefined, destinationLng: shipment.destinationLng ?? undefined,
       customerId: shipment.customerId || "", customerLocationId: shipment.customerLocationId || "",
       contactEmail: shipment.contactEmail || "", billingAccount: shipment.billingAccount || "Standard Billing (Net 30)",
+      revenue: shipment.revenue !== null && shipment.revenue !== undefined ? String(shipment.revenue) : "",
+      extraCostAmount: shipment.extraCostAmount !== null && shipment.extraCostAmount !== undefined ? String(shipment.extraCostAmount) : "",
+      extraCostNote: shipment.extraCostNote || "",
       weightKg: shipment.weightKg || 0, volumeM3: shipment.volumeM3 || 0, palletCount: shipment.palletCount || 0,
       cargoType: shipment.cargoType || "General Cargo", assignedRouteId: shipment.routeId || null, trailerId: shipment.trailerId || null,
       driverId: shipment.driverId || null,
@@ -120,6 +124,9 @@ export const useEditShipment = (open: boolean, onClose: () => void, onSuccess?: 
           originLng: values.originLng, trackingId: values.referenceNumber, priority: values.priority,
           type: values.type as import("@/app/lib/type/enums").ShipmentServiceType, slaDeadline: values.slaDeadline,
           contactEmail: sanitize(values.contactEmail) ?? undefined, billingAccount: values.billingAccount,
+          revenue: values.revenue.trim() ? parseFloat(values.revenue) : null,
+          extraCostAmount: values.extraCostAmount.trim() ? parseFloat(values.extraCostAmount) : null,
+          extraCostNote: sanitize(values.extraCostNote),
           inventoryItems: values.inventoryItems, stops: values.stops,
         }),
       });

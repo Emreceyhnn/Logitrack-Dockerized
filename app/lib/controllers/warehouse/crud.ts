@@ -23,7 +23,7 @@ import {
 /**
  * tr-sisteme yeni bir depo ekler ve oluşturulduğuna dair bildirim gönderir
  * en-adds a new warehouse to the system and dispatches a creation notification
- * input (user: AuthenticatedUser, name: string, code: string, type: WarehouseType, address: string, city: string, country: string, lat?: number, lng?: number, managerId?: string | null, capacityPallets?: number, capacityVolumeM3?: number, operatingHours?: string, timezone?: string, specifications?: string[])
+ * input (user: AuthenticatedUser, name: string, code: string, type: WarehouseType, address: string, city: string, country: string, lat?: number, lng?: number, managerId?: string | null, capacityPallets?: number, capacityVolumeM3?: number, operatingHours?: string, timezone?: string, specifications?: string[], cutoffTime?: string | null)
  * output (Promise<{ warehouse: Warehouse }>)
  */
 export const createWarehouse = authenticatedAction(
@@ -42,7 +42,8 @@ export const createWarehouse = authenticatedAction(
     capacityVolumeM3?: number,
     operatingHours?: string,
     timezone?: string,
-    specifications?: string[]
+    specifications?: string[],
+    cutoffTime?: string | null
   ) => {
     return controllerGuard("createWarehouse", async () => {
       const companyId = user.companyId || "";
@@ -101,6 +102,7 @@ export const createWarehouse = authenticatedAction(
           capacityPallets: capacityPallets || 5000,
           capacityVolumeM3: capacityVolumeM3 || 100000,
           operatingHours: operatingHours || "08:00 - 18:00",
+          cutoffTime: cutoffTime || null,
           timezone: timezone || "UTC",
           specifications: specifications || [],
         },

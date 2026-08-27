@@ -16,6 +16,14 @@ services:
       timeout: 3s
       retries: 5
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: "0.50"
+          memory: 256MB
+        reservations:
+          cpus: "0.10"
+          memory: 64MB
 
   web:
     # Pulled from the registry, not built here: the VPS only has this file, .env
@@ -89,6 +97,15 @@ services:
       retries: 10
     restart: unless-stopped
 
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 1GB
+        reservations:
+          cpus: "0.25"
+          memory: 256MB
+
   redis:
     image: redis:7-alpine
     # Cache data is disposable, but AOF keeps it across restarts so a redeploy
@@ -115,6 +132,14 @@ services:
       timeout: 3s
       retries: 10
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: "0.50"
+          memory: 512MB
+        reservations:
+          cpus: "0.10"
+          memory: 128MB
 
   email-service:
     image: emrecyhn/logitrack-email-service:latest
@@ -128,6 +153,14 @@ services:
       - LOGITRACK_BASE_URL=${NEXT_PUBLIC_BASE_URL:?NEXT_PUBLIC_BASE_URL is not set in .env}
     depends_on:
       - redis
+    deploy:
+      resources:
+        limits:
+          cpus: "0.20"
+          memory: 256MB
+        reservations:
+          cpus: "0.10"
+          memory: 128MB
 
 volumes:
   postgres_data:

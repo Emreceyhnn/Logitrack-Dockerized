@@ -271,6 +271,23 @@ export const updateRouteStatus = authenticatedAction(
       );
       const activeShipmentIds = activeShipments.map((s) => s.id);
 
+      // Fill-rate needs the vehicle's rated capacity alongside the load it's
+      // carrying — route.vehicleId alone doesn't carry maxLoadKg, so this is
+      // fetched once and reused by both the ACTIVE and COMPLETED event
+      // writes below rather than re-querying in each branch. Vehicle only
+      // rates capacity by weight (maxLoadKg) — volume capacity lives on
+      // Trailer, not Vehicle, and Route has no trailerId to join through.
+      const routeVehicle = route.vehicleId
+        ? await db.vehicle.findFirst({
+            where: { id: route.vehicleId, companyId },
+            select: { maxLoadKg: true },
+          })
+        : null;
+      const loadedWeightKg = route.shipments.reduce(
+        (sum, s) => sum + (s.weightKg ?? 0),
+        0
+      );
+
       const updatedRoute = await db.$transaction(async (tx) => {
         const updateData: Prisma.RouteUpdateInput = { status };
 
@@ -301,6 +318,7 @@ export const updateRouteStatus = authenticatedAction(
             });
           }
             if (activeShipmentIds.length > 0) {
+              const dispatchedAt = newRoute.startTime ?? new Date();
               await tx.shipment.updateMany({
                 where: { id: { in: activeShipmentIds } },
                 data: { status: "IN_TRANSIT" },
@@ -314,6 +332,22 @@ export const updateRouteStatus = authenticatedAction(
                     description: "Route started - Shipment in transit",
                     createdById: userId || null,
                   },
+                });
+
+                // Same bypass-of-updateShipmentStatus reasoning as the
+                // ORDER_DELIVERED write below: this bulk path never goes
+                // through assign.ts, so the dispatch event has to be written
+                // here too.
+                await logReportEvent(tx, {
+                  eventType: "SHIPMENT_DISPATCHED",
+                  occurredAt: dispatchedAt,
+                  companyId: companyId!,
+                  subjectType: "SHIPMENT",
+                  subjectId: shipment.id,
+                  warehouseId: shipment.originWarehouseId,
+                  driverId: route.driverId,
+                  customerId: shipment.customerId,
+                  sourceEventId: `shipment-dispatched-${shipment.id}`,
                 });
               }
             }
@@ -336,6 +370,16 @@ export const updateRouteStatus = authenticatedAction(
               subjectType: "ROUTE",
               subjectId: routeId,
               driverId: route.driverId,
+              weightKg: loadedWeightKg,
+              payload: routeVehicle
+                ? {
+                    maxLoadKg: routeVehicle.maxLoadKg,
+                    fillRate:
+                      routeVehicle.maxLoadKg > 0
+                        ? loadedWeightKg / routeVehicle.maxLoadKg
+                        : null,
+                  }
+                : null,
               sourceEventId: `route-started-${routeId}`,
             });
         } else if (status === "COMPLETED") {
@@ -389,6 +433,7 @@ export const updateRouteStatus = authenticatedAction(
                       (deliveredAt.getTime() - shipment.createdAt.getTime()) / 1000
                     )
                   ),
+                  slaDeadline: shipment.slaDeadline,
                   sourceEventId: `order-delivered-${shipment.id}`,
                 });
               }
@@ -420,6 +465,15 @@ export const updateRouteStatus = authenticatedAction(
               subjectId: routeId,
               driverId: route.driverId,
               quantity: activeShipmentIds.length,
+              weightKg: loadedWeightKg,
+              payload: {
+                distanceKm: route.distanceKm ?? null,
+                maxLoadKg: routeVehicle?.maxLoadKg ?? null,
+                fillRate:
+                  routeVehicle && routeVehicle.maxLoadKg > 0
+                    ? loadedWeightKg / routeVehicle.maxLoadKg
+                    : null,
+              },
               sourceEventId: `route-completed-${routeId}`,
             });
         } else if (status === "CANCELED") {

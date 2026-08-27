@@ -255,7 +255,14 @@ export const getCustomerById = authenticatedAction(
         throw new NotFoundError("Customer");
       }
 
-      return foundCustomer;
+      return {
+        ...foundCustomer,
+        shipments: foundCustomer.shipments.map((shipment) => ({
+          ...shipment,
+          revenue: shipment.revenue ? Number(shipment.revenue) : null,
+          extraCostAmount: shipment.extraCostAmount ? Number(shipment.extraCostAmount) : null,
+        })),
+      };
     });
   }
 );

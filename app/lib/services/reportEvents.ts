@@ -31,18 +31,49 @@ export type ReportEventInput = {
   /** Idempotency key. Reusing one silently no-ops the insert (ON CONFLICT DO NOTHING). */
   sourceEventId: string;
   warehouseId?: string | null;
-  carrierId?: string | null;
   driverId?: string | null;
   customerId?: string | null;
   zoneId?: string | null;
+  /**
+   * Who performed the action — a User id, not a Driver id. Distinct from
+   * driverId: a warehouse worker doing a pick has no Driver row at all, and
+   * even when the actor happens to also be a driver, driverId means "whose
+   * shipment/route this is", not "who clicked the button".
+   */
+  actorUserId?: string | null;
   quantity?: number | null;
   weightKg?: number | null;
   volumeM3?: number | null;
+  /**
+   * Ad-hoc cost for this event (e.g. handling/customs/insurance on a
+   * shipment, or a maintenance/fuel bill) — kept separate from `revenue` so
+   * profit queries can sum each side independently rather than relying on a
+   * sign convention every writer would need to get right.
+   */
   amount?: number | null;
+  /** Freight price billed to the customer. Only meaningful on SHIPMENT_CREATED so far. */
+  revenue?: number | null;
   durationSec?: number | null;
   payload?: Record<string, unknown> | null;
   /** Cut-off-adjusted operating day. Defaults to occurredAt's UTC calendar date. */
   businessDate?: Date;
+  /**
+   * The shipment's promised deadline, when it has one (Shipment.slaDeadline
+   * is nullable — not every shipment is sold with an SLA). Pass it on
+   * ORDER_DELIVERED / DELIVERY_FAILED and `isOnTime` is derived automatically
+   * as `occurredAt <= slaDeadline`, so every call site computes it the same
+   * way instead of each re-implementing the comparison (and risking one
+   * getting the boundary wrong). Omit entirely when the shipment has no SLA —
+   * isOnTime then stays null, which OTD% must treat as "not applicable", not
+   * as a miss.
+   */
+  slaDeadline?: Date | null;
+  /**
+   * Structured failure-reason code (see deliveryFailureReasons.ts). Pulled
+   * into its own column, not left inside payload, because
+   * failure_reasons_breakdown needs to GROUP BY it directly.
+   */
+  reasonCode?: string | null;
 };
 
 function resolveBusinessDate(occurredAt: Date): Date {
@@ -66,23 +97,26 @@ export async function logReportEvent(
   event: ReportEventInput
 ): Promise<void> {
   const businessDate = event.businessDate ?? resolveBusinessDate(event.occurredAt);
+  const slaDeadline = event.slaDeadline ?? null;
+  const isOnTime = slaDeadline ? event.occurredAt.getTime() <= slaDeadline.getTime() : null;
 
   await tx.$executeRaw`
     INSERT INTO reporting.report_events (
       id, "eventType", "occurredAt", "businessDate",
-      "companyId", "warehouseId", "carrierId", "driverId", "customerId", "zoneId",
+      "companyId", "warehouseId", "driverId", "customerId", "zoneId",
       "subjectType", "subjectId",
-      quantity, "weightKg", "volumeM3", amount, "durationSec",
-      payload, "sourceEventId"
+      quantity, "weightKg", "volumeM3", amount, revenue, "durationSec",
+      payload, "sourceEventId", "slaDeadline", "isOnTime", "actorUserId", "reasonCode"
     ) VALUES (
       ${crypto.randomUUID()}, ${event.eventType}, ${event.occurredAt}, ${businessDate},
-      ${event.companyId}, ${event.warehouseId ?? null}, ${event.carrierId ?? null},
+      ${event.companyId}, ${event.warehouseId ?? null},
       ${event.driverId ?? null}, ${event.customerId ?? null}, ${event.zoneId ?? null},
       ${event.subjectType}, ${event.subjectId},
       ${event.quantity ?? null}, ${event.weightKg ?? null}, ${event.volumeM3 ?? null},
-      ${event.amount ?? null}, ${event.durationSec ?? null},
+      ${event.amount ?? null}, ${event.revenue ?? null}, ${event.durationSec ?? null},
       ${event.payload ? JSON.stringify(event.payload) : null}::jsonb,
-      ${event.sourceEventId}
+      ${event.sourceEventId}, ${slaDeadline}, ${isOnTime}, ${event.actorUserId ?? null},
+      ${event.reasonCode ?? null}
     )
     ON CONFLICT ("sourceEventId") DO NOTHING
   `;

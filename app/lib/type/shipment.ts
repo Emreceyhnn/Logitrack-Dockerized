@@ -161,6 +161,10 @@ export interface ShipmentFormValues {
   customerLocationId: string;
   contactEmail: string;
   billingAccount: string;
+  /** Empty string means "not entered" — parsed to undefined on submit, not 0. */
+  revenue: string;
+  extraCostAmount: string;
+  extraCostNote: string;
   weightKg: number;
   volumeM3: number;
   palletCount: number;

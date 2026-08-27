@@ -21,6 +21,7 @@ import {
   ShipmentWithRelations,
 } from "@/app/lib/type/shipment";
 import { ShipmentStatus } from "@/app/lib/type/enums";
+import type { DeliveryFailureReasonCode } from "@/app/lib/type/deliveryFailureReasons";
 
 import { formatDisplayDate } from "@/app/lib/utils/date";
 import { useDateSettings } from "@/app/hooks/useDateSettings";
@@ -88,6 +89,7 @@ const ShipmentTable = ({
       id: string;
       status: ShipmentStatus;
       description?: string;
+      reasonCode?: DeliveryFailureReasonCode;
     }) => {
       await updateShipmentStatus.mutateAsync(args);
       setStatusTarget(null);

@@ -24,6 +24,7 @@ import { ShipmentStatus, ShipmentPriority, ShipmentServiceType } from "@/app/lib
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { shipmentKeys } from "@/app/lib/query-keys/shipment.keys";
 import type { InventoryShipmentItem } from "@/app/lib/type/add-shipment";
+import type { DeliveryFailureReasonCode } from "@/app/lib/type/deliveryFailureReasons";
 import { logger } from "@/app/lib/logger";
 
 
@@ -348,6 +349,9 @@ export function useShipmentMutations() {
         slaDeadline: data.slaDeadline ? new Date(data.slaDeadline) : null,
         contactEmail: data.contactEmail || "",
         billingAccount: data.billingAccount || "",
+        revenue: data.revenue !== null && data.revenue !== undefined ? Number(data.revenue) : undefined,
+        extraCostAmount: data.extraCostAmount !== null && data.extraCostAmount !== undefined ? Number(data.extraCostAmount) : undefined,
+        extraCostNote: data.extraCostNote || undefined,
         inventoryItems: data.inventoryItems || [],
         originWarehouseId: data.originWarehouseId || undefined,
         referenceNumber: data.referenceNumber || undefined,
@@ -467,12 +471,14 @@ export function useShipmentMutations() {
       status,
       location,
       description,
+      reasonCode,
     }: {
       id: string;
       status: ShipmentStatus;
       location?: string;
       description?: string;
-    }) => updateShipmentStatus(id, status, location, description),
+      reasonCode?: DeliveryFailureReasonCode;
+    }) => updateShipmentStatus(id, status, location, description, reasonCode),
     onMutate: async ({ id, status }) => {
       await queryClient.cancelQueries({ queryKey: shipmentKeys.all });
       const previous = patchCachedShipments(queryClient, id, { status });

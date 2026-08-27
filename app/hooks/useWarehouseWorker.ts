@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { warehouseWorkerKeys } from "@/app/lib/query-keys/warehouseWorker.keys";
 import {
+  logInboundArrival,
   logWarehouseMovement,
   adjustWarehouseStock,
   advanceWarehouseTask,
@@ -8,6 +9,7 @@ import {
   reportWarehouseIssue,
 } from "@/app/lib/controllers/warehouseWorker";
 import type { WarehouseWorkerDashboard } from "@/app/lib/type/warehouseWorker";
+import type { StockDiscrepancyType } from "@/app/lib/type/stockDiscrepancyTypes";
 
 async function fetchWarehouseWorkerDashboard(
   warehouseId?: string
@@ -139,6 +141,7 @@ export function useWarehouseWorkerMutations() {
       reason,
       expected,
       zone,
+      discrepancyType,
     }: {
       warehouseId: string;
       sku: string;
@@ -146,7 +149,17 @@ export function useWarehouseWorkerMutations() {
       reason: string;
       expected?: number | undefined;
       zone?: string | undefined;
-    }) => adjustWarehouseStock(warehouseId, sku, counted, reason, expected, zone),
+      discrepancyType?: StockDiscrepancyType | undefined;
+    }) =>
+      adjustWarehouseStock(
+        warehouseId,
+        sku,
+        counted,
+        reason,
+        expected,
+        zone,
+        discrepancyType
+      ),
     onMutate: async ({ sku, counted }) => {
       await queryClient.cancelQueries({ queryKey: warehouseWorkerKeys.all });
       const previous = patchCachedDashboards(queryClient, (data) => ({
@@ -187,6 +200,18 @@ export function useWarehouseWorkerMutations() {
     onSuccess: () => settleSuccess(),
   });
 
+  const logArrivalMutation = useMutation({
+    mutationFn: ({
+      warehouseId,
+      note,
+    }: {
+      warehouseId: string;
+      note?: string | undefined;
+    }) => logInboundArrival(warehouseId, note),
+    onError: () => settleError(),
+    onSuccess: () => settleSuccess(),
+  });
+
   const requestRestockMutation = useMutation({
     mutationFn: ({
       warehouseId,
@@ -209,12 +234,14 @@ export function useWarehouseWorkerMutations() {
       title,
       description,
       zone,
+      type,
     }: {
       warehouseId: string;
       title: string;
       description?: string;
       zone?: string;
-    }) => reportWarehouseIssue(warehouseId, title, description, zone),
+      type?: "DAMAGE" | "OTHER";
+    }) => reportWarehouseIssue(warehouseId, title, description, zone, type),
     onError: () => settleError(),
     onSuccess: () => settleSuccess(),
   });
@@ -223,6 +250,7 @@ export function useWarehouseWorkerMutations() {
     logMovement: logMovementMutation,
     adjustStock: adjustStockMutation,
     advanceTask: advanceTaskMutation,
+    logArrival: logArrivalMutation,
     requestRestock: requestRestockMutation,
     reportIssue: reportIssueMutation,
   };

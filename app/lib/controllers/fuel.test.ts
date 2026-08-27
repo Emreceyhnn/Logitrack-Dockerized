@@ -11,6 +11,8 @@ const dbMock = {
     findMany: mock.fn(),
     create: mock.fn(),
   },
+  $transaction: mock.fn(async (cb: (tx: typeof dbMock) => Promise<unknown>) => cb(dbMock)),
+  $executeRaw: mock.fn(async () => 1),
 };
 
 // Auth & Permission Mock
@@ -63,7 +65,17 @@ describe("Fuel Controller", () => {
 
     it("should_CreateFuelLog_AndNormalizeCurrency", async () => {
       // Arrange
-      const expectedLog = { id: "log-1", volumeLiter: 50, cost: 100, currency: "USD" };
+      const expectedLog = {
+        id: "log-1",
+        volumeLiter: 50,
+        cost: 100,
+        currency: "USD",
+        date: new Date("2026-08-02T10:00:00.000Z"),
+        driverId: "d-1",
+        vehicleId: "v-1",
+        fuelType: FuelType.DIESEL,
+        odometerKm: 150000,
+      };
       dbMock.fuelLog.create.mock.mockImplementation(async () => expectedLog);
 
       // Act

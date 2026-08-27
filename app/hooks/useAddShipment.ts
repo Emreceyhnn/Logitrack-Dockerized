@@ -23,7 +23,8 @@ export const initialValues: ShipmentFormValues = {
   trackingId: "", referenceNumber: "", priority: ShipmentPriority.MEDIUM, type: "STANDARD_FREIGHT",
   slaDeadline: null, originWarehouseId: "", originLat: undefined, originLng: undefined, destination: "",
   destinationLat: undefined, destinationLng: undefined, customerId: "", customerLocationId: "",
-  contactEmail: "", billingAccount: "Standard Billing (Net 30)", weightKg: 0, volumeM3: 0,
+  contactEmail: "", billingAccount: "Standard Billing (Net 30)",
+  revenue: "", extraCostAmount: "", extraCostNote: "", weightKg: 0, volumeM3: 0,
   palletCount: 0, cargoType: "General Cargo", assignedRouteId: null, trailerId: null,
   driverId: null, inventoryItems: [], stops: [],
 };
@@ -90,6 +91,9 @@ export const useAddShipment = (open: boolean, onClose: () => void, onSuccess?: (
         referenceNumber: values.referenceNumber, customerLocationId: values.customerLocationId,
         priority: values.priority, type: values.type as import("@/app/lib/type/enums").ShipmentServiceType,
         slaDeadline: values.slaDeadline, contactEmail: values.contactEmail, billingAccount: values.billingAccount,
+        revenue: values.revenue.trim() ? parseFloat(values.revenue) : null,
+        extraCostAmount: values.extraCostAmount.trim() ? parseFloat(values.extraCostAmount) : null,
+        extraCostNote: values.extraCostNote.trim() || null,
         inventoryItems: values.inventoryItems, trailerId: values.trailerId, driverId: values.driverId, stops: values.stops,
       });
     } catch (error) {

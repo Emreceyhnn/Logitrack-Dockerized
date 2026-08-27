@@ -412,12 +412,35 @@ describe("Shipments Controller", () => {
         "shipment-1",
         "FAILED",
         "Customer address closed",
-        "Recipient not available at delivery window"
+        "Recipient not available at delivery window",
+        "TIME_WINDOW_EXCEEDED"
       );
 
       // Assert
       expect(result.status).toBe("FAILED");
       expect(dbMock.shipment.update.mock.calls.length).toBe(1);
+    });
+
+    it("should_RejectFailed_WhenReasonCodeMissing", async () => {
+      dbMock.shipment.findFirst.mock.mockImplementation(async () => ({
+        companyId: "company-1",
+        status: ShipmentStatus.IN_TRANSIT,
+        createdAt: new Date("2026-08-01T08:00:00.000Z"),
+        originWarehouseId: "warehouse-1",
+        driverId: "driver-1",
+        customerId: "customer-1",
+      }));
+
+      await expect(
+        shipmentsController.updateShipmentStatus(
+          mockUser,
+          "shipment-1",
+          "FAILED",
+          undefined,
+          "Recipient not available at delivery window"
+        )
+      ).rejects.toThrow("failure reason code");
+      expect(dbMock.shipment.update.mock.calls.length).toBe(0);
     });
   });
 

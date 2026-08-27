@@ -10,6 +10,10 @@ import { assertRouteCapacity } from "../utils/routeCapacity";
 import { invalidateShipmentCache } from "./cache";
 import { controllerGuard } from "../utils/controllerGuard";
 import { logReportEvent } from "@/app/lib/services/reportEvents";
+import {
+  isDeliveryFailureReasonCode,
+  type DeliveryFailureReasonCode,
+} from "@/app/lib/type/deliveryFailureReasons";
 
 /**
  * tr-belirtilen sevkiyata bir sürücü atar ve durumunu günceller
@@ -215,7 +219,8 @@ export const updateShipmentStatus = authenticatedAction(
     shipmentId: string,
     status: ShipmentStatus,
     location?: string,
-    description?: string
+    description?: string,
+    reasonCode?: DeliveryFailureReasonCode
   ) => {
     const userId = user?.id;
     const companyId = user?.companyId;
@@ -231,6 +236,7 @@ export const updateShipmentStatus = authenticatedAction(
           originWarehouseId: true,
           driverId: true,
           customerId: true,
+          slaDeadline: true,
         },
       });
 
@@ -245,6 +251,11 @@ export const updateShipmentStatus = authenticatedAction(
       if (status === ShipmentStatus.FAILED && !description?.trim()) {
         throw new Error(
           "A failure reason (description) is required when marking a shipment as FAILED"
+        );
+      }
+      if (status === ShipmentStatus.FAILED && !isDeliveryFailureReasonCode(reasonCode)) {
+        throw new Error(
+          "A failure reason code is required when marking a shipment as FAILED"
         );
       }
 
@@ -265,7 +276,19 @@ export const updateShipmentStatus = authenticatedAction(
           },
         });
 
-        if (status === ShipmentStatus.DELIVERED) {
+        if (status === ShipmentStatus.IN_TRANSIT) {
+          await logReportEvent(tx, {
+            eventType: "SHIPMENT_DISPATCHED",
+            occurredAt: shipment.updatedAt,
+            companyId: companyId!,
+            subjectType: "SHIPMENT",
+            subjectId: shipmentId,
+            warehouseId: existingShipment.originWarehouseId,
+            driverId: existingShipment.driverId,
+            customerId: existingShipment.customerId,
+            sourceEventId: `shipment-dispatched-${shipmentId}`,
+          });
+        } else if (status === ShipmentStatus.DELIVERED) {
           const deliveredAt = shipment.updatedAt;
           await logReportEvent(tx, {
             eventType: "ORDER_DELIVERED",
@@ -282,6 +305,7 @@ export const updateShipmentStatus = authenticatedAction(
                 (deliveredAt.getTime() - existingShipment.createdAt.getTime()) / 1000
               )
             ),
+            slaDeadline: existingShipment.slaDeadline,
             sourceEventId: `order-delivered-${shipmentId}`,
           });
         } else if (status === ShipmentStatus.FAILED) {
@@ -294,8 +318,25 @@ export const updateShipmentStatus = authenticatedAction(
             warehouseId: existingShipment.originWarehouseId,
             driverId: existingShipment.driverId,
             customerId: existingShipment.customerId,
+            reasonCode: reasonCode ?? null,
             payload: description ? { reason: description } : null,
+            // A failed attempt is not "on time" or "late" against the SLA —
+            // it never delivered, so isOnTime is left null rather than false;
+            // OTD% should not count this as a missed-but-delivered order.
             sourceEventId: `delivery-failed-${shipmentId}-${shipment.updatedAt.getTime()}`,
+          });
+        } else if (status === ShipmentStatus.RETURNED) {
+          await logReportEvent(tx, {
+            eventType: "ORDER_RETURNED",
+            occurredAt: shipment.updatedAt,
+            companyId: companyId!,
+            subjectType: "SHIPMENT",
+            subjectId: shipmentId,
+            warehouseId: existingShipment.originWarehouseId,
+            driverId: existingShipment.driverId,
+            customerId: existingShipment.customerId,
+            payload: description ? { reason: description } : null,
+            sourceEventId: `order-returned-${shipmentId}`,
           });
         }
 

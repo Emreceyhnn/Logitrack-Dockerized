@@ -6,6 +6,7 @@ import {
   TextField,
   Button,
   IconButton,
+  MenuItem,
   useTheme,
 } from "@mui/material";
 import type { Theme } from "@mui/material/styles";
@@ -14,6 +15,10 @@ import type {
   WarehouseWorkerDict,
 } from "@/app/lib/type/warehouseWorkerClient";
 import { zoneLabel } from "@/app/lib/utils/warehouseWorkerUi";
+import {
+  STOCK_DISCREPANCY_TYPES,
+  type StockDiscrepancyType,
+} from "@/app/lib/type/stockDiscrepancyTypes";
 
 interface WWScanSectionProps {
   scanResult: SkuInfo | null;
@@ -24,7 +29,11 @@ interface WWScanSectionProps {
   scanQty: number;
   setScanQty: React.Dispatch<React.SetStateAction<number>>;
   log: (kind: "PICK" | "PACK" | "STOCK_IN" | "PUTAWAY") => void;
-  adjust: (counted: number, reason: string) => void;
+  adjust: (
+    counted: number,
+    reason: string,
+    discrepancyType?: StockDiscrepancyType
+  ) => void;
   setScanResult: (v: SkuInfo | null) => void;
   ww: WarehouseWorkerDict;
 }
@@ -50,6 +59,11 @@ export default function WWScanSection({
   const [adjustOpen, setAdjustOpen] = useState(false);
   const [counted, setCounted] = useState<string>("");
   const [reason, setReason] = useState("");
+  // Optional: not every recount traces back to a specific pick (an annual
+  // count sweep doesn't), so this stays unset rather than forcing a guess.
+  const [discrepancyType, setDiscrepancyType] = useState<
+    StockDiscrepancyType | ""
+  >("");
 
   const expected = scanResult?.onHand;
   const knownSku = expected !== undefined;
@@ -61,11 +75,16 @@ export default function WWScanSection({
     setAdjustOpen(false);
     setCounted("");
     setReason("");
+    setDiscrepancyType("");
   };
 
   const submitAdjust = () => {
     if (!validCount || !reason.trim()) return;
-    adjust(countedNum, reason.trim());
+    adjust(
+      countedNum,
+      reason.trim(),
+      discrepancyType || undefined
+    );
     closeAdjust();
   };
 
@@ -257,6 +276,8 @@ export default function WWScanSection({
               setCounted={setCounted}
               reason={reason}
               setReason={setReason}
+              discrepancyType={discrepancyType}
+              setDiscrepancyType={setDiscrepancyType}
               diff={diff}
               canSubmit={validCount && !!reason.trim() && knownSku}
               onSubmit={submitAdjust}
@@ -359,6 +380,8 @@ interface AdjustFormProps {
   setCounted: (v: string) => void;
   reason: string;
   setReason: (v: string) => void;
+  discrepancyType: StockDiscrepancyType | "";
+  setDiscrepancyType: (v: StockDiscrepancyType | "") => void;
   diff: number | null;
   canSubmit: boolean;
   onSubmit: () => void;
@@ -374,6 +397,8 @@ function AdjustForm({
   setCounted,
   reason,
   setReason,
+  discrepancyType,
+  setDiscrepancyType,
   diff,
   canSubmit,
   onSubmit,
@@ -496,6 +521,24 @@ function AdjustForm({
               </Typography>
             </Stack>
           )}
+
+          <TextField
+            fullWidth
+            select
+            value={discrepancyType}
+            onChange={(e) =>
+              setDiscrepancyType(e.target.value as StockDiscrepancyType | "")
+            }
+            label={ww.ui.discrepancyTypeLabel}
+            sx={{ mt: 1.5 }}
+          >
+            <MenuItem value="">{ww.ui.discrepancyTypeUnset}</MenuItem>
+            {STOCK_DISCREPANCY_TYPES.map((type) => (
+              <MenuItem key={type} value={type}>
+                {ww.ui.discrepancyTypeCodes?.[type] || type}
+              </MenuItem>
+            ))}
+          </TextField>
 
           <TextField
             fullWidth

@@ -174,6 +174,7 @@ export const IssueType = {
   DRIVER: "DRIVER",
   SHIPMENT: "SHIPMENT",
   TRAILER: "TRAILER",
+  DAMAGE: "DAMAGE",
   OTHER: "OTHER",
 } as const;
 export type IssueType = typeof IssueType[keyof typeof IssueType];

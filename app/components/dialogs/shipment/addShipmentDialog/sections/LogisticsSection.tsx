@@ -477,6 +477,77 @@ const LogisticsSection = ({ warehouses, trailers, drivers = [] }: LogisticsSecti
               </CustomTextArea>
             </Stack>
           </Grid>
+
+          <Grid size={{ xs: 12, md: 3 }}>
+            <Stack spacing={1}>
+              <Typography
+                variant="caption"
+                color="text.secondary"
+                fontWeight={600}
+              >
+                {dict.shipments.dialogs.fields.revenue}
+              </Typography>
+              <CustomTextArea
+                name="revenue"
+                type="number"
+                placeholder={dict.shipments.dialogs.fields.revenuePlaceholder}
+                value={values.revenue}
+                onBlur={handleBlur}
+                onChange={(e) =>
+                  setFieldValue(
+                    "revenue",
+                    e.target.value.replace(/[^0-9.]/g, "")
+                  )
+                }
+              />
+            </Stack>
+          </Grid>
+
+          <Grid size={{ xs: 12, md: 3 }}>
+            <Stack spacing={1}>
+              <Typography
+                variant="caption"
+                color="text.secondary"
+                fontWeight={600}
+              >
+                {dict.shipments.dialogs.fields.extraCostAmount}
+              </Typography>
+              <CustomTextArea
+                name="extraCostAmount"
+                type="number"
+                placeholder={dict.shipments.dialogs.fields.extraCostAmountPlaceholder}
+                value={values.extraCostAmount}
+                onBlur={handleBlur}
+                onChange={(e) =>
+                  setFieldValue(
+                    "extraCostAmount",
+                    e.target.value.replace(/[^0-9.]/g, "")
+                  )
+                }
+              />
+            </Stack>
+          </Grid>
+
+          <Grid size={{ xs: 12, md: 6 }}>
+            <Stack spacing={1}>
+              <Typography
+                variant="caption"
+                color="text.secondary"
+                fontWeight={600}
+              >
+                {dict.shipments.dialogs.fields.extraCostNote}
+              </Typography>
+              <CustomTextArea
+                name="extraCostNote"
+                placeholder={dict.shipments.dialogs.fields.extraCostNotePlaceholder}
+                value={values.extraCostNote}
+                onBlur={handleBlur}
+                onChange={(e) =>
+                  setFieldValue("extraCostNote", e.target.value)
+                }
+              />
+            </Stack>
+          </Grid>
         </Grid>
       </Stack>
     </Box>

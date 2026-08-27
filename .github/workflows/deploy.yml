@@ -25,24 +25,22 @@ jobs:
           GITHUB_SHA: ${{ github.event.workflow_run.head_sha }}
 
       - name: SSH and Deploy on VPS
-        uses: appleboy/ssh-action@029f5b4aeeeb58fdfe1410a5d17f967dacf36262 # v1.0.3
+        uses: appleboy/ssh-action@029f5b4aeeeb58fdfe1410a5d17f967dacf36262
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USERNAME }}
-          key: ${{ secrets.VPS_SSH_KEY }}
+          password: ${{secrets.VPS_PASSWORD}}
           envs: IMAGE_TAG
           script: |
             set -e
-            cd /opt/logitrack # VPS'deki proje dizininiz
+            cd /home/logitrack/client
             docker pull emrecyhn/logitrack:${IMAGE_TAG}
             docker tag emrecyhn/logitrack:${IMAGE_TAG} emrecyhn/logitrack:latest
             docker compose down
             docker compose up -d
             docker image prune -f
 
-            # Deploy sonrası health check — nginx'in /healthz endpoint'i sadece
-            # compose network'ünde/host'ta erişilebilir olduğundan kontrol VPS
-            # içinden, aynı SSH oturumunda yapılır.
+
             for i in $(seq 1 10); do
               STATUS=$(curl -s -o /dev/null -w "%{http_code}" "http://localhost/healthz" || echo "000")
               if [ "$STATUS" = "200" ]; then

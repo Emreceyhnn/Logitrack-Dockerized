@@ -15,6 +15,10 @@ import {
 } from "@mui/material";
 import { ShipmentStatus } from "@/app/lib/type/enums";
 import { SHIPMENT_TRANSITIONS } from "@/app/lib/type/shipmentTransitions";
+import {
+  DELIVERY_FAILURE_REASONS,
+  type DeliveryFailureReasonCode,
+} from "@/app/lib/type/deliveryFailureReasons";
 import { StatusChip } from "@/app/components/chips/statusChips";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import CustomTextArea from "@/app/components/inputs/customTextArea";
@@ -29,6 +33,7 @@ interface StatusUpdateDialogProps {
     id: string;
     status: ShipmentStatus;
     description?: string;
+    reasonCode?: DeliveryFailureReasonCode;
   }) => Promise<void> | void;
   submitting?: boolean;
 }
@@ -53,6 +58,7 @@ export default function StatusUpdateDialog({
 
   const [nextStatus, setNextStatus] = useState<ShipmentStatus | "">("");
   const [description, setDescription] = useState("");
+  const [reasonCode, setReasonCode] = useState<DeliveryFailureReasonCode | "">("");
 
   // Reset local state whenever a different shipment is opened.
   const [seenId, setSeenId] = useState<string | null>(null);
@@ -60,6 +66,7 @@ export default function StatusUpdateDialog({
     setSeenId(shipmentId);
     setNextStatus("");
     setDescription("");
+    setReasonCode("");
   }
 
   const options = currentStatus
@@ -69,8 +76,12 @@ export default function StatusUpdateDialog({
   const canSubmit =
     !!shipmentId &&
     !!nextStatus &&
-    (!requiresReason || description.trim().length > 0) &&
+    (!requiresReason || (description.trim().length > 0 && !!reasonCode)) &&
     !submitting;
+
+  const reasonCodeLabel = (code: DeliveryFailureReasonCode) =>
+    dict.shipments.dialogs.failureReasonCodes?.[code] ||
+    code.replace(/_/g, " ");
 
   const statusLabel = (s: ShipmentStatus) =>
     dict.shipments.statuses[
@@ -83,6 +94,7 @@ export default function StatusUpdateDialog({
       id: shipmentId,
       status: nextStatus,
       ...(description.trim() ? { description: description.trim() } : {}),
+      ...(reasonCode ? { reasonCode } : {}),
     });
   };
 
@@ -139,6 +151,30 @@ export default function StatusUpdateDialog({
                   </MenuItem>
                 ))}
               </CustomTextArea>
+
+              {requiresReason && (
+                <CustomTextArea
+                  select
+                  name="reasonCode"
+                  label={
+                    (dict.shipments.dialogs.failureReasonLabel ||
+                      "Failure reason") + " *"
+                  }
+                  value={reasonCode}
+                  onChange={(e) =>
+                    setReasonCode(
+                      e.target.value as DeliveryFailureReasonCode
+                    )
+                  }
+                  error={!reasonCode}
+                >
+                  {DELIVERY_FAILURE_REASONS.map((code) => (
+                    <MenuItem key={code} value={code}>
+                      {reasonCodeLabel(code)}
+                    </MenuItem>
+                  ))}
+                </CustomTextArea>
+              )}
 
               <CustomTextArea
                 name="description"

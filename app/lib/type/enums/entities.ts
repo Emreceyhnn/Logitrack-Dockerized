@@ -81,6 +81,7 @@ export interface Warehouse {
   capacityPallets?: number;
   capacityVolumeM3?: number;
   operatingHours?: string | null;
+  cutoffTime?: string | null;
   timezone: string;
   specifications?: string[];
   managerId?: string | null;
@@ -182,6 +183,12 @@ export interface Shipment {
   cargoType?: string | null;
   contactEmail?: string | null;
   billingAccount?: string | null;
+  /** Freight price billed to the customer. Not every shipment is priced up front. */
+  revenue?: number | null;
+  /** Lump-sum for ad-hoc costs (handling, customs, insurance, etc.). */
+  extraCostAmount?: number | null;
+  extraCostNote?: string | null;
+  currency?: string | null;
   routeId?: string | null;
   trailerId?: string | null;
   companyId?: string | null;

@@ -2,6 +2,7 @@
 // under ./warehouseWorker/ to keep each file focused and under ~400 lines.
 export { getWarehouseWorkerDashboard } from "./warehouseWorker/dashboard";
 export {
+  logInboundArrival,
   logWarehouseMovement,
   adjustWarehouseStock,
   advanceWarehouseTask,

@@ -324,6 +324,8 @@ export const getShipmentsWithDashboardData = authenticatedAction(
         const typedShipments: ShipmentWithRelations[] = shipments.map(
           (shipment) => ({
             ...shipment,
+            revenue: shipment.revenue ? Number(shipment.revenue) : null,
+            extraCostAmount: shipment.extraCostAmount ? Number(shipment.extraCostAmount) : null,
             route: shipment.route
               ? {
                   ...shipment.route,

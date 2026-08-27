@@ -6,6 +6,7 @@ import { useGuidedTour } from "@/app/lib/context/GuidedTourContext";
 import { getTourStepsForPage } from "@/app/components/guidedTour/tourSteps";
 import { View, Task, Zone, Movement, SkuInfo, LowStockItem } from "@/app/lib/type/warehouseWorkerClient";
 import { PICKS_TARGET, PACKS_TARGET, relativeTime, prioFromServer, sortTasksByPriority, pickNextTask, isUnassignedZone, I } from "@/app/lib/utils/warehouseWorkerUi";
+import type { StockDiscrepancyType } from "@/app/lib/type/stockDiscrepancyTypes";
 
 export function useWarehouseWorkerState(selectedWarehouseId: string | undefined) {
   const { dict } = useLanguage();
@@ -17,6 +18,7 @@ export function useWarehouseWorkerState(selectedWarehouseId: string | undefined)
     logMovement,
     adjustStock,
     advanceTask: advanceTaskMutation,
+    logArrival: logArrivalMutation,
     requestRestock: requestRestockMutation,
     reportIssue: reportIssueMutation,
   } = useWarehouseWorkerMutations();
@@ -194,7 +196,11 @@ export function useWarehouseWorkerState(selectedWarehouseId: string | undefined)
 
   // Reconcile a physical count for the scanned SKU (eksik/fazla). `counted` is
   // the shelf count; the server computes the signed delta against live on-hand.
-  const adjust = async (counted: number, reason: string) => {
+  const adjust = async (
+    counted: number,
+    reason: string,
+    discrepancyType?: StockDiscrepancyType
+  ) => {
     if (!canWrite) return showToast(ww.readOnlyRole, "warning");
     if (!scanResult || !warehouseId) return;
     const result = scanResult;
@@ -202,7 +208,7 @@ export function useWarehouseWorkerState(selectedWarehouseId: string | undefined)
     setScanResult(null);
     setScanQty(1);
     try {
-      const res = await adjustStock.mutateAsync({ warehouseId, sku: result.sku, counted, reason, expected, zone: result.zone });
+      const res = await adjustStock.mutateAsync({ warehouseId, sku: result.sku, counted, reason, expected, zone: result.zone, discrepancyType });
       setScanActivityCount((c) => c + 1);
       if (res.delta === 0) {
         showToast(`${ww.adjustNoChange} · ${result.sku}`, "info");
@@ -274,6 +280,17 @@ export function useWarehouseWorkerState(selectedWarehouseId: string | undefined)
     }
   };
 
+  const onLogArrival = async () => {
+    if (!canWrite) return showToast(ww.readOnlyRole, "warning");
+    if (!warehouseId) return;
+    try {
+      await logArrivalMutation.mutateAsync({ warehouseId });
+      showToast(ww.ui.logArrivalSuccess, "info");
+    } catch {
+      showToast(ww.couldNotReportIssue, "error");
+    }
+  };
+
   const onReport = async () => {
     if (!canWrite) return showToast(ww.readOnlyRole, "warning");
     if (!warehouseId) return;
@@ -284,6 +301,25 @@ export function useWarehouseWorkerState(selectedWarehouseId: string | undefined)
         // Persisted as a column too, so reports stay filterable by site/zone
         // rather than only being greppable out of the title.
         zone: currentZone,
+      });
+      showToast(ww.issueReported, "error");
+    } catch {
+      showToast(ww.couldNotReportIssue, "error");
+    }
+  };
+
+  // Same one-tap flow as onReport, but tagged DAMAGE so it feeds
+  // damage_count/damage_rate instead of the generic issue bucket — a worker
+  // spotting damaged cargo/product on the floor, not an equipment fault.
+  const onReportDamage = async () => {
+    if (!canWrite) return showToast(ww.readOnlyRole, "warning");
+    if (!warehouseId) return;
+    try {
+      await reportIssueMutation.mutateAsync({
+        warehouseId,
+        title: `Damage reported — Zone ${currentZone}`,
+        zone: currentZone,
+        type: "DAMAGE",
       });
       showToast(ww.issueReported, "error");
     } catch {
@@ -324,6 +360,7 @@ export function useWarehouseWorkerState(selectedWarehouseId: string | undefined)
     setView,
     currentZone,
     setCurrentZone,
+    onLogArrival,
     scanInput,
     setScanInput,
     scanResult,
@@ -345,6 +382,7 @@ export function useWarehouseWorkerState(selectedWarehouseId: string | undefined)
     advanceTask,
     onRestock,
     onReport,
+    onReportDamage,
     catalog,
     restockOpen,
     setRestockOpen,

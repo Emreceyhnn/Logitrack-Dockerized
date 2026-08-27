@@ -274,6 +274,7 @@ function buildOptimisticWarehouse(
     capacityPallets: number;
     capacityVolumeM3: number;
     operatingHours?: string | undefined;
+    cutoffTime?: string | null | undefined;
     timezone?: string | undefined;
     specifications?: string[] | undefined;
   }
@@ -291,6 +292,7 @@ function buildOptimisticWarehouse(
     capacityPallets: data.capacityPallets,
     capacityVolumeM3: data.capacityVolumeM3,
     operatingHours: data.operatingHours ?? null,
+    cutoffTime: data.cutoffTime ?? null,
     timezone: data.timezone ?? "UTC",
     specifications: data.specifications ?? [],
     managerId: data.managerId ?? null,
@@ -350,6 +352,7 @@ export function useWarehouseMutations() {
       capacityPallets: number;
       capacityVolumeM3: number;
       operatingHours?: string | undefined;
+      cutoffTime?: string | null | undefined;
       timezone?: string | undefined;
       specifications?: string[] | undefined;
     }) =>
@@ -367,7 +370,8 @@ export function useWarehouseMutations() {
         data.capacityVolumeM3,
         data.operatingHours,
         data.timezone,
-        data.specifications
+        data.specifications,
+        data.cutoffTime
       ),
     onMutate: async (data) => {
       await queryClient.cancelQueries({ queryKey: warehouseKeys.all });

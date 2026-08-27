@@ -101,6 +101,7 @@ export const createInventoryItem = authenticatedAction(
           quantity: parsed.quantity,
           payload: { sku: itemSku, initial: true },
           sourceEventId: `inbound-received-inventory-${item.id}`,
+          actorUserId: userId,
         });
 
         return { newItem: item };
@@ -267,6 +268,7 @@ export const adjustInventoryStock = authenticatedAction(
           quantity: parsed.delta,
           payload: { sku: item.sku, movementType: parsed.type, notes: parsed.notes ?? null },
           sourceEventId: `stock-adjusted-${mv.id}`,
+          actorUserId: userId,
         });
 
         return item;
@@ -382,6 +384,7 @@ export const logWarehouseFulfillment = authenticatedAction(
           quantity: parsed.quantity,
           payload: { sku: parsed.sku },
           sourceEventId: `${parsed.type === "PICK" ? "pick" : "pack"}-completed-${mv.id}`,
+          actorUserId: userId,
         });
 
         return mv;

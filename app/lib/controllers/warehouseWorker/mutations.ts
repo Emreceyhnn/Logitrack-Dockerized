@@ -7,6 +7,10 @@ import { controllerGuard } from "../utils/controllerGuard";
 import { WW_WRITE_ROLES, assertWarehouseAccess } from "./shared";
 import { notifyManagerOfRestockRequest } from "./notifyRestock";
 import { logReportEvent } from "@/app/lib/services/reportEvents";
+import {
+  isStockDiscrepancyType,
+  type StockDiscrepancyType,
+} from "@/app/lib/type/stockDiscrepancyTypes";
 
 /**
  * Log a stock movement from the warehouse floor. PICK removes on-hand stock;
@@ -15,6 +19,57 @@ import { logReportEvent } from "@/app/lib/services/reportEvents";
  */
 type FloorMovementKind = "PICK" | "PACK" | "STOCK_IN" | "PUTAWAY";
 const INBOUND_KINDS: readonly FloorMovementKind[] = ["STOCK_IN", "PUTAWAY"];
+
+/**
+ * Logs the moment an inbound vehicle arrives at the dock, before any stock
+ * is actually counted in. This is the "dock" half of dock-to-stock — the
+ * "stock" half is INBOUND_RECEIVED, written when logWarehouseMovement
+ * records a STOCK_IN/PUTAWAY. Neither event references the other by id;
+ * dock-to-stock is computed downstream by pairing each arrival with the
+ * nearest following INBOUND_RECEIVED for the same warehouse. No domain
+ * table is touched — this exists purely to give that pairing a timestamp
+ * to start from.
+ */
+/**
+ * tr-bir gelen aracın depo kapısına vardığı anı kaydeder (mal kabul öncesi)
+ * en-logs the moment an inbound vehicle arrives at the warehouse dock (before receiving)
+ * input (user: AuthenticatedUser, warehouseId: string, note?: string)
+ * output (Promise<{ success: boolean }>)
+ */
+export const logInboundArrival = authenticatedAction(
+  async (user, warehouseId: string, note?: string) => {
+    const companyId = user?.companyId || "";
+    const userId = user?.id || "";
+    return controllerGuard("logInboundArrival", async () => {
+      await checkPermission(user, companyId, WW_WRITE_ROLES);
+      if (!companyId) throw new Error("User has no company");
+
+      await assertWarehouseAccess(
+        companyId,
+        userId,
+        warehouseId,
+        user.roleName
+      );
+
+      const occurredAt = new Date();
+      await db.$transaction(async (tx) => {
+        await logReportEvent(tx, {
+          eventType: "INBOUND_ARRIVED",
+          occurredAt,
+          companyId,
+          subjectType: "WAREHOUSE",
+          subjectId: warehouseId,
+          warehouseId,
+          payload: note?.trim() ? { note: note.trim() } : null,
+          actorUserId: userId,
+          sourceEventId: `inbound-arrived-${warehouseId}-${occurredAt.getTime()}`,
+        });
+      });
+
+      return { success: true };
+    });
+  }
+);
 
 /**
  * tr-depo sahasındaki bir stok hareketini (toplama, paketleme, mal kabul vb.) kaydeder ve envanter miktarını günceller
@@ -101,6 +156,7 @@ export const logWarehouseMovement = authenticatedAction(
               quantity,
               payload: { sku, kind },
               sourceEventId: `inbound-received-${mv.id}`,
+              actorUserId: userId,
             });
           }
 
@@ -123,7 +179,7 @@ export const logWarehouseMovement = authenticatedAction(
 /**
  * tr-fiziksel sayım sonucunu sistemle karşılaştırarak (eksik/fazla) stok düzeltmesi yapar ve 'ADJUSTMENT' hareketi kaydeder
  * en-reconciles a physical stock count against the system, adjusts the on-hand quantity, and logs an 'ADJUSTMENT' movement
- * input (user: AuthenticatedUser, warehouseId: string, sku: string, counted: number, reason: string, expected?: number, zone?: string)
+ * input (user: AuthenticatedUser, warehouseId: string, sku: string, counted: number, reason: string, expected?: number, zone?: string, discrepancyType?: StockDiscrepancyType)
  * output (Promise<{ success: boolean, movementId: string | null, delta: number, counted: number }>)
  */
 export const adjustWarehouseStock = authenticatedAction(
@@ -134,7 +190,8 @@ export const adjustWarehouseStock = authenticatedAction(
     counted: number,
     reason: string,
     expected?: number,
-    zone?: string
+    zone?: string,
+    discrepancyType?: StockDiscrepancyType
   ) => {
     const companyId = user?.companyId || "";
     const userId = user?.id || "";
@@ -201,8 +258,10 @@ export const adjustWarehouseStock = authenticatedAction(
           warehouseId,
           zoneId: mv.zone,
           quantity: delta,
+          reasonCode: isStockDiscrepancyType(discrepancyType) ? discrepancyType : null,
           payload: { sku, reason: note, counted, systemExpected },
           sourceEventId: `stock-adjusted-${mv.id}`,
+          actorUserId: userId,
         });
 
         return mv;
@@ -339,6 +398,7 @@ export const advanceWarehouseTask = authenticatedAction(
             quantity: task.totalUnits,
             payload: { sku: task.sku, orderRef: task.orderRef },
             sourceEventId: `task-completed-${taskId}`,
+            actorUserId: userId,
           });
         }
       });
@@ -428,7 +488,7 @@ export const requestRestock = authenticatedAction(
  * en-allows a warehouse worker to report a new issue/defect from the floor.
  *    The warehouse (and reported zone) are persisted as real columns, so floor
  *    reports can be filtered by site instead of being buried in the title text.
- * input (user: AuthenticatedUser, warehouseId: string, title: string, description?: string, zone?: string)
+ * input (user: AuthenticatedUser, warehouseId: string, title: string, description?: string, zone?: string, type?: "DAMAGE" | "OTHER")
  * output (Promise<{ success: boolean, issueId: string }>)
  */
 export const reportWarehouseIssue = authenticatedAction(
@@ -437,7 +497,8 @@ export const reportWarehouseIssue = authenticatedAction(
     warehouseId: string,
     title: string,
     description?: string,
-    zone?: string
+    zone?: string,
+    type?: "DAMAGE" | "OTHER"
   ) => {
     const companyId = user?.companyId || "";
     const userId = user?.id || "";
@@ -457,7 +518,7 @@ export const reportWarehouseIssue = authenticatedAction(
           data: {
             title: title?.trim() || "Warehouse floor issue",
             description: description?.trim() || null,
-            type: "OTHER",
+            type: type === "DAMAGE" ? "DAMAGE" : "OTHER",
             priority: "MEDIUM",
             status: "OPEN",
             warehouseId,
@@ -476,6 +537,7 @@ export const reportWarehouseIssue = authenticatedAction(
           zoneId: zone?.trim() || null,
           payload: { source: "warehouse", type: created.type, priority: created.priority },
           sourceEventId: `issue-opened-${created.id}`,
+          actorUserId: userId,
         });
 
         return created;

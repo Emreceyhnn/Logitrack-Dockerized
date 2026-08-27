@@ -140,6 +140,7 @@ export const addInventoryItem = authenticatedAction(
           quantity,
           payload: { sku: itemSku, initial: true },
           sourceEventId: `inbound-received-inventory-${newItem.id}`,
+          actorUserId: user.id,
         });
 
         return newItem;
@@ -268,6 +269,7 @@ export const updateInventoryItem = authenticatedAction(
             quantity: data.quantity - currentItem.quantity,
             payload: { sku: mv.sku },
             sourceEventId: `stock-adjusted-${mv.id}`,
+            actorUserId: user.id,
           });
         }
 

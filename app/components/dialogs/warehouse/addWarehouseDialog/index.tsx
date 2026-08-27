@@ -37,6 +37,7 @@ const initialBasicInfo = {
   type: "WAREHOUSE" as const,
   openingTime: "08:00",
   closingTime: "18:00",
+  cutoffTime: "",
   is247: false,
   timezone: "UTC",
 };
@@ -124,6 +125,7 @@ const AddWarehouseDialog = ({
           operatingHours: state.data.basicInfo.is247
             ? "24/7"
             : `${state.data.basicInfo.openingTime} - ${state.data.basicInfo.closingTime}`,
+          cutoffTime: state.data.basicInfo.cutoffTime || null,
           timezone: state.data.basicInfo.timezone,
           specifications: state.data.capacity.specifications,
         });

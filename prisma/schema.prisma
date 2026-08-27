@@ -291,6 +291,11 @@ model Warehouse {
   capacityPallets  Int                 @default(5000)
   capacityVolumeM3 Int                 @default(100000)
   operatingHours   String?             @default("08:00 - 18:00")
+  // "HH:mm", warehouse-local time (see timezone). Nullable: a warehouse that
+  // hasn't set one has no cut-off performance metric — that's "not
+  // applicable", not a false 00:00 default that would make every shipment
+  // look late.
+  cutoffTime       String?
   timezone         String              @default("UTC")
   specifications   String[]            @default([])
   managerId        String?
@@ -482,6 +487,16 @@ model Shipment {
   cargoType          String?
   contactEmail       String?
   billingAccount     String?
+  // Freight price billed to the customer for this shipment. Nullable — set
+  // at creation when known, but not every shipment is priced up front.
+  revenue            Decimal?            @db.Decimal(12, 2)
+  // A single lump-sum for ad-hoc costs (handling, customs, insurance, etc.)
+  // beyond fuel/maintenance, which are already tracked as their own events.
+  // Deliberately one field, not a line-item ledger — see extraCostNote for
+  // what it covers.
+  extraCostAmount    Decimal?            @db.Decimal(12, 2)
+  extraCostNote      String?
+  currency           String?
   routeId            String?
   companyId          String
   deletedAt          DateTime?
@@ -1051,6 +1066,7 @@ enum IssueType {
   VEHICLE
   DRIVER
   SHIPMENT
+  DAMAGE
   OTHER
   TRAILER
 }

@@ -51,6 +51,10 @@ export const createShipment = authenticatedAction(
       slaDeadline?: Date | null | undefined;
       contactEmail?: string | undefined;
       billingAccount?: string | undefined;
+      revenue?: number | undefined;
+      extraCostAmount?: number | undefined;
+      extraCostNote?: string | undefined;
+      currency?: string | undefined;
       originWarehouseId?: string | undefined;
       trailerId?: string | null | undefined;
       driverId?: string | null | undefined;
@@ -87,6 +91,10 @@ export const createShipment = authenticatedAction(
       slaDeadline,
       contactEmail,
       billingAccount,
+      revenue,
+      extraCostAmount,
+      extraCostNote,
+      currency,
       originWarehouseId,
       trailerId,
       driverId,
@@ -245,6 +253,10 @@ export const createShipment = authenticatedAction(
               slaDeadline,
               contactEmail,
               billingAccount,
+              revenue,
+              extraCostAmount,
+              extraCostNote,
+              currency,
               trailerId: trailerId || undefined,
               driverId: driverId || undefined,
               history: {
@@ -361,6 +373,9 @@ export const createShipment = authenticatedAction(
             quantity: calculatedItemsCount,
             weightKg,
             volumeM3,
+            revenue: revenue ?? null,
+            amount: extraCostAmount ?? null,
+            payload: extraCostNote ? { extraCostNote } : null,
             sourceEventId: `shipment-created-${shipment.id}`,
           });
 

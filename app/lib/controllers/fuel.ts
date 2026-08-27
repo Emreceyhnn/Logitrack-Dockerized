@@ -7,6 +7,7 @@ import { FuelLogWithRelations, FuelPageState } from "../type/fuel";
 import { authenticatedAction } from "../auth-middleware";
 import { controllerGuard } from "./utils/controllerGuard";
 import { createFuelLogSchema } from "../validation/serverSchemas";
+import { logReportEvent } from "@/app/lib/services/reportEvents";
 
 /**
  * tr-belirtilen filtrelere göre yakıt kayıtlarını getirir
@@ -98,16 +99,34 @@ export const createFuelLog = authenticatedAction(
 
       // Store the cost exactly as the user entered it, in their chosen currency.
       // The UI uses formatFrom(cost, currency) to convert to the viewer's currency at render time.
-      const log = await db.fuelLog.create({
-        data: {
-          ...parsed,
-          location: parsed.location ?? null,
-          receiptUrl: parsed.receiptUrl ?? null,
-          cost: parsed.cost,
-          currency: parsed.currency,
+      const log = await db.$transaction(async (tx) => {
+        const created = await tx.fuelLog.create({
+          data: {
+            ...parsed,
+            location: parsed.location ?? null,
+            receiptUrl: parsed.receiptUrl ?? null,
+            cost: parsed.cost,
+            currency: parsed.currency,
+            companyId,
+          },
+        });
+
+        await logReportEvent(tx, {
+          eventType: "FUEL_LOGGED",
+          occurredAt: created.date,
           companyId,
-        },
+          subjectType: "FUEL_LOG",
+          subjectId: created.id,
+          driverId: created.driverId,
+          amount: Number(created.cost),
+          quantity: created.volumeLiter,
+          payload: { vehicleId: created.vehicleId, fuelType: created.fuelType, odometerKm: created.odometerKm, currency: created.currency },
+          sourceEventId: `fuel-logged-${created.id}`,
+        });
+
+        return created;
       });
+
       return { ...log, cost: Number(log.cost) };
     });
   }

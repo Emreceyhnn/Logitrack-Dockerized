@@ -109,9 +109,14 @@ function buildCsp(nonce: string, strict: boolean): string {
   // CSP violation.
   const thirdPartyScripts =
     "https://static.cloudflareinsights.com https://vercel.live";
+  // Next's dev-mode HMR/webpack runtime evaluates code via eval() — a
+  // production-only artifact of how dev builds emit source maps, never used
+  // by `next build`. Without this the strict CSP silently breaks every
+  // client interaction in `next dev` (submit handlers, etc. never run).
+  const devEval = process.env.NODE_ENV !== "production" ? " 'unsafe-eval'" : "";
   const scriptSrc = strict
-    ? `'self' 'nonce-${nonce}' https://maps.googleapis.com https://accounts.google.com/gsi/client ${thirdPartyScripts}`
-    : `'self' 'unsafe-inline' https://maps.googleapis.com https://accounts.google.com/gsi/client ${thirdPartyScripts}`;
+    ? `'self' 'nonce-${nonce}'${devEval} https://maps.googleapis.com https://accounts.google.com/gsi/client ${thirdPartyScripts}`
+    : `'self' 'unsafe-inline'${devEval} https://maps.googleapis.com https://accounts.google.com/gsi/client ${thirdPartyScripts}`;
 
   return [
     `script-src ${scriptSrc}`,
@@ -440,8 +445,15 @@ export default async function middleware(request: NextRequest) {
 /*  Matcher                                                                     */
 /* -------------------------------------------------------------------------- */
 
+// The token-revocation and stale-claims checks above (see redis import) need
+// node-redis, which is Node.js-only — it doesn't resolve under the Edge
+// runtime middleware uses by default (breaks Webpack/Turbopack alike:
+// "node:crypto ... Unhandled scheme"). Node.js middleware is stable as of
+// Next.js 15.5+, so this just moves middleware into that runtime rather than
+// stripping the redis check out of it.
 export const config = {
   matcher: [
     "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|mp4|ico)$).*)",
   ],
+  runtime: "nodejs",
 };

@@ -14,9 +14,11 @@ interface WWControlPanelProps {
   setCurrentZone: (zone: string) => void;
   onRestock: () => void;
   onReport: () => void;
+  onReportDamage: () => void;
+  onLogArrival: () => void;
 }
 
-/** Active-zone picker plus quick actions (restock / report) sidebar card. */
+/** Active-zone picker plus quick actions (restock / report / log arrival) sidebar card. */
 export default function WWControlPanel({
   ww,
   zones,
@@ -24,6 +26,8 @@ export default function WWControlPanel({
   setCurrentZone,
   onRestock,
   onReport,
+  onReportDamage,
+  onLogArrival,
 }: WWControlPanelProps) {
   const theme = useTheme();
   return (
@@ -91,6 +95,22 @@ export default function WWControlPanel({
       </Typography>
       <Stack data-tour="ww-quick-actions" spacing={1}>
         <Button
+          onClick={onLogArrival}
+          startIcon={<Ico d="M3 12h18M3 12l6-6M3 12l6 6" size={17} />}
+          sx={{
+            justifyContent: "flex-start",
+            py: 1.5,
+            borderRadius: 3,
+            bgcolor: "rgba(16,185,129,0.08)",
+            border: "1px solid rgba(16,185,129,0.22)",
+            color: theme.palette.kpi.emerald,
+            fontWeight: 700,
+            textTransform: "none",
+          }}
+        >
+          {ww.ui.logArrival}
+        </Button>
+        <Button
           onClick={onRestock}
           startIcon={<Ico d="M12 3v11M8 10l4 4 4-4M4 21h16" size={17} />}
           sx={{
@@ -121,6 +141,24 @@ export default function WWControlPanel({
           }}
         >
           {ww.ui.reportIssue}
+        </Button>
+        <Button
+          onClick={onReportDamage}
+          startIcon={
+            <Ico d="M12 2l3 7h7l-5.5 4.5L18.5 21 12 16.5 5.5 21l2-7.5L2 9h7z" size={17} />
+          }
+          sx={{
+            justifyContent: "flex-start",
+            py: 1.5,
+            borderRadius: 3,
+            bgcolor: "rgba(249,115,22,0.08)",
+            border: "1px solid rgba(249,115,22,0.22)",
+            color: theme.palette.kpi.amber,
+            fontWeight: 700,
+            textTransform: "none",
+          }}
+        >
+          {ww.ui.reportDamage}
         </Button>
       </Stack>
     </Card>

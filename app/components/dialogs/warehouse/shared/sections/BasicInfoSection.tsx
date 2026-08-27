@@ -257,6 +257,29 @@ const BasicInfoSection = ({ state, actions }: BasicInfoSectionProps) => {
               </Grid>
             </Grid>
           )}
+
+          <Grid container spacing={3}>
+            <Grid size={{ xs: 12, md: 6 }}>
+              <Stack spacing={1}>
+                <Typography
+                  variant="caption"
+                  color="text.secondary"
+                  fontWeight={600}
+                >
+                  {dict.warehouses.dialogs.fields.cutoffTime}
+                </Typography>
+                <CustomTextArea
+                  name="cutoffTime"
+                  type="time"
+                  value={state.cutoffTime || ""}
+                  onChange={(e) =>
+                    actions.updateBasicInfo({ cutoffTime: e.target.value })
+                  }
+                  helperText={dict.warehouses.dialogs.fields.cutoffTimeHelper}
+                />
+              </Stack>
+            </Grid>
+          </Grid>
         </Stack>
       </Stack>
     </Box>

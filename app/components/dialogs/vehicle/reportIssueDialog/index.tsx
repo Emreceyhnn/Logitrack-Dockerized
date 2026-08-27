@@ -22,7 +22,7 @@ import { useVehicleMutations } from "@/app/hooks/useVehicles";
 import { vehicleReportIssueValidationSchema } from "@/app/lib/validationSchema";
 import { getPriorityColor } from "@/app/lib/priorityColor";
 import { ValidationError } from "yup";
-import { IssuePriority } from "@/app/lib/type/enums";
+import { IssuePriority, IssueType } from "@/app/lib/type/enums";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { logger } from "@/app/lib/logger";
 
@@ -37,9 +37,16 @@ interface ReportIssueDialogProps {
 
 interface IssueFormData {
   title: string;
+  type: IssueType;
   priority: IssuePriority;
   description: string;
 }
+
+// A vehicle issue is almost always about the vehicle itself, but the reporter
+// occasionally means "the cargo/load got damaged" — that's structurally
+// different (feeds damage_count/damage_rate, not a maintenance-style repair),
+// so it needs to be a real, selectable option rather than folded into VEHICLE.
+const VEHICLE_ISSUE_TYPES: IssueType[] = [IssueType.VEHICLE, IssueType.DAMAGE];
 
 const ReportIssueDialog = ({
   open,
@@ -56,6 +63,7 @@ const ReportIssueDialog = ({
   /* --------------------------------- states --------------------------------- */
   const [formData, setFormData] = useState<IssueFormData>({
     title: "",
+    type: IssueType.VEHICLE,
     priority: IssuePriority.MEDIUM,
     description: "",
   });
@@ -70,6 +78,7 @@ const ReportIssueDialog = ({
     if (open) {
       setFormData({
         title: "",
+        type: IssueType.VEHICLE,
         priority: IssuePriority.MEDIUM,
         description: "",
       });
@@ -117,7 +126,7 @@ const ReportIssueDialog = ({
         vehicleId,
         data: {
           title: formData.title,
-          type: "VEHICLE",
+          type: formData.type,
           priority: formData.priority,
           description: formData.description || undefined,
         },
@@ -245,6 +254,29 @@ const ReportIssueDialog = ({
                 sx={textFieldSx}
                 InputLabelProps={{ shrink: true }}
               />
+
+              <TextField
+                fullWidth
+                select
+                label={dict.vehicles.dialogs.issueTypeLabel}
+                value={formData.type}
+                onChange={(e) => handleChange("type", e.target.value)}
+                required
+                disabled={loading}
+                sx={textFieldSx}
+                InputLabelProps={{ shrink: true }}
+              >
+                {VEHICLE_ISSUE_TYPES.map((t) => (
+                  <MenuItem key={t} value={t}>
+                    {(
+                      dict.vehicles.dialogs.issueTypeCodes as Record<
+                        string,
+                        string
+                      >
+                    )?.[t] || t}
+                  </MenuItem>
+                ))}
+              </TextField>
 
               <TextField
                 fullWidth

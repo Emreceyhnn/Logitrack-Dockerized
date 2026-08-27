@@ -53,8 +53,10 @@ export default function WWDashboardTab({ state }: { state: WWState }) {
     capTotal,
     zones,
     setCurrentZone,
+    onLogArrival,
     onRestock,
     onReport,
+    onReportDamage,
     feed,
     lowStock,
     catalog,
@@ -672,6 +674,22 @@ export default function WWDashboardTab({ state }: { state: WWState }) {
             </Typography>
             <Stack data-tour="ww-quick-actions" spacing={1}>
               <Button
+                onClick={onLogArrival}
+                startIcon={<Ico d="M3 12h18M3 12l6-6M3 12l6 6" size={17} />}
+                sx={{
+                  justifyContent: "flex-start",
+                  py: 1.5,
+                  borderRadius: 3,
+                  bgcolor: "rgba(16,185,129,0.08)",
+                  border: "1px solid rgba(16,185,129,0.22)",
+                  color: theme.palette.kpi.emerald,
+                  fontWeight: 700,
+                  textTransform: "none",
+                }}
+              >
+                {ww.ui.logArrival}
+              </Button>
+              <Button
                 onClick={() => setRestockOpen(true)}
                 startIcon={<Ico d="M12 3v11M8 10l4 4 4-4M4 21h16" size={17} />}
                 sx={{
@@ -704,6 +722,24 @@ export default function WWDashboardTab({ state }: { state: WWState }) {
                 }}
               >
                 {ww.ui.reportIssue}
+              </Button>
+              <Button
+                onClick={onReportDamage}
+                startIcon={
+                  <Ico d="M12 2l3 7h7l-5.5 4.5L18.5 21 12 16.5 5.5 21l2-7.5L2 9h7z" size={17} />
+                }
+                sx={{
+                  justifyContent: "flex-start",
+                  py: 1.5,
+                  borderRadius: 3,
+                  bgcolor: "rgba(249,115,22,0.08)",
+                  border: "1px solid rgba(249,115,22,0.22)",
+                  color: theme.palette.kpi.amber,
+                  fontWeight: 700,
+                  textTransform: "none",
+                }}
+              >
+                {ww.ui.reportDamage}
               </Button>
             </Stack>
           </Card>
