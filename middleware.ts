@@ -31,17 +31,6 @@ if (!process.env.JWT_SECRET) {
 /* -------------------------------------------------------------------------- */
 
 function getClientIp(request: NextRequest): string {
-  // Trust order for Next.js / Vercel environments (request.ip was removed
-  // from NextRequest in Next 15, so we read it from trusted proxy headers):
-  // 1. x-vercel-forwarded-for - Vercel specific secure header
-  // 2. x-real-ip - Reliable if overwritten by a trusted proxy
-  // 3. LAST hop of x-forwarded-for (fallback, but can be spoofed)
-  const vercelIp = request.headers.get("x-vercel-forwarded-for");
-  if (vercelIp) {
-    const firstVercelIp = vercelIp.split(",")[0];
-    if (firstVercelIp) return firstVercelIp.trim();
-  }
-
   const realIp = request.headers.get("x-real-ip");
   if (realIp) return realIp.trim();
 
@@ -102,18 +91,12 @@ function getLocaleFromPathname(pathname: string): {
 // layout can stay free of headers()/cookies() (see layout.tsx) and remain
 // statically rendered.
 function buildCsp(nonce: string, strict: boolean): string {
-  // Vercel auto-injects these on deployments: static.cloudflareinsights.com is
-  // the Web Analytics beacon, vercel.live is the preview/toolbar feedback
-  // widget. Neither is loaded by our own code, but Vercel adds them outside
-  // our control, so they need an allowlist entry or every page load throws a
-  // CSP violation.
-  const thirdPartyScripts =
-    "https://static.cloudflareinsights.com https://vercel.live";
+  const thirdPartyScripts = "https://static.cloudflareinsights.com";
   // Next's dev-mode HMR/webpack runtime evaluates code via eval() — a
   // production-only artifact of how dev builds emit source maps, never used
   // by `next build`. Without this the strict CSP silently breaks every
   // client interaction in `next dev` (submit handlers, etc. never run).
-  const devEval = process.env.NODE_ENV !== "production" ? " 'unsafe-eval'" : "";
+  const devEval = process.env.NODE_ENV !== "production" ? " 'unsafe-eval' 'unsafe-inline'" : "";
   const scriptSrc = strict
     ? `'self' 'nonce-${nonce}'${devEval} https://maps.googleapis.com https://accounts.google.com/gsi/client ${thirdPartyScripts}`
     : `'self' 'unsafe-inline'${devEval} https://maps.googleapis.com https://accounts.google.com/gsi/client ${thirdPartyScripts}`;

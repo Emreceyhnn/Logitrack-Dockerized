@@ -7,10 +7,9 @@
  * Everything here is derived from data the platform actually owns (Postgres
  * rows, Redis keys, audit records). Host-level telemetry the prompt asked for —
  * CPU %, RAM %, total HTTP requests, p99 latency, HTTP 2xx-vs-5xx ratio — is
- * NOT represented, because this stack runs serverless on Vercel with no APM or
- * metrics pipeline. Inventing those numbers would make the console lie about
+ * NOT represented. Inventing those numbers would make the console lie about
  * production health, so they are omitted rather than mocked. Wiring a real
- * source (Vercel Analytics, OpenTelemetry, Sentry) is a separate integration.
+ * source (OpenTelemetry, Prometheus, Sentry) is a separate integration.
  */
 
 // ─── Domain Models ──────────────────────────────────────────────────────────

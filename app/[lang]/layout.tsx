@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
 import "@/app/style/globals.css";
 import Providers from "@/app/lib/theme/themeProviders";
-import { SpeedInsights } from "@vercel/speed-insights/next";
 import { getDictionary } from "@/app/lib/language/language";
 import { DictionaryProvider } from "@/app/lib/language/DictionaryContext";
 
@@ -30,9 +29,7 @@ export async function generateMetadata({
   const dict = await getDictionary(lang);
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
     ? process.env.NEXT_PUBLIC_BASE_URL.replace(/\/$/, "")
-    : process.env.VERCEL_URL
-      ? `https://${process.env.VERCEL_URL}`
-      : "https://logitrack.emreceyhan.xyz";
+    : "https://logitrack.emreceyhan.xyz";
 
   return {
     title: {
@@ -112,7 +109,6 @@ export default async function LangLayout({
         <Providers>
           <DictionaryProvider dict={dict} lang={lang}>{children}</DictionaryProvider>
         </Providers>
-        <SpeedInsights />
       </body>
     </html>
   );

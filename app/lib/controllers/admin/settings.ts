@@ -131,8 +131,6 @@ export async function setFeatureFlag(
 const ENV_REGISTRY: { key: string; secret: boolean }[] = [
   { key: "NODE_ENV", secret: false },
   { key: "NEXT_PUBLIC_BASE_URL", secret: false },
-  { key: "VERCEL_ENV", secret: false },
-  { key: "VERCEL_REGION", secret: false },
   { key: "DATABASE_URL", secret: true },
   { key: "JWT_SECRET", secret: true },
   { key: "REDIS_URL", secret: true },

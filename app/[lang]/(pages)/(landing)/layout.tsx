@@ -17,9 +17,7 @@ export default async function LandingLayout({
 
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
     ? process.env.NEXT_PUBLIC_BASE_URL.replace(/\/$/, "")
-    : process.env.VERCEL_URL
-      ? `https://${process.env.VERCEL_URL}`
-      : "https://logitrack.emreceyhan.xyz";
+    : "https://logitrack.emreceyhan.xyz";
 
   const organizationSchema = {
     "@context": "https://schema.org",

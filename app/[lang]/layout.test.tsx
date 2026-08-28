@@ -21,7 +21,6 @@ mock.module("../lib/auth-middleware.ts", {
 mock.module("../lib/theme/themeProviders.tsx", { defaultExport: ({ children  }: Record<string, unknown>) => <div data-testid="theme-provider">{children}</div> });
 mock.module("../lib/language/DictionaryContext.tsx", { namedExports: { DictionaryProvider: ({ children  }: Record<string, unknown>) => <div data-testid="dict-provider">{children}</div> } });
 mock.module("../lib/context/UserContext.tsx", { namedExports: { UserProvider: ({ children  }: Record<string, unknown>) => <div data-testid="user-provider">{children}</div> } });
-mock.module("@vercel/speed-insights/next", { namedExports: { SpeedInsights: () => <div data-testid="speed-insights" /> } });
 
 describe("RootLayout Component", () => {
   let RootLayout: unknown;
@@ -49,7 +48,6 @@ describe("RootLayout Component", () => {
       expect(screen.getByTestId("dict-provider")).toBeTruthy();
       expect(screen.getByTestId("user-provider")).toBeTruthy();
       expect(screen.getByTestId("child-content")).toBeTruthy();
-      expect(screen.getByTestId("speed-insights")).toBeTruthy();
     });
   });
 });
