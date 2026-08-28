@@ -11,6 +11,9 @@ COPY . .
 ENV DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy"
 
 RUN --mount=type=secret,id=dotenv,target=/app/.env \
+    sh -c 'echo "DEBUG lines=$(wc -l < /app/.env)"; grep -c NEXT_PUBLIC_FIREBASE_PROJECT_ID /app/.env || echo "DEBUG MISSING_KEY"'
+
+RUN --mount=type=secret,id=dotenv,target=/app/.env \
     npm run build
 
 
