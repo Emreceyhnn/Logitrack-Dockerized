@@ -31,8 +31,8 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
-      - name: Debug secret length
-        run: echo "PRODUCTION_ENV_FILE length = ${#SECRET_VAL}"
+      - name: Write dotenv secret to file
+        run: printf '%s' "$SECRET_VAL" > "$RUNNER_TEMP/dotenv"
         env:
           SECRET_VAL: ${{ secrets.PRODUCTION_ENV_FILE }}
 
@@ -57,5 +57,5 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
-          secrets: |
-            dotenv=${{ secrets.PRODUCTION_ENV_FILE }}
+          secret-files: |
+            dotenv=${{ runner.temp }}/dotenv
