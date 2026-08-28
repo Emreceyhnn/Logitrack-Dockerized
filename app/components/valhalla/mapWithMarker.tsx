@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Box, Stack, Typography } from "@mui/material";
+import { Box, Stack, Typography, useTheme } from "@mui/material";
 import { MapContainer, Marker, Popup, TileLayer, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
@@ -120,9 +120,17 @@ function MapWithMarkers({
   detailsLabel,
   tileErrorText,
 }: MapWithMarkerProps) {
+  const theme = useTheme();
   // Track tile-load failures so a blocked CDN / offline client shows an explicit
   // "map unavailable" overlay instead of a silent blank grey box.
   const [tileError, setTileError] = useState(false);
+
+  const apiKey = process.env.NEXT_PUBLIC_CARTO_API_KEY;
+  const keyParam = apiKey ? `?key=${apiKey}` : "";
+
+  const tileUrl = theme.palette.mode === "dark"
+    ? `https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png${keyParam}`
+    : `https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png${keyParam}`;
 
   return (
     <Box sx={{ width: "100%", height: "100%", position: "relative" }}>
@@ -135,7 +143,7 @@ function MapWithMarkers({
         <MapBoundsFit markers={markers} center={center} zoom={zoom} />
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
-          url={`https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png?api_key=${process.env.NEXT_PUBLIC_CARTO_API_KEY}`}
+          url={tileUrl}
           eventHandlers={{
             tileerror: () => setTileError(true),
             // Recover automatically once tiles start loading again.

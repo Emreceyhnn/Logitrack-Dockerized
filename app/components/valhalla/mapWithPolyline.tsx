@@ -1,5 +1,5 @@
 import { useMemo, useEffect, useState } from "react";
-import { Box } from "@mui/material";
+import { Box, useTheme } from "@mui/material";
 import {
   MapContainer,
   Marker,
@@ -192,6 +192,14 @@ function MapWithPolyline({
   bufferMeters = undefined,
   bufferPolyline = undefined,
 }: MapWithPolylineProps) {
+  const theme = useTheme();
+  const apiKey = process.env.NEXT_PUBLIC_CARTO_API_KEY;
+  const keyParam = apiKey ? `?key=${apiKey}` : "";
+
+  const tileUrl = theme.palette.mode === "dark"
+    ? `https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png${keyParam}`
+    : `https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png${keyParam}`;
+
   const polylinePositions: [number, number][] = useMemo(() => {
     if (!routePolyline) return [];
     return routePolyline.map((coord) => [coord[0], coord[1]]);
@@ -227,7 +235,7 @@ function MapWithPolyline({
       >
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
-          url={`https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png?api_key=${process.env.NEXT_PUBLIC_CARTO_API_KEY}`}
+          url={tileUrl}
         />
         <MapBounds bounds={bounds} />
 
