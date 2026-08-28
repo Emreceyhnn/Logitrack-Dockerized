@@ -2,7 +2,7 @@ FROM node:22-alpine AS builder
 WORKDIR /app
 COPY package*.json ./
 
-# BuildKit npm cache ile indirme sürelerini dramatik olarak hızlandırır:
+
 RUN --mount=type=cache,target=/root/.npm \
     npm install
 
