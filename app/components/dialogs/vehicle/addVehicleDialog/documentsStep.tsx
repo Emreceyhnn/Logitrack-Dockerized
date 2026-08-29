@@ -215,7 +215,7 @@ const DocumentsStep = () => {
         </Stack>
       </Box>
 
-      <Box sx={{ flex: 1.2 }}>
+      <Box sx={{ flex: 1.2, minWidth: 0 }}>
         <Typography component="div"
           variant="h6"
           sx={{ color: "text.primary", mb: 3, fontWeight: 800 }}
@@ -344,18 +344,21 @@ const DocumentsStep = () => {
                       {typeInfo?.icon}
                     </Box>
                     <Box sx={{ flex: 1, minWidth: 0 }}>
-                        <Typography
-                          variant="body2"
-                          sx={{
-                            color: "text.primary",
-                            fontWeight: 700,
-                            whiteSpace: "nowrap",
-                            overflow: "hidden",
-                            textOverflow: "ellipsis",
-                          }}
-                        >
-                          {doc.name}
-                        </Typography>
+                      <Typography
+                        variant="body2"
+                        noWrap
+                        sx={{
+                          color: "text.primary",
+                          fontWeight: 700,
+                          display: "block",
+                          maxWidth: "100%",
+                          whiteSpace: "nowrap",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                        }}
+                      >
+                        {doc.name}
+                      </Typography>
                       <Typography
                         variant="caption"
                         sx={{ color: "text.secondary" }}

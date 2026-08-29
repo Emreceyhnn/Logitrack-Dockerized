@@ -91,7 +91,12 @@ function getLocaleFromPathname(pathname: string): {
 // layout can stay free of headers()/cookies() (see layout.tsx) and remain
 // statically rendered.
 function buildCsp(nonce: string, strict: boolean): string {
-  const thirdPartyScripts = "https://static.cloudflareinsights.com";
+  // Firebase Realtime Database's long-polling transport (used when WebSocket
+  // is unavailable/blocked) injects its `.lp` frames via a <script> tag on
+  // this origin — without it, script-src silently kills realtime updates and
+  // the SDK falls back to endless reconnect loops.
+  const thirdPartyScripts =
+    "https://static.cloudflareinsights.com https://*.firebasedatabase.app";
   // Next's dev-mode HMR/webpack runtime evaluates code via eval() — a
   // production-only artifact of how dev builds emit source maps, never used
   // by `next build`. Without this the strict CSP silently breaks every

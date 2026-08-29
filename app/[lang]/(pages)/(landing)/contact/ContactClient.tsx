@@ -38,30 +38,28 @@ interface ContactFormValues {
   message: string;
 }
 
-const initialValues: ContactFormValues = {
-  fullName: "",
-  email: "",
-  company: "",
-  message: "",
-};
-
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+interface ContactClientProps {
+  kind?: DemoRequestKind;
+  lang?: string;
+  initialUser?: { fullName?: string; email?: string; company?: string } | undefined;
+}
 
 export default function ContactClient({
   kind = "CONTACT",
   lang = "tr",
-}: {
-  kind?: DemoRequestKind;
-  lang?: string;
-}) {
+  initialUser,
+}: ContactClientProps) {
   const dict = useDictionary();
   const cDict = dict?.landing?.contactPage;
   const [submitted, setSubmitted] = useState(false);
   const [demoToken, setDemoToken] = useState<string | null>(null);
-  // Set when the requester was already a verified account: submitDemoRequest
+  // Set when the requester was already an account: submitDemoRequest
   // granted the trial immediately instead of queuing a PENDING row, so the
   // success card should say "you're in" rather than "we'll be in touch".
   const [trialGranted, setTrialGranted] = useState(false);
+  const [existingAccount, setExistingAccount] = useState(false);
   // Demo requesters can skip the manual-approval wait entirely: signup grants a
   // 7-day trial instantly, so we offer it as a self-serve shortcut. The signed
   // demoToken (set on successful submit below) is what actually authorizes the
@@ -200,11 +198,17 @@ export default function ContactClient({
                 variant="body2"
                 sx={{ color: "rgba(241,245,249,0.75)", maxWidth: 420 }}
               >
-                {cDict.successCard.trialGrantedBody}
+                {existingAccount
+                  ? (cDict.successCard.existingAccountBody || cDict.successCard.trialGrantedBody)
+                  : cDict.successCard.trialGrantedBody}
               </Typography>
               <Button
                 component={Link}
-                href={`/${lang}${getLocalizedPath("/onboarding", lang)}`}
+                href={
+                  existingAccount
+                    ? `/${lang}${getLocalizedPath("/auth/sign-in", lang)}`
+                    : `/${lang}${getLocalizedPath("/onboarding", lang)}`
+                }
                 variant="contained"
                 endIcon={<RocketLaunchRoundedIcon />}
                 sx={{
@@ -219,7 +223,9 @@ export default function ContactClient({
                   },
                 }}
               >
-                {cDict.successCard.trialGrantedCta}
+                {existingAccount
+                  ? (cDict.successCard.existingAccountCta || "Sign In")
+                  : cDict.successCard.trialGrantedCta}
               </Button>
             </Stack>
           </Box>
@@ -385,7 +391,13 @@ export default function ContactClient({
           </Box>
         ) : (
           <Formik
-            initialValues={initialValues}
+            initialValues={{
+              fullName: initialUser?.fullName || "",
+              email: initialUser?.email || "",
+              company: initialUser?.company || "",
+              message: "",
+            }}
+            enableReinitialize
             validate={validate}
             onSubmit={async (values, { setSubmitting, resetForm }) => {
               const result = await submitDemoRequest({
@@ -405,6 +417,7 @@ export default function ContactClient({
                 );
                 setDemoToken(result.demoToken ?? null);
                 setTrialGranted(Boolean(result.trialGranted));
+                setExistingAccount(Boolean(result.existingAccount));
                 resetForm();
                 setSubmitted(true);
               } else {

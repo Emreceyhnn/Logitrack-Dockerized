@@ -642,7 +642,9 @@
         "trialGrantedToast": "Deneme süreniz aktifleştirildi — hazırsınız!",
         "trialGrantedTitle": "Hazırsınız — deneme süreniz aktif!",
         "trialGrantedBody": "7 günlük deneme süreniz şu anda aktif. Şirketinizi oluşturmak için onboarding sayfasına dönün.",
-        "trialGrantedCta": "Onboarding'e git"
+        "trialGrantedCta": "Onboarding'e git",
+        "existingAccountBody": "Hesabınız bulundu ve 7 günlük deneme süreniz aktifleştirildi. Giriş yaparak şirketinizi oluşturabilirsiniz.",
+        "existingAccountCta": "Giriş Yap"
       },
       "validation": {
         "fullNameRequired": "Ad soyad gereklidir",

@@ -21,11 +21,49 @@ interface FileAttachmentSectionProps {
 export default function FileAttachmentSection({ dict, theme, file, handleFileChange, filePreview }: FileAttachmentSectionProps) {
   return (
     <>
-      <Box>
+      <Box sx={{ width: "100%", maxWidth: "100%" }}>
         <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: 700, mb: 1.5, display: "block", textTransform: "uppercase", letterSpacing: 1 }}>{dict.vehicles.dialogs.fileAttachment}</Typography>
-        <Button component="label" fullWidth variant="outlined" startIcon={<CloudUploadIcon />} sx={{ height: 100, borderRadius: 3, borderStyle: "dashed", borderWidth: 2, borderColor: (theme) => theme.palette.mode === "dark" ? (theme.palette as unknown as ExtendedPalette).primary?._alpha?.main_30 : (theme.palette as unknown as ExtendedPalette).primary?._alpha?.main_40, bgcolor: (theme) => theme.palette.mode === "dark" ? (theme.palette as unknown as ExtendedPalette).primary?._alpha?.main_02 : "rgba(0,0,0,0.02)", flexDirection: "column", gap: 1, textTransform: "none", "&:hover": { bgcolor: (theme) => theme.palette.mode === "dark" ? (theme.palette as unknown as ExtendedPalette).primary?._alpha?.main_05 : "rgba(0,0,0,0.04)", borderColor: theme.palette.primary.main } }}>
-          <Stack spacing={0.5} alignItems="center">
-            <Typography variant="body2" fontWeight={700} color="text.primary">{file ? file.name : dict.vehicles.dialogs.selectOrDragFile}</Typography>
+        <Button
+          component="label"
+          fullWidth
+          variant="outlined"
+          startIcon={<CloudUploadIcon />}
+          sx={{
+            height: 100,
+            borderRadius: 3,
+            borderStyle: "dashed",
+            borderWidth: 2,
+            borderColor: (theme) => theme.palette.mode === "dark" ? (theme.palette as unknown as ExtendedPalette).primary?._alpha?.main_30 : (theme.palette as unknown as ExtendedPalette).primary?._alpha?.main_40,
+            bgcolor: (theme) => theme.palette.mode === "dark" ? (theme.palette as unknown as ExtendedPalette).primary?._alpha?.main_02 : "rgba(0,0,0,0.02)",
+            flexDirection: "column",
+            gap: 1,
+            textTransform: "none",
+            maxWidth: "100%",
+            overflow: "hidden",
+            boxSizing: "border-box",
+            "&:hover": {
+              bgcolor: (theme) => theme.palette.mode === "dark" ? (theme.palette as unknown as ExtendedPalette).primary?._alpha?.main_05 : "rgba(0,0,0,0.04)",
+              borderColor: theme.palette.primary.main,
+            },
+          }}
+        >
+          <Stack spacing={0.5} alignItems="center" sx={{ maxWidth: "100%", width: "100%", minWidth: 0, px: 2 }}>
+            <Typography
+              variant="body2"
+              fontWeight={700}
+              color="text.primary"
+              noWrap
+              sx={{
+                maxWidth: "100%",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+                display: "block",
+                textAlign: "center",
+              }}
+            >
+              {file ? file.name : dict.vehicles.dialogs.selectOrDragFile}
+            </Typography>
             <Typography variant="caption" color="text.secondary" fontWeight={500}>{dict.vehicles.dialogs.fileFormats}</Typography>
           </Stack>
           <input type="file" hidden onChange={handleFileChange} accept=".jpg,.jpeg,.png" />

@@ -24,9 +24,14 @@ const resolveEntitlementMock = mock.fn(async () => ({
 const createDemoSignupTokenMock = mock.fn(async () => "signed-token");
 const invalidateUserSessionCacheMock = mock.fn(async () => undefined);
 
+const refreshSessionMock = mock.fn(async () => true);
+
 mock.module("../db", { namedExports: { db: dbMock } });
 mock.module("../rate-limiter", { namedExports: { rateLimit: rateLimitMock } });
 mock.module("./auth", { namedExports: { getUserSession: getUserSessionMock } });
+mock.module("../controllers/session", {
+  namedExports: { refreshSession: refreshSessionMock },
+});
 mock.module("../entitlement.server", {
   namedExports: {
     grantTrial: grantTrialMock,
@@ -48,7 +53,13 @@ describe("actions/demoRequest.ts", () => {
     fullName: string;
     email: string;
     type?: "DEMO" | "CONTACT";
-  }) => Promise<{ success?: boolean; error?: string; demoToken?: string; trialGranted?: boolean }>;
+  }) => Promise<{
+    success?: boolean;
+    error?: string;
+    demoToken?: string;
+    trialGranted?: boolean;
+    existingAccount?: boolean;
+  }>;
 
   before(async () => {
     const mod = await import("./demoRequest");
@@ -65,6 +76,7 @@ describe("actions/demoRequest.ts", () => {
       resolveEntitlementMock,
       createDemoSignupTokenMock,
       invalidateUserSessionCacheMock,
+      refreshSessionMock,
     ]) {
       m.mock.resetCalls();
     }
@@ -75,7 +87,7 @@ describe("actions/demoRequest.ts", () => {
 
   const INPUT = { fullName: "Ada Lovelace", email: "ada@acme.com", type: "DEMO" as const };
 
-  it("queues a PENDING request and returns a demoToken for a signed-out visitor", async () => {
+  it("queues a PENDING request and returns a demoToken for a brand-new signed-out visitor", async () => {
     const result = await submitDemoRequest(INPUT);
 
     expect(result.success).toBe(true);
@@ -89,39 +101,44 @@ describe("actions/demoRequest.ts", () => {
     expect(createArgs.data.status).toBeUndefined(); // defaults to PENDING in the schema
   });
 
-  it("queues a PENDING request when the requester is signed in but unverified", async () => {
+  it("grants the trial immediately for a signed-in requester even if unverified", async () => {
     getUserSessionMock.mock.mockImplementation(async () => ({ id: "u1" }));
     dbMock.user.findUnique.mock.mockImplementation(async () => ({
+      id: "u1",
       email: "ada@acme.com",
-      emailVerifiedAt: null,
     }));
 
     const result = await submitDemoRequest(INPUT);
 
-    expect(result.trialGranted).toBeUndefined();
-    expect(grantTrialMock.mock.callCount()).toBe(0);
+    expect(result.success).toBe(true);
+    expect(result.trialGranted).toBe(true);
+    expect(grantTrialMock.mock.callCount()).toBe(1);
+    expect(grantTrialMock.mock.calls[0]?.arguments[0]).toBe("u1");
+    expect(refreshSessionMock.mock.callCount()).toBe(1);
+    expect(invalidateUserSessionCacheMock.mock.callCount()).toBe(1);
   });
 
-  it("queues a PENDING request when the submitted email doesn't match the signed-in account", async () => {
-    getUserSessionMock.mock.mockImplementation(async () => ({ id: "u1" }));
+  it("grants the trial immediately for an existing registered account when signed out", async () => {
+    getUserSessionMock.mock.mockImplementation(async () => null);
     dbMock.user.findUnique.mock.mockImplementation(async () => ({
-      email: "someone-else@acme.com",
-      emailVerifiedAt: new Date(),
+      id: "u2",
+      email: "ada@acme.com",
     }));
 
     const result = await submitDemoRequest(INPUT);
 
-    expect(result.trialGranted).toBeUndefined();
-    expect(grantTrialMock.mock.callCount()).toBe(0);
+    expect(result.success).toBe(true);
+    expect(result.trialGranted).toBe(true);
+    expect(result.existingAccount).toBe(true);
+    expect(grantTrialMock.mock.callCount()).toBe(1);
+    expect(grantTrialMock.mock.calls[0]?.arguments[0]).toBe("u2");
   });
 
-  // The exact bug being fixed: a verified, logged-in user asking for their
-  // own email must get the trial instantly, not a PENDING row.
   it("grants the trial immediately for a signed-in, verified requester matching their own email", async () => {
     getUserSessionMock.mock.mockImplementation(async () => ({ id: "u1" }));
     dbMock.user.findUnique.mock.mockImplementation(async () => ({
+      id: "u1",
       email: "ada@acme.com",
-      emailVerifiedAt: new Date(),
     }));
 
     const result = await submitDemoRequest(INPUT);
@@ -143,8 +160,8 @@ describe("actions/demoRequest.ts", () => {
   it("does not grant an instant trial for a plain CONTACT message even when signed in", async () => {
     getUserSessionMock.mock.mockImplementation(async () => ({ id: "u1" }));
     dbMock.user.findUnique.mock.mockImplementation(async () => ({
+      id: "u1",
       email: "ada@acme.com",
-      emailVerifiedAt: new Date(),
     }));
 
     const result = await submitDemoRequest({ ...INPUT, type: "CONTACT" });

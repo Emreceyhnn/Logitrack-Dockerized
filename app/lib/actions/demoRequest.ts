@@ -11,6 +11,7 @@ import {
   createDemoSignupToken,
 } from "../entitlement.server";
 import { invalidateUserSessionCache } from "../controllers/session/manage";
+import { refreshSession } from "../controllers/session";
 import { logger } from "@/app/lib/logger";
 
 export type DemoRequestKind = "DEMO" | "CONTACT";
@@ -27,8 +28,10 @@ export interface DemoRequestResult {
   success?: boolean;
   error?: string;
   demoToken?: string;
-  /** True when the caller was already a verified account and got the trial immediately, with no admin approval or re-signup needed. */
+  /** True when the caller was already an account and got the trial immediately, with no admin approval or re-signup needed. */
   trialGranted?: boolean;
+  /** True when the account already exists in DB so a logged-out user should sign in rather than sign up. */
+  existingAccount?: boolean;
 }
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -67,27 +70,24 @@ export async function submitDemoRequest(
 
     const type = input.type === "DEMO" ? "DEMO" : "CONTACT";
 
-    // A signed-in, email-verified user requesting a demo can't use the
-    // self-serve "sign up with a demoToken" shortcut below — they already
-    // have an account, so re-registering is a dead end. Left as PENDING,
-    // their request just sits in the admin queue while /onboarding keeps
-    // showing "create a company" as disabled (see admin/demoRequests.ts's
-    // file header for the full history of this gap). Since we already know
-    // who they are and that they own the address, skip the manual-approval
-    // wait and grant the trial immediately, recording the request as
-    // already approved rather than leaving a stale PENDING row behind it.
+    // When an existing user (either currently signed in or with a registered
+    // account) requests a demo, they cannot use the self-serve "sign up with
+    // a demoToken" shortcut — they already have an account, so sign-up redirects
+    // back to onboarding where they'd be stuck in a loop. Grant the trial
+    // immediately to their account, re-mint the session cookies if signed in,
+    // and record the demo request as APPROVED.
     if (type === "DEMO") {
       const session = await getUserSession().catch(() => null);
       if (session?.id) {
         const dbUser = await db.user.findUnique({
           where: { id: session.id },
-          select: { email: true, emailVerifiedAt: true },
+          select: { id: true, email: true },
         });
-        if (dbUser?.emailVerifiedAt && dbUser.email.toLowerCase() === email) {
+        if (dbUser && (dbUser.email.toLowerCase() === email || !email)) {
           await db.demoRequest.create({
             data: {
               fullName: fullName.slice(0, 200),
-              email: email.slice(0, 320),
+              email: dbUser.email.slice(0, 320),
               company: company?.slice(0, 200) ?? null,
               message: message?.slice(0, 2000) ?? null,
               type,
@@ -95,9 +95,31 @@ export async function submitDemoRequest(
             },
           });
           await grantTrial(session.id);
+          await refreshSession();
           await invalidateUserSessionCache(session.id);
           return { success: true, trialGranted: true };
         }
+      }
+
+      // Check if an existing account exists for this email (e.g. user was logged out)
+      const existingAccount = await db.user.findUnique({
+        where: { email },
+        select: { id: true },
+      });
+      if (existingAccount) {
+        await db.demoRequest.create({
+          data: {
+            fullName: fullName.slice(0, 200),
+            email: email.slice(0, 320),
+            company: company?.slice(0, 200) ?? null,
+            message: message?.slice(0, 2000) ?? null,
+            type,
+            status: "APPROVED",
+          },
+        });
+        await grantTrial(existingAccount.id);
+        await invalidateUserSessionCache(existingAccount.id);
+        return { success: true, trialGranted: true, existingAccount: true };
       }
     }
 

@@ -642,7 +642,9 @@
         "trialGrantedToast": "Trial activated — you're all set!",
         "trialGrantedTitle": "You're all set — trial activated!",
         "trialGrantedBody": "Your 7-day trial is active right now. Head back to onboarding to create your company.",
-        "trialGrantedCta": "Go to onboarding"
+        "trialGrantedCta": "Go to onboarding",
+        "existingAccountBody": "Your account was found and your 7-day trial has been activated. Sign in to create your company.",
+        "existingAccountCta": "Sign In"
       },
       "validation": {
         "fullNameRequired": "Full name is required",
