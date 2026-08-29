@@ -32,10 +32,7 @@ COPY --from=builder /app/public ./public
 # packages: the CLI pulls in transitive dependencies well outside the @prisma
 # scope (effect, mysql2, postgres, ...), and every attempt to pin that list
 # breaks on the next prisma upgrade, at container start rather than at build.
-#
-# It lives under /migrate, not /app: dropping a full node_modules on top of
-# standalone's pruned one would let the app resolve packages that next build
-# never traced, so the image would stop matching what was tested.
+
 COPY --from=builder /app/node_modules /migrate/node_modules
 COPY --from=builder /app/prisma /migrate/prisma
 
