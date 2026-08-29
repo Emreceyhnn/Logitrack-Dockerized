@@ -30,10 +30,18 @@ jobs:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USERNAME }}
           password: ${{secrets.VPS_PASSWORD}}
-          envs: IMAGE_TAG
+          envs: IMAGE_TAG,PRODUCTION_ENV_FILE
           script: |
             set -e
             cd /home/logitrack/client
+
+            # Tek kaynak GitHub Secret'taki PRODUCTION_ENV_FILE: build image'i
+            # de bu dosyadan üretiliyor (bkz. docker.publish.yml), o yüzden
+            # VPS'teki .env'i burada üzerine yazıyoruz ki NEXT_PUBLIC_* ve
+            # runtime değişkenleri hep aynı kaynaktan gelsin, elle senkron
+            # gerekmesin.
+            printf '%s' "$PRODUCTION_ENV_FILE" > .env
+
             docker pull emrecyhn/logitrack:${IMAGE_TAG}
             docker tag emrecyhn/logitrack:${IMAGE_TAG} emrecyhn/logitrack:latest
             docker compose down
@@ -54,3 +62,4 @@ jobs:
             exit 1
         env:
           IMAGE_TAG: ${{ steps.image.outputs.sha_short }}
+          PRODUCTION_ENV_FILE: ${{ secrets.PRODUCTION_ENV_FILE }}
