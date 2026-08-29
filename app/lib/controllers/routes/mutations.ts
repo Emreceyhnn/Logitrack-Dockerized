@@ -38,7 +38,9 @@ export const createRoute = authenticatedAction(
     shipmentId?: string,
     stops?: { address: string; lat?: number | undefined; lng?: number | undefined }[],
     shape?: string,
-    bufferMeters?: number
+    bufferMeters?: number,
+    trailerId?: string,
+    isEmptyReturn?: boolean
   ) => {
     return controllerGuard("createRoute", async () => {
       const companyId = user?.companyId || "";
@@ -125,6 +127,8 @@ export const createRoute = authenticatedAction(
             durationMin,
             driverId: driverId || null,
             vehicleId: vehicleId || null,
+            trailerId: trailerId || null,
+            isEmptyReturn: isEmptyReturn ?? false,
             companyId,
             shape: shape || null,
             bufferMeters: bufferMeters ?? null,

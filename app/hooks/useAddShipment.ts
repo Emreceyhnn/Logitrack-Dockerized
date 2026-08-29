@@ -21,6 +21,7 @@ import { logger } from "@/app/lib/logger";
 
 export const initialValues: ShipmentFormValues = {
   trackingId: "", referenceNumber: "", priority: ShipmentPriority.MEDIUM, type: "STANDARD_FREIGHT",
+  serviceTier: null,
   slaDeadline: null, originWarehouseId: "", originLat: undefined, originLng: undefined, destination: "",
   destinationLat: undefined, destinationLng: undefined, customerId: "", customerLocationId: "",
   contactEmail: "", billingAccount: "Standard Billing (Net 30)",
@@ -90,6 +91,7 @@ export const useAddShipment = (open: boolean, onClose: () => void, onSuccess?: (
         originLat: values.originLat, originLng: values.originLng, trackingId: values.trackingId,
         referenceNumber: values.referenceNumber, customerLocationId: values.customerLocationId,
         priority: values.priority, type: values.type as import("@/app/lib/type/enums").ShipmentServiceType,
+        serviceTier: values.serviceTier as import("@/app/lib/type/enums").ServiceTier | null,
         slaDeadline: values.slaDeadline, contactEmail: values.contactEmail, billingAccount: values.billingAccount,
         revenue: values.revenue.trim() ? parseFloat(values.revenue) : null,
         extraCostAmount: values.extraCostAmount.trim() ? parseFloat(values.extraCostAmount) : null,

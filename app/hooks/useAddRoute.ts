@@ -17,7 +17,7 @@ import { logger } from "@/app/lib/logger";
 export const initialValues: RouteFormValues = {
   name: "", startTime: null, endTime: null, startType: "WAREHOUSE", startId: "", startAddress: "",
   startLat: 0, startLng: 0, endType: "CUSTOMER", endId: "", endAddress: "", distanceKm: 0,
-  durationMin: 0, driverId: "", vehicleId: "", stops: [], shape: "",
+  durationMin: 0, driverId: "", vehicleId: "", trailerId: "", isEmptyReturn: false, stops: [], shape: "",
 };
 
 export const useAddRoute = (open: boolean, onClose: () => void, onSuccess?: () => void) => {
@@ -58,6 +58,7 @@ export const useAddRoute = (open: boolean, onClose: () => void, onSuccess?: () =
         values.name, startUTC, startUTC, endUTC, values.distanceKm, values.durationMin,
         values.driverId, values.vehicleId, selectedShipmentId || undefined, values.stops,
         values.shape || undefined, values.bufferMeters,
+        values.trailerId || undefined, values.isEmptyReturn,
       ]);
       onSuccess?.();
       onClose();

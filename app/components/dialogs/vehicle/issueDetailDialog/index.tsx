@@ -22,8 +22,9 @@ import { useState, useEffect } from "react";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { updateIssue } from "@/app/lib/controllers/vehicle";
 import { getPriorityColor } from "@/app/lib/priorityColor";
-import { IssueStatus, IssuePriority } from "@/app/lib/type/enums";
+import { IssueStatus, IssuePriority, ClaimStatus } from "@/app/lib/type/enums";
 import type { Issue } from "@/app/lib/type/enums";
+import CustomTextArea from "@/app/components/inputs/customTextArea";
 import { useDateSettings } from "@/app/hooks/useDateSettings";
 import { formatDisplayDate } from "@/app/lib/utils/date";
 import { logger } from "@/app/lib/logger";
@@ -50,14 +51,30 @@ export default function IssueDetailDialog({
   /* --------------------------------- states --------------------------------- */
   const [status, setStatus] = useState<IssueStatus | "">("");
   const [priority, setPriority] = useState<IssuePriority | "">("");
+  const [claimStatus, setClaimStatus] = useState<ClaimStatus>(ClaimStatus.NONE);
+  const [claimFiledAmount, setClaimFiledAmount] = useState("");
+  const [claimRecoveredAmount, setClaimRecoveredAmount] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const isDamage = issue?.type === "DAMAGE";
 
   /* -------------------------------- lifecycle ------------------------------- */
   useEffect(() => {
     if (issue) {
       setStatus(issue.status as IssueStatus);
       setPriority(issue.priority as IssuePriority);
+      setClaimStatus((issue.claimStatus as ClaimStatus) || ClaimStatus.NONE);
+      setClaimFiledAmount(
+        issue.claimFiledAmount !== null && issue.claimFiledAmount !== undefined
+          ? String(issue.claimFiledAmount)
+          : ""
+      );
+      setClaimRecoveredAmount(
+        issue.claimRecoveredAmount !== null && issue.claimRecoveredAmount !== undefined
+          ? String(issue.claimRecoveredAmount)
+          : ""
+      );
     }
   }, [issue]);
 
@@ -68,9 +85,16 @@ export default function IssueDetailDialog({
     setError(null);
 
     try {
-      await updateIssue(issue.id, { 
-        status: status as IssueStatus, 
-        priority: priority as IssuePriority 
+      await updateIssue(issue.id, {
+        status: status as IssueStatus,
+        priority: priority as IssuePriority,
+        ...(isDamage
+          ? {
+              claimStatus,
+              claimFiledAmount: claimFiledAmount.trim() ? parseFloat(claimFiledAmount) : null,
+              claimRecoveredAmount: claimRecoveredAmount.trim() ? parseFloat(claimRecoveredAmount) : null,
+            }
+          : {}),
       });
       onUpdate();
       onClose();
@@ -270,6 +294,52 @@ export default function IssueDetailDialog({
                 </FormControl>
               </Stack>
             </Box>
+
+            {isDamage && (
+              <>
+                <Divider sx={{ borderColor: "divider" }} />
+                <Box>
+                  <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: 700, mb: 2, display: "block", textTransform: "uppercase", letterSpacing: 1 }}>
+                    {dict.vehicles.dialogs.claimSection || "Insurance Claim"}
+                  </Typography>
+                  <Stack spacing={2.5}>
+                    <FormControl fullWidth sx={selectSx}>
+                      <InputLabel shrink sx={{ color: "text.secondary" }}>
+                        {dict.vehicles.fields.claimStatus || "Claim Status"}
+                      </InputLabel>
+                      <Select
+                        value={claimStatus}
+                        label={dict.vehicles.fields.claimStatus || "Claim Status"}
+                        notched
+                        onChange={(e) => setClaimStatus(e.target.value as ClaimStatus)}
+                        sx={{ height: 48 }}
+                      >
+                        <MenuItem value={ClaimStatus.NONE}>{dict.vehicles.claimStatuses?.NONE || "None"}</MenuItem>
+                        <MenuItem value={ClaimStatus.FILED}>{dict.vehicles.claimStatuses?.FILED || "Filed"}</MenuItem>
+                        <MenuItem value={ClaimStatus.APPROVED}>{dict.vehicles.claimStatuses?.APPROVED || "Approved"}</MenuItem>
+                        <MenuItem value={ClaimStatus.REJECTED}>{dict.vehicles.claimStatuses?.REJECTED || "Rejected"}</MenuItem>
+                      </Select>
+                    </FormControl>
+                    <Stack direction="row" spacing={2.5}>
+                      <CustomTextArea
+                        name="claimFiledAmount"
+                        type="number"
+                        label={dict.vehicles.fields.claimFiledAmount || "Claim Filed Amount"}
+                        value={claimFiledAmount}
+                        onChange={(e) => setClaimFiledAmount(e.target.value.replace(/[^0-9.]/g, ""))}
+                      />
+                      <CustomTextArea
+                        name="claimRecoveredAmount"
+                        type="number"
+                        label={dict.vehicles.fields.claimRecoveredAmount || "Claim Recovered Amount"}
+                        value={claimRecoveredAmount}
+                        onChange={(e) => setClaimRecoveredAmount(e.target.value.replace(/[^0-9.]/g, ""))}
+                      />
+                    </Stack>
+                  </Stack>
+                </Box>
+              </>
+            )}
           </Stack>
         </Stack>
       </DialogContent>

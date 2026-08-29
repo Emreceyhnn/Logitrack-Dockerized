@@ -11,7 +11,7 @@ export interface DCDriverProfile {
   initials: string;
   employeeId: string;
   phone: string;
-  status: "ON_JOB" | "OFF_DUTY" | "ON_LEAVE";
+  status: "ON_JOB" | "OFF_DUTY" | "ON_LEAVE" | "SICK_LEAVE";
   safetyScore: number | null;
   efficiencyScore: number | null;
   rating: number | null;

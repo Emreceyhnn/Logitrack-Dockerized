@@ -274,17 +274,27 @@ export const updateRouteStatus = authenticatedAction(
       // Fill-rate needs the vehicle's rated capacity alongside the load it's
       // carrying — route.vehicleId alone doesn't carry maxLoadKg, so this is
       // fetched once and reused by both the ACTIVE and COMPLETED event
-      // writes below rather than re-querying in each branch. Vehicle only
-      // rates capacity by weight (maxLoadKg) — volume capacity lives on
-      // Trailer, not Vehicle, and Route has no trailerId to join through.
+      // writes below rather than re-querying in each branch.
       const routeVehicle = route.vehicleId
         ? await db.vehicle.findFirst({
             where: { id: route.vehicleId, companyId },
             select: { maxLoadKg: true },
           })
         : null;
+      // Volume capacity lives on Trailer, not Vehicle — only available when
+      // this route has a trailer explicitly assigned.
+      const routeTrailer = route.trailerId
+        ? await db.trailer.findFirst({
+            where: { id: route.trailerId, companyId },
+            select: { capacityVolumeM3: true },
+          })
+        : null;
       const loadedWeightKg = route.shipments.reduce(
         (sum, s) => sum + (s.weightKg ?? 0),
+        0
+      );
+      const loadedVolumeM3 = route.shipments.reduce(
+        (sum, s) => sum + (s.volumeM3 ?? 0),
         0
       );
 
@@ -347,6 +357,7 @@ export const updateRouteStatus = authenticatedAction(
                   warehouseId: shipment.originWarehouseId,
                   driverId: route.driverId,
                   customerId: shipment.customerId,
+                  routeId: route.id,
                   sourceEventId: `shipment-dispatched-${shipment.id}`,
                 });
               }
@@ -370,16 +381,22 @@ export const updateRouteStatus = authenticatedAction(
               subjectType: "ROUTE",
               subjectId: routeId,
               driverId: route.driverId,
+              routeId,
               weightKg: loadedWeightKg,
-              payload: routeVehicle
-                ? {
-                    maxLoadKg: routeVehicle.maxLoadKg,
-                    fillRate:
-                      routeVehicle.maxLoadKg > 0
-                        ? loadedWeightKg / routeVehicle.maxLoadKg
-                        : null,
-                  }
-                : null,
+              volumeM3: loadedVolumeM3,
+              payload: {
+                maxLoadKg: routeVehicle?.maxLoadKg ?? null,
+                fillRate:
+                  routeVehicle && routeVehicle.maxLoadKg > 0
+                    ? loadedWeightKg / routeVehicle.maxLoadKg
+                    : null,
+                capacityVolumeM3: routeTrailer?.capacityVolumeM3 ?? null,
+                volumeFillRate:
+                  routeTrailer && routeTrailer.capacityVolumeM3 > 0
+                    ? loadedVolumeM3 / routeTrailer.capacityVolumeM3
+                    : null,
+                isEmptyReturn: route.isEmptyReturn,
+              },
               sourceEventId: `route-started-${routeId}`,
             });
         } else if (status === "COMPLETED") {
@@ -427,6 +444,7 @@ export const updateRouteStatus = authenticatedAction(
                   warehouseId: shipment.originWarehouseId,
                   driverId: route.driverId,
                   customerId: shipment.customerId,
+                  routeId: route.id,
                   durationSec: Math.max(
                     0,
                     Math.floor(
@@ -434,6 +452,7 @@ export const updateRouteStatus = authenticatedAction(
                     )
                   ),
                   slaDeadline: shipment.slaDeadline,
+                  serviceTier: shipment.serviceTier,
                   sourceEventId: `order-delivered-${shipment.id}`,
                 });
               }
@@ -464,8 +483,10 @@ export const updateRouteStatus = authenticatedAction(
               subjectType: "ROUTE",
               subjectId: routeId,
               driverId: route.driverId,
+              routeId,
               quantity: activeShipmentIds.length,
               weightKg: loadedWeightKg,
+              volumeM3: loadedVolumeM3,
               payload: {
                 distanceKm: route.distanceKm ?? null,
                 maxLoadKg: routeVehicle?.maxLoadKg ?? null,
@@ -473,6 +494,12 @@ export const updateRouteStatus = authenticatedAction(
                   routeVehicle && routeVehicle.maxLoadKg > 0
                     ? loadedWeightKg / routeVehicle.maxLoadKg
                     : null,
+                capacityVolumeM3: routeTrailer?.capacityVolumeM3 ?? null,
+                volumeFillRate:
+                  routeTrailer && routeTrailer.capacityVolumeM3 > 0
+                    ? loadedVolumeM3 / routeTrailer.capacityVolumeM3
+                    : null,
+                isEmptyReturn: route.isEmptyReturn,
               },
               sourceEventId: `route-completed-${routeId}`,
             });

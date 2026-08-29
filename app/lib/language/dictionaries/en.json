@@ -1799,6 +1799,7 @@
       "ON_TRIP": "On Trip",
       "MAINTENANCE": "Maintenance",
       "OUT_OF_ORDER": "Out of Order",
+      "BREAKDOWN": "Breakdown",
       "COMPLETED": "Completed",
       "IN_PROGRESS": "In Progress",
       "SCHEDULED": "Scheduled",
@@ -1844,7 +1845,16 @@
       "techNotes": "Technical Notes",
       "priority": "Priority",
       "serviceType": "Service Type",
-      "fuelConsumption": "Fuel Consumption"
+      "fuelConsumption": "Fuel Consumption",
+      "claimStatus": "Claim Status",
+      "claimFiledAmount": "Claim Filed Amount",
+      "claimRecoveredAmount": "Claim Recovered Amount"
+    },
+    "claimStatuses": {
+      "NONE": "None",
+      "FILED": "Filed",
+      "APPROVED": "Approved",
+      "REJECTED": "Rejected"
     },
     "transmissionTypes": {
       "AUTOMATIC": "Automatic",
@@ -1961,6 +1971,7 @@
       "additionalInfo": "Additional Info",
       "technicianNotesDesc": "Briefly describe the work performed...",
       "failedToUpdateIssue": "Failed to update issue",
+      "claimSection": "Insurance Claim",
       "failedToUpdateRecord": "Failed to update maintenance record",
       "addMaintenanceRecord": "Add Maintenance Record",
       "addMaintenanceDesc": "Log service and maintenance events for this vehicle.",
@@ -2101,7 +2112,8 @@
     "statuses": {
       "ON_JOB": "On Job",
       "OFF_DUTY": "Off Duty",
-      "ON_LEAVE": "On Leave"
+      "ON_LEAVE": "On Leave",
+      "SICK_LEAVE": "Sick Leave"
     },
     "addDriver": "Add Driver",
     "totalDrivers": "Total Fleet Drivers",
@@ -2777,6 +2789,17 @@
         "CUSTOMER_REJECTED_OTHER": "Rejected — other reason",
         "TIME_WINDOW_EXCEEDED": "Delivery window exceeded"
       },
+      "isPartialLabel": "Delivered partially (not all items)",
+      "hasDocumentIssueLabel": "Documentation issue (missing/incorrect POD)",
+      "returnReasonLabel": "Return reason",
+      "returnReasonCodes": {
+        "WRONG_ITEM_SHIPPED": "Wrong item shipped",
+        "CUSTOMER_CHANGED_MIND": "Customer changed mind",
+        "DAMAGED_IN_TRANSIT": "Damaged in transit",
+        "QUALITY_ISSUE": "Quality issue",
+        "DUPLICATE_ORDER": "Duplicate order",
+        "OTHER": "Other"
+      },
       "noTransitions": "This shipment is in a final state and can't change.",
       "editTitle": "Edit Shipment Details",
       "editSubtitle": "Modify shipment parameters and update logistics status",
@@ -2808,6 +2831,7 @@
         "referenceNumber": "REFERENCE NUMBER",
         "priorityLevel": "PRIORITY LEVEL",
         "type": "TYPE",
+        "serviceTier": "SERVICE TIER",
         "slaDeadline": "SLA DEADLINE",
         "slaPlaceholder": "Select Date & Time",
         "weight": "WEIGHT (KG)",
@@ -2878,6 +2902,11 @@
         "box": "Box",
         "pallet": "Palet",
         "standardBilling": "Standard Billing (Net 30)"
+      },
+      "serviceTiers": {
+        "SAME_DAY": "Same Day",
+        "NEXT_DAY": "Next Day",
+        "STANDARD_48H": "Standard (48h)"
       }
     },
     "fields": {
@@ -3007,6 +3036,9 @@
       "unassigned": "Unassigned",
       "vehicleAssignment": "Vehicle Assignment",
       "loadingVehicles": "Loading vehicles...",
+      "trailerAssignment": "Trailer Assignment",
+      "loadingTrailers": "Loading trailers...",
+      "isEmptyReturnLabel": "This is an empty return trip (no cargo)",
       "assignmentSummary": "ASSIGNMENT SUMMARY",
       "noDriverSelected": "No driver selected",
       "statusOnDuty": "Status: On Duty",
@@ -3626,6 +3658,38 @@
     "pageSubtitle": "Manage fuel logs, track consumption, and monitor vehicle efficiency",
     "comingSoonDescription": "We are currently building the advanced fuel management module. This feature will allow you to track fuel consumption per vehicle, integrate with fuel cards, and generate efficiency reports."
   },
+  "expenses": {
+    "title": "Operating Expenses",
+    "pageSubtitle": "Track labor, warehouse rent, packaging, and other overhead costs for cost-per-delivery reporting.",
+    "addExpense": "Add Expense",
+    "noExpenses": "No operating expenses recorded.",
+    "categories": {
+      "LABOR": "Labor",
+      "WAREHOUSE_RENT": "Warehouse Rent",
+      "PACKAGING": "Packaging",
+      "OTHER": "Other"
+    },
+    "fields": {
+      "category": "Category",
+      "amount": "Amount",
+      "date": "Date",
+      "currency": "Currency",
+      "note": "Note"
+    },
+    "table": {
+      "category": "Category",
+      "amount": "Amount",
+      "date": "Date",
+      "note": "Note",
+      "actions": "Actions"
+    },
+    "dialogs": {
+      "addTitle": "Add Operating Expense",
+      "success": "Expense added successfully",
+      "error": "Failed to add expense"
+    },
+    "confirmDelete": "Delete this expense?"
+  },
   "warehouseWorker": {
     "backToPanel": "Back to panel",
     "noWarehouseAssigned": "No warehouse assigned",
@@ -3844,7 +3908,8 @@
     "duty": {
       "ON_JOB": "On Job",
       "OFF_DUTY": "Off Duty",
-      "ON_LEAVE": "On Leave"
+      "ON_LEAVE": "On Leave",
+      "SICK_LEAVE": "Sick Leave"
     },
     "dashboard": {
       "dutyStatus": "Duty Status",

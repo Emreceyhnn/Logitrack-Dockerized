@@ -1,7 +1,7 @@
 "use client";
 
 import {
-  
+
   Box,
   Grid,
   Stack,
@@ -11,6 +11,8 @@ import {
   Avatar,
   Card,
   CircularProgress,
+  FormControlLabel,
+  Checkbox,
 } from "@mui/material";
 import { useFormikContext } from "formik";
 import { RouteFormValues } from "@/app/lib/type/routes";
@@ -22,10 +24,12 @@ import BuildIcon from "@mui/icons-material/Build";
 import GppGoodIcon from "@mui/icons-material/GppGood";
 import { DriverWithRelations } from "@/app/lib/type/driver";
 import { VehicleWithRelations } from "@/app/lib/type/vehicle";
+import { TrailerWithRelations } from "@/app/lib/type/trailer";
 import { useEffect, useState } from "react";
 import { getDrivers } from "@/app/lib/controllers/driver";
 import { getVehicles } from "@/app/lib/controllers/vehicle";
-import { VehicleStatus } from "@/app/lib/type/enums";
+import { getTrailers } from "@/app/lib/controllers/trailer";
+import { VehicleStatus, TrailerStatus } from "@/app/lib/type/enums";
 
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { logger } from "@/app/lib/logger";
@@ -40,6 +44,7 @@ const ThirdRouteDialogStep = () => {
   /* --------------------------------- states --------------------------------- */
   const [drivers, setDrivers] = useState<DriverWithRelations[]>([]);
   const [vehicles, setVehicles] = useState<VehicleWithRelations[]>([]);
+  const [trailers, setTrailers] = useState<TrailerWithRelations[]>([]);
   const [loadingItems, setLoadingItems] = useState(true);
 
   /* ------------------------------- lifecycle ------------------------------- */
@@ -47,12 +52,14 @@ const ThirdRouteDialogStep = () => {
     const fetchData = async () => {
       setLoadingItems(true);
       try {
-        const [driversRes, vehiclesRes] = await Promise.all([
+        const [driversRes, vehiclesRes, trailersRes] = await Promise.all([
           getDrivers(1, 100),
           getVehicles({ status: [VehicleStatus.AVAILABLE] }),
+          getTrailers({ status: [TrailerStatus.AVAILABLE] }),
         ]);
         setDrivers(driversRes.data);
         setVehicles(vehiclesRes);
+        setTrailers(trailersRes.trailers as unknown as TrailerWithRelations[]);
       } catch (error) {
         logger.error("Failed to fetch assignments data", error);
       } finally {
@@ -230,6 +237,65 @@ const ThirdRouteDialogStep = () => {
                 )}
               </CustomTextArea>
             </Stack>
+          </Grid>
+
+          <Grid size={{ xs: 12, md: 6 }}>
+            <Stack spacing={1.5}>
+              <Typography
+                variant="body2"
+                fontWeight={600}
+                color="text.secondary"
+              >
+                {dict.routes.dialogs.trailerAssignment}
+              </Typography>
+              <CustomTextArea
+                name="trailerId"
+                select
+                value={values.trailerId}
+                onBlur={handleBlur}
+                onChange={(e) => setFieldValue("trailerId", e.target.value)}
+                sx={{
+                  "& .MuiSelect-select": {
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 1.5,
+                  },
+                }}
+              >
+                {loadingItems ? (
+                  <MenuItem disabled>
+                    <CircularProgress size={16} sx={{ mr: 1 }} />
+                    {dict.routes.dialogs.loadingTrailers}
+                  </MenuItem>
+                ) : (
+                  [
+                    <MenuItem key="none" value="">{dict.routes.dialogs.unassigned}</MenuItem>,
+                    ...trailers.map((trailer) => (
+                      <MenuItem key={trailer.id} value={trailer.id}>
+                        <LocalShippingIcon
+                          sx={{ fontSize: 18, color: "text.secondary" }}
+                        />
+                        <Typography variant="body2">
+                          {trailer.plate} ({trailer.capacityVolumeM3} m³)
+                        </Typography>
+                      </MenuItem>
+                    ))
+                  ]
+                )}
+              </CustomTextArea>
+            </Stack>
+          </Grid>
+
+          <Grid size={{ xs: 12, md: 6 }}>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={values.isEmptyReturn}
+                  onChange={(e) => setFieldValue("isEmptyReturn", e.target.checked)}
+                />
+              }
+              label={dict.routes.dialogs.isEmptyReturnLabel}
+            />
           </Grid>
         </Grid>
 

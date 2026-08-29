@@ -12,6 +12,8 @@ import {
   Typography,
   Box,
   useTheme,
+  FormControlLabel,
+  Checkbox,
 } from "@mui/material";
 import { ShipmentStatus } from "@/app/lib/type/enums";
 import { SHIPMENT_TRANSITIONS } from "@/app/lib/type/shipmentTransitions";
@@ -19,6 +21,10 @@ import {
   DELIVERY_FAILURE_REASONS,
   type DeliveryFailureReasonCode,
 } from "@/app/lib/type/deliveryFailureReasons";
+import {
+  RETURN_REASONS,
+  type ReturnReasonCode,
+} from "@/app/lib/type/returnReasons";
 import { StatusChip } from "@/app/components/chips/statusChips";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import CustomTextArea from "@/app/components/inputs/customTextArea";
@@ -34,6 +40,9 @@ interface StatusUpdateDialogProps {
     status: ShipmentStatus;
     description?: string;
     reasonCode?: DeliveryFailureReasonCode;
+    isPartial?: boolean;
+    hasDocumentIssue?: boolean;
+    returnReasonCode?: ReturnReasonCode;
   }) => Promise<void> | void;
   submitting?: boolean;
 }
@@ -59,6 +68,9 @@ export default function StatusUpdateDialog({
   const [nextStatus, setNextStatus] = useState<ShipmentStatus | "">("");
   const [description, setDescription] = useState("");
   const [reasonCode, setReasonCode] = useState<DeliveryFailureReasonCode | "">("");
+  const [returnReasonCode, setReturnReasonCode] = useState<ReturnReasonCode | "">("");
+  const [isPartial, setIsPartial] = useState(false);
+  const [hasDocumentIssue, setHasDocumentIssue] = useState(false);
 
   // Reset local state whenever a different shipment is opened.
   const [seenId, setSeenId] = useState<string | null>(null);
@@ -67,20 +79,30 @@ export default function StatusUpdateDialog({
     setNextStatus("");
     setDescription("");
     setReasonCode("");
+    setReturnReasonCode("");
+    setIsPartial(false);
+    setHasDocumentIssue(false);
   }
 
   const options = currentStatus
     ? SHIPMENT_TRANSITIONS[currentStatus] ?? []
     : [];
   const requiresReason = nextStatus === ShipmentStatus.FAILED;
+  const requiresReturnReason = nextStatus === ShipmentStatus.RETURNED;
+  const isDelivered = nextStatus === ShipmentStatus.DELIVERED;
   const canSubmit =
     !!shipmentId &&
     !!nextStatus &&
     (!requiresReason || (description.trim().length > 0 && !!reasonCode)) &&
+    (!requiresReturnReason || !!returnReasonCode) &&
     !submitting;
 
   const reasonCodeLabel = (code: DeliveryFailureReasonCode) =>
     dict.shipments.dialogs.failureReasonCodes?.[code] ||
+    code.replace(/_/g, " ");
+
+  const returnReasonCodeLabel = (code: ReturnReasonCode) =>
+    dict.shipments.dialogs.returnReasonCodes?.[code] ||
     code.replace(/_/g, " ");
 
   const statusLabel = (s: ShipmentStatus) =>
@@ -95,6 +117,8 @@ export default function StatusUpdateDialog({
       status: nextStatus,
       ...(description.trim() ? { description: description.trim() } : {}),
       ...(reasonCode ? { reasonCode } : {}),
+      ...(returnReasonCode ? { returnReasonCode } : {}),
+      ...(isDelivered ? { isPartial, hasDocumentIssue } : {}),
     });
   };
 
@@ -176,6 +200,28 @@ export default function StatusUpdateDialog({
                 </CustomTextArea>
               )}
 
+              {requiresReturnReason && (
+                <CustomTextArea
+                  select
+                  name="returnReasonCode"
+                  label={
+                    (dict.shipments.dialogs.returnReasonLabel ||
+                      "Return reason") + " *"
+                  }
+                  value={returnReasonCode}
+                  onChange={(e) =>
+                    setReturnReasonCode(e.target.value as ReturnReasonCode)
+                  }
+                  error={!returnReasonCode}
+                >
+                  {RETURN_REASONS.map((code) => (
+                    <MenuItem key={code} value={code}>
+                      {returnReasonCodeLabel(code)}
+                    </MenuItem>
+                  ))}
+                </CustomTextArea>
+              )}
+
               <CustomTextArea
                 name="description"
                 label={
@@ -196,6 +242,37 @@ export default function StatusUpdateDialog({
                     : undefined
                 }
               />
+
+              {isDelivered && (
+                <Stack spacing={0.5}>
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        checked={isPartial}
+                        onChange={(e) => setIsPartial(e.target.checked)}
+                        size="small"
+                      />
+                    }
+                    label={
+                      dict.shipments.dialogs.isPartialLabel ||
+                      "Delivered partially (not all items)"
+                    }
+                  />
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        checked={hasDocumentIssue}
+                        onChange={(e) => setHasDocumentIssue(e.target.checked)}
+                        size="small"
+                      />
+                    }
+                    label={
+                      dict.shipments.dialogs.hasDocumentIssueLabel ||
+                      "Documentation issue (missing/incorrect POD)"
+                    }
+                  />
+                </Stack>
+              )}
             </>
           )}
         </Stack>

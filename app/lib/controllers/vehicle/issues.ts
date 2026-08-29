@@ -6,6 +6,7 @@ import {
   IssueStatus,
   IssuePriority,
   IssueType,
+  ClaimStatus,
 } from "@prisma/client";
 import { sendNotificationAction as createNotification } from "@/app/lib/actions/notifications";
 import { checkPermission } from "../utils/checkPermission";
@@ -167,6 +168,9 @@ export const updateIssue = authenticatedAction(
       status?: IssueStatus;
       priority?: IssuePriority;
       description?: string;
+      claimStatus?: ClaimStatus;
+      claimFiledAmount?: number | null;
+      claimRecoveredAmount?: number | null;
     }
   ) => {
     const companyId = user?.companyId || "";

@@ -162,6 +162,13 @@ export interface RouteFormValues {
   durationMin: number;
   driverId: string;
   vehicleId: string;
+  trailerId: string;
+  /**
+   * Marks this route as a deadhead/empty-return leg for empty-return-rate
+   * reporting, rather than being inferred from an absence of shipments (a
+   * route can legitimately carry zero shipments without being a return).
+   */
+  isEmptyReturn: boolean;
   stops: { address: string; lat?: number | undefined; lng?: number | undefined }[];
   /**
    * Encoded polyline from the routing engine, captured alongside the distance

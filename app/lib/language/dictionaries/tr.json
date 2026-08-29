@@ -1763,6 +1763,7 @@
       "ON_TRIP": "Seferde",
       "MAINTENANCE": "Bakımda",
       "OUT_OF_ORDER": "Arızalı",
+      "BREAKDOWN": "Yolda Arızalandı",
       "COMPLETED": "Tamamlandı",
       "IN_PROGRESS": "Devam Ediyor",
       "SCHEDULED": "Planlandı",
@@ -1808,7 +1809,16 @@
       "techNotes": "Teknik Notlar",
       "priority": "Öncelik",
       "serviceType": "Servis Tipi",
-      "fuelConsumption": "Yakıt Tüketimi"
+      "fuelConsumption": "Yakıt Tüketimi",
+      "claimStatus": "Tazmin Durumu",
+      "claimFiledAmount": "Talep Edilen Tutar",
+      "claimRecoveredAmount": "Tahsil Edilen Tutar"
+    },
+    "claimStatuses": {
+      "NONE": "Yok",
+      "FILED": "Talep Edildi",
+      "APPROVED": "Onaylandı",
+      "REJECTED": "Reddedildi"
     },
     "transmissionTypes": {
       "AUTOMATIC": "Otomatik",
@@ -1925,6 +1935,7 @@
       "additionalInfo": "Ek Bilgi",
       "technicianNotesDesc": "Yapılan işlemi kısaca açıklayın...",
       "failedToUpdateIssue": "Sorun güncellenemedi",
+      "claimSection": "Sigorta Tazmini",
       "failedToUpdateRecord": "Bakım kaydı güncellenemedi",
       "addMaintenanceRecord": "Bakım Kaydı Ekle",
       "addMaintenanceDesc": "Bu araç için servis ve bakım olaylarını kaydedin.",
@@ -2102,7 +2113,8 @@
     "statuses": {
       "ON_JOB": "Görevde",
       "OFF_DUTY": "İzinli/Mesai Dışı",
-      "ON_LEAVE": "İzinde"
+      "ON_LEAVE": "İzinde",
+      "SICK_LEAVE": "Hastalık İzninde"
     },
     "addDriver": "Sürücü Ekle",
     "totalDrivers": "Toplam Filo Sürücüsü",
@@ -2778,6 +2790,17 @@
         "CUSTOMER_REJECTED_OTHER": "Müşteri kabul etmedi / caydı",
         "TIME_WINDOW_EXCEEDED": "Zaman aralığı yetmedi"
       },
+      "isPartialLabel": "Kısmi teslim edildi (tüm ürünler değil)",
+      "hasDocumentIssueLabel": "Evrak sorunu (eksik/hatalı teslim tesellüm belgesi)",
+      "returnReasonLabel": "İade sebebi",
+      "returnReasonCodes": {
+        "WRONG_ITEM_SHIPPED": "Yanlış ürün gönderildi",
+        "CUSTOMER_CHANGED_MIND": "Müşteri vazgeçti",
+        "DAMAGED_IN_TRANSIT": "Taşıma sırasında hasar gördü",
+        "QUALITY_ISSUE": "Kalite sorunu",
+        "DUPLICATE_ORDER": "Mükerrer sipariş",
+        "OTHER": "Diğer"
+      },
       "noTransitions": "Bu sevkiyat son durumda ve değiştirilemez.",
       "editTitle": "Sevkiyat Detaylarını Düzenle",
       "editSubtitle": "Sevkiyat parametrelerini düzenleyin ve lojistik durumunu güncelleyin",
@@ -2809,6 +2832,7 @@
         "referenceNumber": "REFERANS NUMARASI",
         "priorityLevel": "ÖNCELİK SEVİYESİ",
         "type": "TİP",
+        "serviceTier": "SERVİS SEVİYESİ",
         "slaDeadline": "SLA TERMİNİ",
         "slaPlaceholder": "Tarih ve Saat Seçin",
         "weight": "AĞIRLIK (KG)",
@@ -2879,6 +2903,11 @@
         "box": "Koli",
         "pallet": "Palet",
         "standardBilling": "Standart Fatura (Net 30)"
+      },
+      "serviceTiers": {
+        "SAME_DAY": "Aynı Gün",
+        "NEXT_DAY": "Ertesi Gün",
+        "STANDARD_48H": "Standart (48s)"
       }
     },
     "fields": {
@@ -3008,6 +3037,9 @@
       "unassigned": "Atanmadı",
       "vehicleAssignment": "Araç Ataması",
       "loadingVehicles": "Araçlar yükleniyor...",
+      "trailerAssignment": "Dorse Ataması",
+      "loadingTrailers": "Dorseler yükleniyor...",
+      "isEmptyReturnLabel": "Bu boş dönüş seferi (yüksüz)",
       "assignmentSummary": "ATAMA ÖZETİ",
       "noDriverSelected": "Sürücü seçilmedi",
       "statusOnDuty": "Durum: Görevde",
@@ -3627,6 +3659,38 @@
     "pageSubtitle": "Yakıt kayıtlarını yönetin, tüketimi izleyin ve araç verimliliğini takip edin",
     "comingSoonDescription": "Gelişmiş yakıt yönetimi modülünü şu anda geliştiriyoruz. Bu özellik araç başına yakıt tüketimini takip etmenizi, yakıt kartlarıyla entegrasyonu ve verimlilik raporları oluşturmanızı sağlayacak."
   },
+  "expenses": {
+    "title": "Operasyonel Giderler",
+    "pageSubtitle": "Teslimat başına maliyet raporlaması için işçilik, depo kirası, paketleme ve diğer genel giderleri takip edin.",
+    "addExpense": "Gider Ekle",
+    "noExpenses": "Kayıtlı operasyonel gider yok.",
+    "categories": {
+      "LABOR": "İşçilik",
+      "WAREHOUSE_RENT": "Depo Kirası",
+      "PACKAGING": "Paketleme",
+      "OTHER": "Diğer"
+    },
+    "fields": {
+      "category": "Kategori",
+      "amount": "Tutar",
+      "date": "Tarih",
+      "currency": "Para Birimi",
+      "note": "Not"
+    },
+    "table": {
+      "category": "Kategori",
+      "amount": "Tutar",
+      "date": "Tarih",
+      "note": "Not",
+      "actions": "İşlemler"
+    },
+    "dialogs": {
+      "addTitle": "Operasyonel Gider Ekle",
+      "success": "Gider başarıyla eklendi",
+      "error": "Gider eklenemedi"
+    },
+    "confirmDelete": "Bu gider silinsin mi?"
+  },
   "warehouseWorker": {
     "backToPanel": "Panele dön",
     "noWarehouseAssigned": "Depo atanmadı",
@@ -3845,7 +3909,8 @@
     "duty": {
       "ON_JOB": "Görevde",
       "OFF_DUTY": "Görev Dışı",
-      "ON_LEAVE": "İzinli"
+      "ON_LEAVE": "İzinli",
+      "SICK_LEAVE": "Hastalık İzninde"
     },
     "dashboard": {
       "dutyStatus": "Görev Durumu",

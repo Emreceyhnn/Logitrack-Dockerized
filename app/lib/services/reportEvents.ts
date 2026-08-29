@@ -34,6 +34,8 @@ export type ReportEventInput = {
   driverId?: string | null;
   customerId?: string | null;
   zoneId?: string | null;
+  /** Which route this delivery belongs to — a GROUP BY dimension for OTD by_route and top_delayed_routes. */
+  routeId?: string | null;
   /**
    * Who performed the action — a User id, not a Driver id. Distinct from
    * driverId: a warehouse worker doing a pick has no Driver row at all, and
@@ -74,6 +76,22 @@ export type ReportEventInput = {
    * failure_reasons_breakdown needs to GROUP BY it directly.
    */
   reasonCode?: string | null;
+  /**
+   * Two of Perfect Order Rate's four components (on-time is isOnTime; damage
+   * comes from a separate ORDER_RETURNED/ISSUE_OPENED, not this event).
+   * Both are worker-reported opt-in flags on ORDER_DELIVERED — omitted means
+   * "nothing was flagged", so they default to false, not null (unlike
+   * isOnTime, which has no meaningful default).
+   */
+  isPartial?: boolean;
+  hasDocumentIssue?: boolean;
+  /**
+   * Time-commitment tier promised to the customer (SAME_DAY/NEXT_DAY/
+   * STANDARD_48H — see ServiceTier), copied from Shipment.serviceTier at
+   * write time. Its own column, like routeId/reasonCode, so
+   * service_tier_breakdown can GROUP BY it directly.
+   */
+  serviceTier?: string | null;
 };
 
 function resolveBusinessDate(occurredAt: Date): Date {
@@ -103,20 +121,23 @@ export async function logReportEvent(
   await tx.$executeRaw`
     INSERT INTO reporting.report_events (
       id, "eventType", "occurredAt", "businessDate",
-      "companyId", "warehouseId", "driverId", "customerId", "zoneId",
+      "companyId", "warehouseId", "driverId", "customerId", "zoneId", "routeId",
       "subjectType", "subjectId",
       quantity, "weightKg", "volumeM3", amount, revenue, "durationSec",
-      payload, "sourceEventId", "slaDeadline", "isOnTime", "actorUserId", "reasonCode"
+      payload, "sourceEventId", "slaDeadline", "isOnTime", "actorUserId", "reasonCode",
+      "isPartial", "hasDocumentIssue", "serviceTier"
     ) VALUES (
       ${crypto.randomUUID()}, ${event.eventType}, ${event.occurredAt}, ${businessDate},
       ${event.companyId}, ${event.warehouseId ?? null},
       ${event.driverId ?? null}, ${event.customerId ?? null}, ${event.zoneId ?? null},
+      ${event.routeId ?? null},
       ${event.subjectType}, ${event.subjectId},
       ${event.quantity ?? null}, ${event.weightKg ?? null}, ${event.volumeM3 ?? null},
       ${event.amount ?? null}, ${event.revenue ?? null}, ${event.durationSec ?? null},
       ${event.payload ? JSON.stringify(event.payload) : null}::jsonb,
       ${event.sourceEventId}, ${slaDeadline}, ${isOnTime}, ${event.actorUserId ?? null},
-      ${event.reasonCode ?? null}
+      ${event.reasonCode ?? null}, ${event.isPartial ?? false}, ${event.hasDocumentIssue ?? false},
+      ${event.serviceTier ?? null}
     )
     ON CONFLICT ("sourceEventId") DO NOTHING
   `;

@@ -69,6 +69,7 @@ export const useEditShipment = (open: boolean, onClose: () => void, onSuccess?: 
     if (!shipment) {
       return {
         trackingId: "", referenceNumber: "", priority: ShipmentPriority.MEDIUM, type: "STANDARD_FREIGHT",
+        serviceTier: null,
         slaDeadline: null, originWarehouseId: "", originLat: undefined, originLng: undefined,
         destination: "", destinationLat: undefined, destinationLng: undefined, customerId: "",
         customerLocationId: "", contactEmail: "", billingAccount: "Standard Billing (Net 30)",
@@ -81,6 +82,7 @@ export const useEditShipment = (open: boolean, onClose: () => void, onSuccess?: 
       trackingId: shipment.trackingId || "", referenceNumber: shipment.referenceNumber || "",
       priority: (shipment.priority as ShipmentPriority) || ShipmentPriority.MEDIUM,
       type: shipment.type || "STANDARD_FREIGHT",
+      serviceTier: shipment.serviceTier || null,
       slaDeadline: shipment.slaDeadline ? new Date(shipment.slaDeadline) : null,
       originWarehouseId: shipment.originWarehouseId || warehouses.find((w) => w.name === shipment.origin)?.id || "",
       originLat: shipment.originLat ?? undefined, originLng: shipment.originLng ?? undefined,
@@ -122,7 +124,9 @@ export const useEditShipment = (open: boolean, onClose: () => void, onSuccess?: 
           volumeM3: values.volumeM3, palletCount: values.palletCount, cargoType: values.cargoType,
           destinationLat: values.destinationLat, destinationLng: values.destinationLng, originLat: values.originLat,
           originLng: values.originLng, trackingId: values.referenceNumber, priority: values.priority,
-          type: values.type as import("@/app/lib/type/enums").ShipmentServiceType, slaDeadline: values.slaDeadline,
+          type: values.type as import("@/app/lib/type/enums").ShipmentServiceType,
+          serviceTier: values.serviceTier as import("@/app/lib/type/enums").ServiceTier | null,
+          slaDeadline: values.slaDeadline,
           contactEmail: sanitize(values.contactEmail) ?? undefined, billingAccount: values.billingAccount,
           revenue: values.revenue.trim() ? parseFloat(values.revenue) : null,
           extraCostAmount: values.extraCostAmount.trim() ? parseFloat(values.extraCostAmount) : null,

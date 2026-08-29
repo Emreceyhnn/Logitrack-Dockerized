@@ -2,7 +2,7 @@ import type { Dictionary } from "../language/language";
 import type { DCDeviation } from "./driverConsole";
 
 export type View = "dashboard" | "route" | "shipments" | "vehicle" | "documents";
-export type DutyStatus = "ON_JOB" | "OFF_DUTY" | "ON_LEAVE";
+export type DutyStatus = "ON_JOB" | "OFF_DUTY" | "ON_LEAVE" | "SICK_LEAVE";
 
 /** The `driverConsole` translation subtree passed around as `dc`. */
 export type DriverConsoleDict = Dictionary["driverConsole"];

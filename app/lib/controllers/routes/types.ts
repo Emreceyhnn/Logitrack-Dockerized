@@ -18,6 +18,8 @@ export interface RouteUpdateData {
   durationMin?: number | null;
   driverId?: string | null;
   vehicleId?: string | null;
+  trailerId?: string | null;
+  isEmptyReturn?: boolean;
   stops?: { address: string; lat?: number | undefined; lng?: number | undefined }[];
   /**
    * Re-sent whenever stops change: an edited route has a new corridor, and a

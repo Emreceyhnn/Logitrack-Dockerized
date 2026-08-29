@@ -7,7 +7,7 @@ import {
   ShipmentPriority,
   ShipmentItem,
 } from "./enums";
-import type { ShipmentServiceType } from "@prisma/client";
+import type { ShipmentServiceType, ServiceTier } from "@prisma/client";
 import { CustomerWithRelations } from "./customer";
 import { InventoryShipmentItem } from "./add-shipment";
 
@@ -50,6 +50,7 @@ export interface ShipmentWithRelations
 
   // New fields
   type: ShipmentServiceType | null;
+  serviceTier: ServiceTier | null;
   slaDeadline: Date | null;
   contactEmail: string | null;
   billingAccount: string | null;
@@ -150,6 +151,7 @@ export interface ShipmentFormValues {
   referenceNumber: string;
   priority: ShipmentPriority;
   type: string;
+  serviceTier: string | null;
   slaDeadline: Date | null;
   originWarehouseId: string;
   originLat?: number | undefined;

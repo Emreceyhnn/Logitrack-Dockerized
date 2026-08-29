@@ -8,6 +8,7 @@ import {
   ShipmentStatus,
   ShipmentPriority,
   ShipmentServiceType,
+  ServiceTier,
 } from "@prisma/client";
 import { sendNotificationAction as createNotification } from "@/app/lib/actions/notifications";
 import { InventoryShipmentItem } from "../../type/add-shipment";
@@ -48,6 +49,7 @@ export const createShipment = authenticatedAction(
       customerLocationId?: string | undefined;
       priority?: ShipmentPriority | undefined;
       type?: ShipmentServiceType | undefined;
+      serviceTier?: ServiceTier | null | undefined;
       slaDeadline?: Date | null | undefined;
       contactEmail?: string | undefined;
       billingAccount?: string | undefined;
@@ -88,6 +90,7 @@ export const createShipment = authenticatedAction(
       customerLocationId,
       priority = ShipmentPriority.MEDIUM,
       type = ShipmentServiceType.STANDARD_FREIGHT,
+      serviceTier,
       slaDeadline,
       contactEmail,
       billingAccount,
@@ -250,6 +253,7 @@ export const createShipment = authenticatedAction(
               companyId,
               priority,
               type,
+              serviceTier,
               slaDeadline,
               contactEmail,
               billingAccount,

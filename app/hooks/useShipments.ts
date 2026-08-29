@@ -25,6 +25,7 @@ import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { shipmentKeys } from "@/app/lib/query-keys/shipment.keys";
 import type { InventoryShipmentItem } from "@/app/lib/type/add-shipment";
 import type { DeliveryFailureReasonCode } from "@/app/lib/type/deliveryFailureReasons";
+import type { ReturnReasonCode } from "@/app/lib/type/returnReasons";
 import { logger } from "@/app/lib/logger";
 
 
@@ -346,6 +347,7 @@ export function useShipmentMutations() {
         customerLocationId: data.customerLocationId || "",
         priority: data.priority || ShipmentPriority.MEDIUM,
         type: data.type || ShipmentServiceType.STANDARD_FREIGHT,
+        serviceTier: data.serviceTier ?? null,
         slaDeadline: data.slaDeadline ? new Date(data.slaDeadline) : null,
         contactEmail: data.contactEmail || "",
         billingAccount: data.billingAccount || "",
@@ -379,6 +381,7 @@ export function useShipmentMutations() {
         itemsCount: data.itemsCount || 0,
         priority: data.priority ?? ShipmentPriority.MEDIUM,
         type: data.type ?? ShipmentServiceType.STANDARD_FREIGHT,
+        serviceTier: data.serviceTier ?? null,
         slaDeadline: data.slaDeadline ? new Date(data.slaDeadline) : null,
         weightKg: data.weightKg ?? 0,
         volumeM3: data.volumeM3 ?? 0,
@@ -472,13 +475,29 @@ export function useShipmentMutations() {
       location,
       description,
       reasonCode,
+      isPartial,
+      hasDocumentIssue,
+      returnReasonCode,
     }: {
       id: string;
       status: ShipmentStatus;
       location?: string;
       description?: string;
       reasonCode?: DeliveryFailureReasonCode;
-    }) => updateShipmentStatus(id, status, location, description, reasonCode),
+      isPartial?: boolean;
+      hasDocumentIssue?: boolean;
+      returnReasonCode?: ReturnReasonCode;
+    }) =>
+      updateShipmentStatus(
+        id,
+        status,
+        location,
+        description,
+        reasonCode,
+        isPartial,
+        hasDocumentIssue,
+        returnReasonCode
+      ),
     onMutate: async ({ id, status }) => {
       await queryClient.cancelQueries({ queryKey: shipmentKeys.all });
       const previous = patchCachedShipments(queryClient, id, { status });

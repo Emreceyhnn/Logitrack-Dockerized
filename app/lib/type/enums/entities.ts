@@ -55,6 +55,8 @@ export interface Driver {
   licenseType?: string | null;
   licenseExpiry?: Date | null;
   status: DriverStatus;
+  /** Expected return date while status is ON_LEAVE/SICK_LEAVE. */
+  returnDate?: Date | null;
   safetyScore?: number | null;
   efficiencyScore?: number | null;
   rating?: number | null;
@@ -99,6 +101,8 @@ export interface Vehicle {
   model: string;
   year?: number;
   status: VehicleStatus;
+  /** Expected date this vehicle becomes AVAILABLE again while out of service. */
+  estimatedAvailableDate?: Date | null;
   maxLoadKg?: number;
   fuelType?: string;
   currentLat?: number | null;
@@ -176,6 +180,8 @@ export interface Shipment {
   itemsCount: number;
   priority?: ShipmentPriority | null;
   type?: string | null;
+  /** Time-commitment tier promised to the customer (SAME_DAY/NEXT_DAY/STANDARD_48H). */
+  serviceTier?: string | null;
   slaDeadline?: Date | null;
   weightKg?: number | null;
   volumeM3?: number | null;
@@ -218,6 +224,9 @@ export interface Route {
   stops?: { address: string; lat?: number | undefined; lng?: number | undefined }[] | null;
   driverId?: string | null;
   vehicleId?: string | null;
+  trailerId?: string | null;
+  /** Marks a deadhead/empty-return leg for empty-return-rate reporting. */
+  isEmptyReturn?: boolean;
   companyId?: string | null;
   /** Valhalla-encoded polyline (precision 6) of the planned corridor. */
   shape?: string | null;
@@ -259,6 +268,10 @@ export interface Issue {
   driverId?: string | null;
   shipmentId?: string | null;
   companyId?: string | null;
+  /** Insurance/carrier claim tracking — only meaningful on type=DAMAGE issues. */
+  claimStatus?: string | null;
+  claimFiledAmount?: number | null;
+  claimRecoveredAmount?: number | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -327,6 +340,19 @@ export interface FuelLog {
   fuelType: string;
   currency: string;
   receiptUrl?: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface OperatingExpense {
+  id: string;
+  companyId: string;
+  category: string;
+  amount: number;
+  currency: string;
+  date: Date;
+  note?: string | null;
+  createdById?: string | null;
   createdAt: Date;
   updatedAt: Date;
 }

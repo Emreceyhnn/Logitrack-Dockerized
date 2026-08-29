@@ -23,6 +23,7 @@ model Company {
   inventoryMovements InventoryMovement[]
   issues             Issue[]
   maintenanceRecords MaintenanceRecord[]
+  operatingExpenses  OperatingExpense[]
   roles              Role[]
   routes             Route[]
   routeStops         RouteStop[]
@@ -97,6 +98,7 @@ model User {
   auditLogs               AuditLog[]
   driver                  Driver?
   inventoryMovements      InventoryMovement[]
+  operatingExpenses       OperatingExpense[]
   sessions                Session[]
   subscription            Subscription?
   shipmentHistoryEntries  ShipmentHistory[]        @relation("ShipmentHistoryCreatedBy")
@@ -126,6 +128,9 @@ model Driver {
   licenseExpiry       DateTime?
   phone               String
   status              DriverStatus @default(OFF_DUTY)
+  // Expected return date while status is ON_LEAVE/SICK_LEAVE. Null when not
+  // on leave, or when leave has no known end date yet.
+  returnDate          DateTime?
   safetyScore         Int?
   efficiencyScore     Int?
   rating              Float?
@@ -215,6 +220,10 @@ model Vehicle {
   model              String
   year               Int
   status             VehicleStatus       @default(AVAILABLE)
+  // Expected date this vehicle becomes AVAILABLE again while status is
+  // MAINTENANCE/OUT_OF_ORDER/BREAKDOWN. Null when not out of service, or
+  // when the timeline isn't known yet (e.g. a breakdown just reported).
+  estimatedAvailableDate DateTime?
   maxLoadKg          Int
   fuelType           FuelType
   currentLat         Float?
@@ -480,6 +489,7 @@ model Shipment {
   itemsCount         Int                 @default(1)
   priority           ShipmentPriority    @default(MEDIUM)
   type               ShipmentServiceType @default(STANDARD_FREIGHT)
+  serviceTier        ServiceTier?
   slaDeadline        DateTime?
   weightKg           Float?              @default(0)
   volumeM3           Float?              @default(0)
@@ -612,6 +622,12 @@ model Route {
   durationMin  Int?
   driverId     String?
   vehicleId    String?
+  trailerId    String?
+  // True when this route is a deadhead/empty-return leg (no cargo carried
+  // back to base) rather than a delivery run — used for empty-return-rate
+  // reporting. Not inferred from shipment count: a route can legitimately
+  // have zero shipments (e.g. a driver relocation) without being a return.
+  isEmptyReturn Boolean    @default(false)
   companyId    String
   deletedAt    DateTime?
   createdAt    DateTime    @default(now())
@@ -627,12 +643,14 @@ model Route {
   company      Company     @relation(fields: [companyId], references: [id], onDelete: Restrict)
   driver       Driver?     @relation(fields: [driverId], references: [id], onDelete: Restrict)
   vehicle      Vehicle?    @relation(fields: [vehicleId], references: [id], onDelete: Restrict)
+  trailer      Trailer?    @relation(fields: [trailerId], references: [id], onDelete: Restrict)
   shipments    Shipment[]
   stops        RouteStop[]
 
   @@index([companyId, date])
   @@index([driverId, date])
   @@index([vehicleId])
+  @@index([trailerId])
   // Serves the check-expirations cron's cross-tenant delayed/upcoming sweep
   // (`status IN ('PLANNED','ACTIVE')` with no companyId filter).
   @@index([status])
@@ -714,6 +732,29 @@ model FuelLog {
   @@map("fuel_logs")
 }
 
+// Manually-entered periodic/overhead cost (payroll, warehouse rent,
+// packaging supplies, etc.) that has no natural per-shipment event to hang
+// off of — unlike fuel/maintenance, which are tied to a vehicle action.
+// Feeds monthly_report.cost_efficiency.cost_breakdown.
+model OperatingExpense {
+  id          String              @id @default(cuid())
+  companyId   String
+  category    OperatingExpenseCategory
+  amount      Decimal             @db.Decimal(12, 2)
+  currency    String              @default("TRY")
+  date        DateTime
+  note        String?
+  createdById String?
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+  company     Company             @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  createdBy   User?               @relation(fields: [createdById], references: [id], onDelete: SetNull)
+
+  @@index([companyId, date])
+  @@index([companyId, category, date])
+  @@map("operating_expenses")
+}
+
 model Issue {
   id          String        @id @default(cuid())
   title       String
@@ -731,6 +772,12 @@ model Issue {
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
   trailerId   String?
+  // Insurance/carrier claim tracking, meaningful only on type=DAMAGE issues.
+  // Feeds monthly_report.loss_and_damage.claim_recovery — left null/NONE on
+  // every non-damage issue rather than forcing a claim workflow on all of them.
+  claimStatus         ClaimStatus @default(NONE)
+  claimFiledAmount    Decimal?    @db.Decimal(12, 2)
+  claimRecoveredAmount Decimal?   @db.Decimal(12, 2)
   company     Company       @relation(fields: [companyId], references: [id], onDelete: Restrict)
   driver      Driver?       @relation(fields: [driverId], references: [id], onDelete: Restrict)
   shipment    Shipment?     @relation(fields: [shipmentId], references: [id], onDelete: Restrict)
@@ -848,6 +895,7 @@ model Trailer {
   issues           Issue[]
   shipments        Shipment[]
   assignments      TrailerAssignment[]
+  routes           Route[]
   company          Company             @relation(fields: [companyId], references: [id], onDelete: Restrict)
   currentVehicle   Vehicle?            @relation(fields: [currentVehicleId], references: [id], onDelete: Restrict)
 
@@ -974,12 +1022,19 @@ enum VehicleStatus {
   ON_TRIP
   MAINTENANCE
   OUT_OF_ORDER
+  // Unplanned in-field failure, distinct from a scheduled MAINTENANCE visit —
+  // today_plan.non_available_fleet needs to tell "in for service" apart from
+  // "broke down and is off the road unexpectedly".
+  BREAKDOWN
 }
 
 enum DriverStatus {
   ON_JOB
   OFF_DUTY
   ON_LEAVE
+  // Split out from the generic ON_LEAVE so today_plan.non_available_fleet
+  // can report why a driver is unavailable (planned vacation vs. illness).
+  SICK_LEAVE
 }
 
 enum InvitationStatus {
@@ -1048,6 +1103,22 @@ enum ShipmentServiceType {
   HAZARDOUS
 }
 
+enum OperatingExpenseCategory {
+  LABOR
+  WAREHOUSE_RENT
+  PACKAGING
+  OTHER
+}
+
+// Time-commitment tier promised to the customer, independent of cargo type
+// (ShipmentServiceType) — a HAZARDOUS shipment can still be SAME_DAY.
+// Drives sla_performance.service_tier_breakdown in the monthly report.
+enum ServiceTier {
+  SAME_DAY
+  NEXT_DAY
+  STANDARD_48H
+}
+
 enum IssueStatus {
   OPEN
   IN_PROGRESS
@@ -1069,6 +1140,16 @@ enum IssueType {
   DAMAGE
   OTHER
   TRAILER
+}
+
+// Insurance/carrier claim lifecycle for a DAMAGE issue. NONE is the default
+// for every non-damage issue and for a damage issue no claim was ever filed
+// for — distinct from FILED (submitted, outcome pending).
+enum ClaimStatus {
+  NONE
+  FILED
+  APPROVED
+  REJECTED
 }
 
 enum MaintenanceStatus {

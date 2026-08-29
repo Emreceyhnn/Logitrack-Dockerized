@@ -127,6 +127,13 @@ export const getVehicleById = authenticatedAction(
           originalCost:
             record.originalCost === null ? null : Number(record.originalCost),
         })),
+        issues: foundVehicle.issues.map((issue) => ({
+          ...issue,
+          claimFiledAmount:
+            issue.claimFiledAmount === null ? null : Number(issue.claimFiledAmount),
+          claimRecoveredAmount:
+            issue.claimRecoveredAmount === null ? null : Number(issue.claimRecoveredAmount),
+        })),
         fuelLogs: foundVehicle.fuelLogs.map((log) => ({
           ...log,
           cost: Number(log.cost),

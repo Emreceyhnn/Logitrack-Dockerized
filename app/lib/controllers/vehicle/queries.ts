@@ -107,6 +107,13 @@ export const getVehicles = authenticatedAction(
           originalCost:
             record.originalCost === null ? null : Number(record.originalCost),
         })),
+        issues: vehicle.issues.map((issue) => ({
+          ...issue,
+          claimFiledAmount:
+            issue.claimFiledAmount === null ? null : Number(issue.claimFiledAmount),
+          claimRecoveredAmount:
+            issue.claimRecoveredAmount === null ? null : Number(issue.claimRecoveredAmount),
+        })),
         routes: vehicle.routes.map((route) => ({
           ...route,
           stops: route.stops.map((stop) => ({

@@ -14,6 +14,10 @@ import {
   isDeliveryFailureReasonCode,
   type DeliveryFailureReasonCode,
 } from "@/app/lib/type/deliveryFailureReasons";
+import {
+  isReturnReasonCode,
+  type ReturnReasonCode,
+} from "@/app/lib/type/returnReasons";
 
 /**
  * tr-belirtilen sevkiyata bir sürücü atar ve durumunu günceller
@@ -220,7 +224,10 @@ export const updateShipmentStatus = authenticatedAction(
     status: ShipmentStatus,
     location?: string,
     description?: string,
-    reasonCode?: DeliveryFailureReasonCode
+    reasonCode?: DeliveryFailureReasonCode,
+    isPartial?: boolean,
+    hasDocumentIssue?: boolean,
+    returnReasonCode?: ReturnReasonCode
   ) => {
     const userId = user?.id;
     const companyId = user?.companyId;
@@ -237,6 +244,8 @@ export const updateShipmentStatus = authenticatedAction(
           driverId: true,
           customerId: true,
           slaDeadline: true,
+          routeId: true,
+          serviceTier: true,
         },
       });
 
@@ -256,6 +265,11 @@ export const updateShipmentStatus = authenticatedAction(
       if (status === ShipmentStatus.FAILED && !isDeliveryFailureReasonCode(reasonCode)) {
         throw new Error(
           "A failure reason code is required when marking a shipment as FAILED"
+        );
+      }
+      if (status === ShipmentStatus.RETURNED && !isReturnReasonCode(returnReasonCode)) {
+        throw new Error(
+          "A return reason code is required when marking a shipment as RETURNED"
         );
       }
 
@@ -286,6 +300,7 @@ export const updateShipmentStatus = authenticatedAction(
             warehouseId: existingShipment.originWarehouseId,
             driverId: existingShipment.driverId,
             customerId: existingShipment.customerId,
+            routeId: existingShipment.routeId,
             sourceEventId: `shipment-dispatched-${shipmentId}`,
           });
         } else if (status === ShipmentStatus.DELIVERED) {
@@ -299,6 +314,7 @@ export const updateShipmentStatus = authenticatedAction(
             warehouseId: existingShipment.originWarehouseId,
             driverId: existingShipment.driverId,
             customerId: existingShipment.customerId,
+            routeId: existingShipment.routeId,
             durationSec: Math.max(
               0,
               Math.floor(
@@ -306,6 +322,9 @@ export const updateShipmentStatus = authenticatedAction(
               )
             ),
             slaDeadline: existingShipment.slaDeadline,
+            isPartial: isPartial ?? false,
+            hasDocumentIssue: hasDocumentIssue ?? false,
+            serviceTier: existingShipment.serviceTier,
             sourceEventId: `order-delivered-${shipmentId}`,
           });
         } else if (status === ShipmentStatus.FAILED) {
@@ -318,7 +337,9 @@ export const updateShipmentStatus = authenticatedAction(
             warehouseId: existingShipment.originWarehouseId,
             driverId: existingShipment.driverId,
             customerId: existingShipment.customerId,
+            routeId: existingShipment.routeId,
             reasonCode: reasonCode ?? null,
+            serviceTier: existingShipment.serviceTier,
             payload: description ? { reason: description } : null,
             // A failed attempt is not "on time" or "late" against the SLA —
             // it never delivered, so isOnTime is left null rather than false;
@@ -335,6 +356,8 @@ export const updateShipmentStatus = authenticatedAction(
             warehouseId: existingShipment.originWarehouseId,
             driverId: existingShipment.driverId,
             customerId: existingShipment.customerId,
+            routeId: existingShipment.routeId,
+            reasonCode: returnReasonCode ?? null,
             payload: description ? { reason: description } : null,
             sourceEventId: `order-returned-${shipmentId}`,
           });

@@ -218,6 +218,42 @@ const BasicInfoSection = () => {
             </Stack>
           </Grid>
 
+          <Grid size={{ xs: 12, md: 3 }} data-field="serviceTier">
+            <Stack spacing={1}>
+              <Typography
+                variant="caption"
+                color="text.secondary"
+                fontWeight={600}
+              >
+                {dict.shipments.dialogs.fields.serviceTier}
+              </Typography>
+              <CustomTextArea
+                name="serviceTier"
+                select
+                value={values.serviceTier || ""}
+                onChange={(e) =>
+                  setFieldValue("serviceTier", e.target.value || null)
+                }
+                onBlur={handleBlur}
+              >
+                <MenuItem value="">
+                  <Typography variant="body2" color="text.secondary">
+                    {dict.common.none || "None"}
+                  </Typography>
+                </MenuItem>
+                <MenuItem value="SAME_DAY">
+                  {dict.shipments.dialogs.serviceTiers.SAME_DAY}
+                </MenuItem>
+                <MenuItem value="NEXT_DAY">
+                  {dict.shipments.dialogs.serviceTiers.NEXT_DAY}
+                </MenuItem>
+                <MenuItem value="STANDARD_48H">
+                  {dict.shipments.dialogs.serviceTiers.STANDARD_48H}
+                </MenuItem>
+              </CustomTextArea>
+            </Stack>
+          </Grid>
+
           <Grid size={{ xs: 12, md: 3 }} data-field="slaDeadline">
             <Stack spacing={1}>
               <Typography

@@ -51,6 +51,7 @@ export const updateDriverStatus = authenticatedAction(
         ON_JOB: { label: "Görevde", type: "INFO", emoji: "🚛" },
         OFF_DUTY: { label: "Mesai Dışı / İstirahat", type: "WARNING", emoji: "😴" },
         ON_LEAVE: { label: "İzinli", type: "INFO", emoji: "🏖️" },
+        SICK_LEAVE: { label: "Hastalık İzni", type: "WARNING", emoji: "🤒" },
       };
 
       const statusInfo = statusMap[status] || { label: status, type: "INFO", emoji: "ℹ️" };

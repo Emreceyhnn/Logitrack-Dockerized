@@ -42,6 +42,7 @@ export const VehicleStatus = {
   ON_TRIP: "ON_TRIP",
   MAINTENANCE: "MAINTENANCE",
   OUT_OF_ORDER: "OUT_OF_ORDER",
+  BREAKDOWN: "BREAKDOWN",
 } as const;
 export type VehicleStatus = typeof VehicleStatus[keyof typeof VehicleStatus];
 
@@ -49,6 +50,7 @@ export const DriverStatus = {
   ON_JOB: "ON_JOB",
   OFF_DUTY: "OFF_DUTY",
   ON_LEAVE: "ON_LEAVE",
+  SICK_LEAVE: "SICK_LEAVE",
 } as const;
 export type DriverStatus = typeof DriverStatus[keyof typeof DriverStatus];
 
@@ -101,6 +103,29 @@ export const ShipmentServiceType = {
   HAZARDOUS: "HAZARDOUS",
 } as const;
 export type ShipmentServiceType = typeof ShipmentServiceType[keyof typeof ShipmentServiceType];
+
+export const ServiceTier = {
+  SAME_DAY: "SAME_DAY",
+  NEXT_DAY: "NEXT_DAY",
+  STANDARD_48H: "STANDARD_48H",
+} as const;
+export type ServiceTier = typeof ServiceTier[keyof typeof ServiceTier];
+
+export const ClaimStatus = {
+  NONE: "NONE",
+  FILED: "FILED",
+  APPROVED: "APPROVED",
+  REJECTED: "REJECTED",
+} as const;
+export type ClaimStatus = typeof ClaimStatus[keyof typeof ClaimStatus];
+
+export const OperatingExpenseCategory = {
+  LABOR: "LABOR",
+  WAREHOUSE_RENT: "WAREHOUSE_RENT",
+  PACKAGING: "PACKAGING",
+  OTHER: "OTHER",
+} as const;
+export type OperatingExpenseCategory = typeof OperatingExpenseCategory[keyof typeof OperatingExpenseCategory];
 
 export const MaintenanceType = {
   ROUTINE_MAINTENANCE: "ROUTINE_MAINTENANCE",
