@@ -420,6 +420,10 @@ export default function ContactClient({
                 setExistingAccount(Boolean(result.existingAccount));
                 resetForm();
                 setSubmitted(true);
+              } else if (result.error === "ALREADY_HAS_COMPANY") {
+                toast.error(cDict.errorAlreadyHasCompany || cDict.error);
+              } else if (result.error === "DEMO_ALREADY_REQUESTED") {
+                toast.error(cDict.errorAlreadyRequested || cDict.error);
               } else {
                 toast.error(cDict.error);
               }

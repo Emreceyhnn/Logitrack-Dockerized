@@ -178,17 +178,32 @@ export function useWarehouseWorkerMutations() {
   });
 
   const advanceTaskMutation = useMutation({
-    mutationFn: ({ taskId, delta }: { taskId: string; delta?: number | undefined }) =>
-      advanceWarehouseTask(taskId, delta),
-    onMutate: async ({ taskId, delta }) => {
+    mutationFn: ({
+      taskId,
+      itemId,
+      delta,
+    }: {
+      taskId: string;
+      itemId: string;
+      delta?: number | undefined;
+    }) => advanceWarehouseTask(taskId, itemId, delta),
+    onMutate: async ({ taskId, itemId, delta }) => {
       await queryClient.cancelQueries({ queryKey: warehouseWorkerKeys.all });
       const previous = patchCachedDashboards(queryClient, (data) => ({
         ...data,
         tasks: data.tasks.map((task) => {
           if (task.id !== taskId) return task;
-          const step = delta && delta > 0 ? delta : Math.max(1, Math.ceil(task.total / 5));
-          const nextDone = Math.min(task.total, task.done + step);
-          return { ...task, done: nextDone, complete: nextDone >= task.total };
+          const items = task.items.map((item) => {
+            if (item.id !== itemId) return item;
+            const step = delta && delta > 0 ? delta : Math.max(1, Math.ceil(item.total / 5));
+            const nextDone = Math.min(item.total, item.done + step);
+            return { ...item, done: nextDone };
+          });
+          return {
+            ...task,
+            items,
+            complete: items.every((i) => i.done >= i.total),
+          };
         }),
       }));
       return { previous };

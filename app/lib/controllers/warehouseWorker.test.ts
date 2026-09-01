@@ -7,9 +7,10 @@ import { rejects } from "node:assert";
 
 type MockedTx = {
   inventoryMovement: { create: ReturnType<typeof mock.fn> };
-  inventory: { update: ReturnType<typeof mock.fn> };
+  inventory: { update: ReturnType<typeof mock.fn>; findFirst: ReturnType<typeof mock.fn> };
   issue: { create: ReturnType<typeof mock.fn> };
   warehouseTask: { update: ReturnType<typeof mock.fn> };
+  warehouseTaskItem: { update: ReturnType<typeof mock.fn> };
   $executeRaw: ReturnType<typeof mock.fn>;
 };
 
@@ -21,7 +22,7 @@ const txMock: MockedTx = {
       ...args.data,
     })),
   },
-  inventory: { update: mock.fn() },
+  inventory: { update: mock.fn(), findFirst: mock.fn(async () => null) },
   issue: {
     create: mock.fn(async (args: { data: Record<string, unknown> }) => ({
       id: "issue-1",
@@ -30,6 +31,7 @@ const txMock: MockedTx = {
     })),
   },
   warehouseTask: { update: mock.fn() },
+  warehouseTaskItem: { update: mock.fn() },
   $executeRaw: mock.fn(async () => 1),
 };
 
@@ -107,8 +109,11 @@ describe("WarehouseWorker Controller", () => {
     dbMock.issue.create.mock.resetCalls();
     txMock.inventoryMovement.create.mock.resetCalls();
     txMock.inventory.update.mock.resetCalls();
+    txMock.inventory.findFirst.mock.resetCalls();
     txMock.issue.create.mock.resetCalls();
     txMock.warehouseTask.update.mock.resetCalls();
+    txMock.warehouseTaskItem.update.mock.resetCalls();
+    txMock.$executeRaw.mock.resetCalls();
     checkPermissionMock.checkPermission.mock.resetCalls();
     nextCacheMock.revalidatePath.mock.resetCalls();
     notifyRestockMock.notifyManagerOfRestockRequest.mock.resetCalls();
@@ -320,36 +325,49 @@ describe("WarehouseWorker Controller", () => {
         async () => null
       );
       await rejects(
-        controller.advanceWarehouseTask(user, "t-1"),
+        controller.advanceWarehouseTask(user, "t-1", "item-1"),
         /Task not found or unauthorized/
       );
     });
 
-    it("tamamlanmış görevi tekrar ilerletmez", async () => {
+    it("var olmayan item için hata fırlatır", async () => {
+      dbMock.warehouseTask.findFirst.mock.mockImplementationOnce(async () => ({
+        id: "t-1",
+        companyId: "company-1",
+        status: WarehouseTaskStatus.OPEN,
+        items: [{ id: "item-1", sku: "SKU-1", zone: "A", doneUnits: 0, totalUnits: 10 }],
+      }));
+      await rejects(
+        controller.advanceWarehouseTask(user, "t-1", "item-99"),
+        /Task item not found/
+      );
+    });
+
+    it("tamamlanmış item'ı tekrar ilerletmez", async () => {
       dbMock.warehouseTask.findFirst.mock.mockImplementationOnce(
         async () => ({
           id: "t-1",
           companyId: "company-1",
           status: WarehouseTaskStatus.COMPLETED,
-          doneUnits: 10,
-          totalUnits: 10,
+          items: [{ id: "item-1", sku: "SKU-1", zone: "A", doneUnits: 10, totalUnits: 10 }],
         })
       );
 
-      const res = await controller.advanceWarehouseTask(user, "t-1");
-      expect(res).toEqual({ success: true, done: 10, complete: true });
+      const res = await controller.advanceWarehouseTask(user, "t-1", "item-1");
+      expect(res).toEqual({ success: true, done: 10, complete: true, taskComplete: true });
       expect(dbMock.warehouseTask.update.mock.calls.length).toBe(0);
     });
 
-    it("görevi ilerletir ve hedefe ulaşınca COMPLETED yapar", async () => {
+    it("item'ı ilerletir ve hedefe ulaşınca task'ı COMPLETED yapar (tek item)", async () => {
       dbMock.warehouseTask.findFirst.mock.mockImplementationOnce(
         async () => ({
           id: "t-1",
           companyId: "company-1",
           warehouseId: "wh-1",
+          kind: "PICK",
+          orderRef: "ORD-1",
           status: WarehouseTaskStatus.IN_PROGRESS,
-          doneUnits: 8,
-          totalUnits: 10,
+          items: [{ id: "item-1", sku: "SKU-1", zone: "A", doneUnits: 8, totalUnits: 10 }],
         })
       );
       // The task's warehouse is re-checked before any write.
@@ -357,11 +375,78 @@ describe("WarehouseWorker Controller", () => {
         id: "wh-1",
       }));
 
-      const res = await controller.advanceWarehouseTask(user, "t-1", 5);
-      expect(res).toEqual({ success: true, done: 10, complete: true });
-      const updateArg = txMock.warehouseTask.update.mock.calls[0].arguments[0];
-      expect(updateArg.data.status).toBe("COMPLETED");
-      expect(updateArg.data.doneUnits).toBe(10);
+      const res = await controller.advanceWarehouseTask(user, "t-1", "item-1", 5);
+      expect(res).toEqual({ success: true, done: 10, complete: true, taskComplete: true });
+
+      const itemUpdateArg = txMock.warehouseTaskItem.update.mock.calls[0].arguments[0];
+      expect(itemUpdateArg.data.doneUnits).toBe(10);
+
+      const taskUpdateArg = txMock.warehouseTask.update.mock.calls[0].arguments[0];
+      expect(taskUpdateArg.data.status).toBe("COMPLETED");
+
+      // Movement is written against the completed item's own sku/zone.
+      const movementArg = txMock.inventoryMovement.create.mock.calls[0].arguments[0];
+      expect(movementArg.data.sku).toBe("SKU-1");
+      expect(movementArg.data.quantity).toBe(-2);
+
+      // Task fully complete -> exactly one report event is written.
+      expect(txMock.$executeRaw.mock.calls.length).toBe(1);
+    });
+
+    it("bir item tamamlanır ama diğer item açıkken task IN_PROGRESS kalır", async () => {
+      dbMock.warehouseTask.findFirst.mock.mockImplementationOnce(
+        async () => ({
+          id: "t-1",
+          companyId: "company-1",
+          warehouseId: "wh-1",
+          kind: "PICK",
+          orderRef: "ORD-1",
+          status: WarehouseTaskStatus.OPEN,
+          items: [
+            { id: "item-1", sku: "SKU-1", zone: "A", doneUnits: 0, totalUnits: 5 },
+            { id: "item-2", sku: "SKU-2", zone: "B", doneUnits: 0, totalUnits: 8 },
+          ],
+        })
+      );
+      dbMock.warehouse.findFirst.mock.mockImplementationOnce(async () => ({
+        id: "wh-1",
+      }));
+
+      const res = await controller.advanceWarehouseTask(user, "t-1", "item-1", 5);
+      expect(res).toEqual({ success: true, done: 5, complete: true, taskComplete: false });
+
+      const taskUpdateArg = txMock.warehouseTask.update.mock.calls[0].arguments[0];
+      expect(taskUpdateArg.data.status).toBe("IN_PROGRESS");
+
+      // Task not fully complete -> no report event written.
+      expect(txMock.$executeRaw.mock.calls.length).toBe(0);
+    });
+
+    it("son item de tamamlanınca task COMPLETED olur ve tek rapor event'i yazılır", async () => {
+      dbMock.warehouseTask.findFirst.mock.mockImplementationOnce(
+        async () => ({
+          id: "t-1",
+          companyId: "company-1",
+          warehouseId: "wh-1",
+          kind: "PICK",
+          orderRef: "ORD-1",
+          status: WarehouseTaskStatus.IN_PROGRESS,
+          items: [
+            { id: "item-1", sku: "SKU-1", zone: "A", doneUnits: 5, totalUnits: 5 },
+            { id: "item-2", sku: "SKU-2", zone: "B", doneUnits: 0, totalUnits: 8 },
+          ],
+        })
+      );
+      dbMock.warehouse.findFirst.mock.mockImplementationOnce(async () => ({
+        id: "wh-1",
+      }));
+
+      const res = await controller.advanceWarehouseTask(user, "t-1", "item-2", 8);
+      expect(res).toEqual({ success: true, done: 8, complete: true, taskComplete: true });
+
+      const taskUpdateArg = txMock.warehouseTask.update.mock.calls[0].arguments[0];
+      expect(taskUpdateArg.data.status).toBe("COMPLETED");
+      expect(txMock.$executeRaw.mock.calls.length).toBe(1);
     });
   });
 

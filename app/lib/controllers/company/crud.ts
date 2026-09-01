@@ -197,6 +197,9 @@ export const deleteCompany = authenticatedAction(async (user) => {
       await tx.route.deleteMany({ where });
       await tx.inventoryMovement.deleteMany({ where });
       await tx.inventory.deleteMany({ where });
+      // WarehouseTaskItem rows cascade-delete with their parent task
+      // (onDelete: Cascade), but WarehouseTaskItem.companyId -> Company is
+      // Restrict, so this deleteMany must run before tx.company.delete below.
       await tx.warehouseTask.deleteMany({ where });
       await tx.warehouseZone.deleteMany({ where });
       await tx.customerLocation.deleteMany({ where });

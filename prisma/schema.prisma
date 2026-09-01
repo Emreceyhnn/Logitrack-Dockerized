@@ -38,6 +38,7 @@ model Company {
   warehouses         Warehouse[]
   warehouseZones     WarehouseZone[]
   warehouseTasks     WarehouseTask[]
+  warehouseTaskItems WarehouseTaskItem[]
   invitations        Invitation[]
   joinRequests       JoinRequest[]
 
@@ -356,11 +357,7 @@ model WarehouseTask {
   companyId    String
   kind         WarehouseTaskKind
   name         String
-  sku          String?
   orderRef     String
-  zone         String
-  doneUnits    Int                   @default(0)
-  totalUnits   Int
   priority     WarehouseTaskPriority @default(MEDIUM)
   status       WarehouseTaskStatus   @default(OPEN)
   assignedToId String?
@@ -369,11 +366,30 @@ model WarehouseTask {
   assignedTo   User?                 @relation(fields: [assignedToId], references: [id], onDelete: Restrict)
   company      Company               @relation(fields: [companyId], references: [id], onDelete: Restrict)
   warehouse    Warehouse             @relation(fields: [warehouseId], references: [id], onDelete: Cascade)
+  items        WarehouseTaskItem[]
 
   @@index([warehouseId, status])
   @@index([companyId, status])
   @@index([assignedToId, status])
   @@map("warehouse_tasks")
+}
+
+model WarehouseTaskItem {
+  id         String        @id @default(cuid())
+  taskId     String
+  companyId  String
+  sku        String
+  zone       String
+  doneUnits  Int           @default(0)
+  totalUnits Int
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+  task       WarehouseTask @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  company    Company       @relation(fields: [companyId], references: [id], onDelete: Restrict)
+
+  @@index([taskId])
+  @@index([companyId])
+  @@map("warehouse_task_items")
 }
 
 model Customer {
@@ -428,6 +444,7 @@ model Inventory {
   quantity          Int
   allocatedQuantity Int       @default(0)
   minStock          Int       @default(0)
+  reorderPoint      Int?
   imageUrl          String?
   unitValue         Decimal?  @default(0) @db.Decimal(12, 2)
   currency          String

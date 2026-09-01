@@ -628,6 +628,8 @@
       },
       "success": "Talebiniz alındı. En kısa sürede sizinle iletişime geçeceğiz.",
       "error": "Talep gönderilemedi. Lütfen tekrar deneyin.",
+      "errorAlreadyHasCompany": "Hesabınız zaten bir şirkete bağlı olduğu için demo talebi oluşturamazsınız.",
+      "errorAlreadyRequested": "Bu e-posta ile daha önce demo talebi oluşturulmuş.",
       "successCard": {
         "title": "Talebiniz alındı 🎉",
         "timeframe": "Ekip arkadaşlarımız genellikle 1 iş günü içinde yanıt verir.",

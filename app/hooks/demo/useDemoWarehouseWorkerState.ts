@@ -84,9 +84,9 @@ export function useDemoWarehouseWorkerState(
       kind: t.kind,
       name: t.name,
       order: t.orderRef,
-      zone: t.zone,
-      done: t.done,
-      total: t.total,
+      items: t.items,
+      done: t.items.reduce((s, i) => s + i.done, 0),
+      total: t.items.reduce((s, i) => s + i.total, 0),
       priority: prioFromServer(t.priority),
     }))
   );
@@ -227,8 +227,9 @@ export function useDemoWarehouseWorkerState(
     notifyDisabled();
   };
 
-  const advanceTask = async (_id: string, _delta?: number) => {
+  const advanceTask = async (_id: string, _itemId: string, _delta?: number) => {
     void _id;
+    void _itemId;
     void _delta;
     notifyDisabled();
   };

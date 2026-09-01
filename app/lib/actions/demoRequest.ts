@@ -77,12 +77,28 @@ export async function submitDemoRequest(
     // immediately to their account, re-mint the session cookies if signed in,
     // and record the demo request as APPROVED.
     if (type === "DEMO") {
+      // One demo request per email, ever — prevents repeat submissions from
+      // the same person (signed in or not).
+      const previousRequest = await db.demoRequest.findFirst({
+        where: { email, type: "DEMO" },
+        select: { id: true },
+      });
+      if (previousRequest) {
+        return { error: "DEMO_ALREADY_REQUESTED" };
+      }
+
       const session = await getUserSession().catch(() => null);
       if (session?.id) {
         const dbUser = await db.user.findUnique({
           where: { id: session.id },
-          select: { id: true, email: true },
+          select: { id: true, email: true, companyId: true },
         });
+        // A user who already belongs to a company has an active tenant — a
+        // demo request (trial access) makes no sense for them.
+        if (dbUser?.companyId) {
+          return { error: "ALREADY_HAS_COMPANY" };
+        }
+
         if (dbUser && (dbUser.email.toLowerCase() === email || !email)) {
           await db.demoRequest.create({
             data: {
@@ -104,8 +120,11 @@ export async function submitDemoRequest(
       // Check if an existing account exists for this email (e.g. user was logged out)
       const existingAccount = await db.user.findUnique({
         where: { email },
-        select: { id: true },
+        select: { id: true, companyId: true },
       });
+      if (existingAccount?.companyId) {
+        return { error: "ALREADY_HAS_COMPANY" };
+      }
       if (existingAccount) {
         await db.demoRequest.create({
           data: {

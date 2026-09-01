@@ -199,7 +199,15 @@ const SideBar = ({
       )}
       <Stack spacing={1} height={"100%"}>
         <Stack p={2} alignItems={"center"} justifyContent={"center"}>
-          <Stack direction="row" spacing={1.5} alignItems="center">
+          <Stack
+            direction="row"
+            spacing={1.5}
+            alignItems="center"
+            onClick={() =>
+              router.push(`${buildLocalizedHref("/", lang)}?landing=true`)
+            }
+            sx={{ cursor: "pointer" }}
+          >
             <Box
               sx={{
                 width: 36,

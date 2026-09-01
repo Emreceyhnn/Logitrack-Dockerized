@@ -628,6 +628,8 @@
       },
       "success": "Your request has been received. We'll be in touch shortly.",
       "error": "Could not send your request. Please try again.",
+      "errorAlreadyHasCompany": "Your account already belongs to a company, so a demo request isn't needed.",
+      "errorAlreadyRequested": "A demo has already been requested with this email.",
       "successCard": {
         "title": "Request received 🎉",
         "timeframe": "A team member typically replies within 1 business day.",

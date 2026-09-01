@@ -285,26 +285,40 @@ const TASK_KIND_TO_MOVEMENT_TYPE: Record<string, "PICK" | "PACK" | "PUTAWAY"> = 
 };
 
 /**
- * tr-bir depo görevinin (task) ilerlemesini kaydeder; tamamlanan birimler toplamı aşarsa görevi otomatik tamamlandı işaretler
- * en-advances the progress of a warehouse task; auto-completes it if done units reach the total
- * input (user: AuthenticatedUser, taskId: string, delta?: number)
- * output (Promise<{ success: boolean, done: number, complete: boolean }>)
+ * tr-bir depo görevindeki tek bir SKU kaleminin (item) ilerlemesini kaydeder;
+ * tüm kalemler tamamlanınca görevi otomatik tamamlandı işaretler
+ * en-advances the progress of a single item (sku) within a warehouse task;
+ * auto-completes the task once every item reaches its total
+ * input (user: AuthenticatedUser, taskId: string, itemId: string, delta?: number)
+ * output (Promise<{ success: boolean, done: number, complete: boolean, taskComplete: boolean }>)
  */
 export const advanceWarehouseTask = authenticatedAction(
-  async (user, taskId: string, delta?: number) => {
+  async (user, taskId: string, itemId: string, delta?: number) => {
     const companyId = user?.companyId || "";
     const userId = user?.id || "";
     return controllerGuard("advanceWarehouseTask", async () => {
       await checkPermission(user, companyId, WW_WRITE_ROLES);
 
-      const task = await db.warehouseTask.findFirst({ where: { id: taskId, companyId } });
+      const task = await db.warehouseTask.findFirst({
+        where: { id: taskId, companyId },
+        include: { items: true },
+      });
       if (!task)
         throw new Error("Task not found or unauthorized");
 
-      // Already-finished tasks write nothing, so answer before spending the
+      const item = task.items.find((i) => i.id === itemId);
+      if (!item)
+        throw new Error("Task item not found");
+
+      // Already-finished items write nothing, so answer before spending the
       // scope check on them.
-      if (task.status === "COMPLETED" || task.doneUnits >= task.totalUnits) {
-        return { success: true, done: task.totalUnits, complete: true };
+      if (item.doneUnits >= item.totalUnits) {
+        return {
+          success: true,
+          done: item.totalUnits,
+          complete: true,
+          taskComplete: task.status === "COMPLETED",
+        };
       }
 
       // A locked operator must not advance work belonging to another site.
@@ -316,25 +330,40 @@ export const advanceWarehouseTask = authenticatedAction(
       );
 
       const step =
-        delta && delta > 0 ? delta : Math.max(1, Math.ceil(task.totalUnits / 5));
-      const nextDone = Math.min(task.totalUnits, task.doneUnits + step);
-      const complete = nextDone >= task.totalUnits;
-      const advancedUnits = nextDone - task.doneUnits;
+        delta && delta > 0 ? delta : Math.max(1, Math.ceil(item.totalUnits / 5));
+      const nextDone = Math.min(item.totalUnits, item.doneUnits + step);
+      const itemComplete = nextDone >= item.totalUnits;
+      const advancedUnits = nextDone - item.doneUnits;
+
+      // Task status is derived from all its items' progress, computed against
+      // this item's post-update state (no extra query needed — task.items is
+      // already in hand).
+      const allItemsComplete = task.items.every((i) =>
+        i.id === itemId ? itemComplete : i.doneUnits >= i.totalUnits
+      );
+      const anyProgress = task.items.some((i) =>
+        i.id === itemId ? nextDone > 0 : i.doneUnits > 0
+      );
+      const nextTaskStatus = allItemsComplete
+        ? "COMPLETED"
+        : anyProgress
+          ? "IN_PROGRESS"
+          : "OPEN";
 
       await db.$transaction(async (tx) => {
-        await tx.warehouseTask.update({
-          where: { id: taskId },
-          data: {
-            doneUnits: nextDone,
-            status: complete ? "COMPLETED" : "IN_PROGRESS",
-          },
+        await tx.warehouseTaskItem.update({
+          where: { id: itemId },
+          data: { doneUnits: nextDone },
         });
 
-        // Older tasks created before this column existed carry no sku — the
-        // progress still records, it just can't move inventory or feed the
-        // Pick/Pack KPIs (which is the same degraded state they were already
-        // in before this fix).
-        if (!task.sku || advancedUnits <= 0) return;
+        if (nextTaskStatus !== task.status) {
+          await tx.warehouseTask.update({
+            where: { id: taskId },
+            data: { status: nextTaskStatus },
+          });
+        }
+
+        if (advancedUnits <= 0) return;
 
         const movementType = TASK_KIND_TO_MOVEMENT_TYPE[task.kind];
         if (!movementType) return;
@@ -342,10 +371,10 @@ export const advanceWarehouseTask = authenticatedAction(
         await tx.inventoryMovement.create({
           data: {
             warehouseId: task.warehouseId,
-            sku: task.sku,
+            sku: item.sku,
             quantity: movementType === "PICK" ? -advancedUnits : advancedUnits,
             type: movementType,
-            zone: task.zone,
+            zone: item.zone,
             notes: task.name,
             userId,
             companyId,
@@ -355,7 +384,7 @@ export const advanceWarehouseTask = authenticatedAction(
 
         if (movementType === "PICK") {
           const inventoryNode = await tx.inventory.findFirst({
-            where: { warehouseId: task.warehouseId, sku: task.sku, companyId },
+            where: { warehouseId: task.warehouseId, sku: item.sku, companyId },
           });
           if (inventoryNode) {
             await tx.inventory.update({
@@ -370,7 +399,7 @@ export const advanceWarehouseTask = authenticatedAction(
           }
         } else if (movementType === "PUTAWAY") {
           const inventoryNode = await tx.inventory.findFirst({
-            where: { warehouseId: task.warehouseId, sku: task.sku, companyId },
+            where: { warehouseId: task.warehouseId, sku: item.sku, companyId },
           });
           if (inventoryNode) {
             await tx.inventory.update({
@@ -380,13 +409,16 @@ export const advanceWarehouseTask = authenticatedAction(
           }
         }
 
-        if (complete) {
+        if (allItemsComplete) {
           const eventType =
             task.kind === "PICK"
               ? "PICK_COMPLETED"
               : task.kind === "PACK"
                 ? "PACK_COMPLETED"
                 : "PUTAWAY_COMPLETED";
+          const finalItems = task.items.map((i) =>
+            i.id === itemId ? { ...i, doneUnits: nextDone } : i
+          );
           await logReportEvent(tx, {
             eventType,
             occurredAt: new Date(),
@@ -394,16 +426,19 @@ export const advanceWarehouseTask = authenticatedAction(
             subjectType: "WAREHOUSE_TASK",
             subjectId: taskId,
             warehouseId: task.warehouseId,
-            zoneId: task.zone,
-            quantity: task.totalUnits,
-            payload: { sku: task.sku, orderRef: task.orderRef },
+            zoneId: finalItems[0]?.zone ?? null,
+            quantity: finalItems.reduce((sum, i) => sum + i.totalUnits, 0),
+            payload: {
+              items: finalItems.map((i) => ({ sku: i.sku, totalUnits: i.totalUnits })),
+              orderRef: task.orderRef,
+            },
             sourceEventId: `task-completed-${taskId}`,
             actorUserId: userId,
           });
         }
       });
 
-      return { success: true, done: nextDone, complete };
+      return { success: true, done: nextDone, complete: itemComplete, taskComplete: allItemsComplete };
     });
   }
 );

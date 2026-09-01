@@ -14,13 +14,23 @@ export interface WarehouseOption {
   code: string;
 }
 
+export interface TaskItem {
+  id: string;
+  sku: string;
+  zone: string;
+  done: number;
+  total: number;
+}
 export interface Task {
   id: string;
   kind: TaskKind;
   name: string;
   order: string;
-  zone: string;
+  items: TaskItem[];
+  /** Sum of items[].done — kept as a top-level field because priority
+   *  sorting/next-task selection already key off it. */
   done: number;
+  /** Sum of items[].total. */
   total: number;
   priority: Priority;
 }

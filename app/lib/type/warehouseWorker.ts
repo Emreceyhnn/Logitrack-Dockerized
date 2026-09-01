@@ -24,14 +24,20 @@ export interface WWKpis {
   rate: number;
 }
 
+export interface WWTaskItem {
+  id: string;
+  sku: string;
+  zone: string;
+  done: number;
+  total: number;
+}
+
 export interface WWTask {
   id: string;
   kind: WarehouseTaskKind;
   name: string;
   orderRef: string;
-  zone: string;
-  done: number;
-  total: number;
+  items: WWTaskItem[];
   priority: WarehouseTaskPriority;
   complete: boolean;
 }

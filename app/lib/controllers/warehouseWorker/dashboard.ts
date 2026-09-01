@@ -119,6 +119,7 @@ export const getWarehouseWorkerDashboard = authenticatedAction(
         }),
         db.warehouseTask.findMany({
           where: { warehouseId: warehouse.id, companyId },
+          include: { items: true },
           orderBy: [
             { status: "asc" },
             { priority: "desc" },
@@ -215,11 +216,15 @@ export const getWarehouseWorkerDashboard = authenticatedAction(
       kind: t.kind,
       name: t.name,
       orderRef: t.orderRef,
-      zone: t.zone,
-      done: t.doneUnits,
-      total: t.totalUnits,
+      items: t.items.map((i) => ({
+        id: i.id,
+        sku: i.sku,
+        zone: i.zone,
+        done: i.doneUnits,
+        total: i.totalUnits,
+      })),
       priority: t.priority,
-      complete: t.status === "COMPLETED" || t.doneUnits >= t.totalUnits,
+      complete: t.status === "COMPLETED",
     }));
 
     /* Build a sku→name map for feed enrichment */

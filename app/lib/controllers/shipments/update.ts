@@ -16,6 +16,7 @@ import type { ShipmentStopInput } from "./types";
 import { toBaseUnitQuantity } from "./types";
 import { logger } from "@/app/lib/logger";
 import { NotFoundError } from "../../errors";
+import { createPickTaskForAllocations } from "./warehouseTask";
 
 
 /**
@@ -306,6 +307,7 @@ export const updateShipment = authenticatedAction(
             // 5. Decrement new inventory if applicable
             const newWarehouseId = updated.originWarehouseId;
             if (newWarehouseId) {
+              const allocations: Array<{ name: string; sku: string; zone: string; totalUnits: number }> = [];
               for (const item of items) {
                 const invItem = await tx.inventory.findFirst({
                   where: {
@@ -338,20 +340,21 @@ export const updateShipment = authenticatedAction(
                     },
                   });
 
-                  await tx.warehouseTask.create({
-                    data: {
-                      warehouseId: newWarehouseId,
-                      companyId: companyId!,
-                      kind: "PICK",
-                      name: item.name,
-                      sku: item.sku,
-                      orderRef: updated.trackingId,
-                      zone: invItem.zone || "UNASSIGNED",
-                      totalUnits: baseUnitQuantity,
-                    },
+                  allocations.push({
+                    name: item.name,
+                    sku: item.sku,
+                    zone: invItem.zone || "UNASSIGNED",
+                    totalUnits: baseUnitQuantity,
                   });
                 }
               }
+
+              await createPickTaskForAllocations(tx, {
+                companyId: companyId!,
+                warehouseId: newWarehouseId,
+                orderRef: updated.trackingId,
+                allocations,
+              });
             }
 
             return updated;

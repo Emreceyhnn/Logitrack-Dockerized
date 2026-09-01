@@ -20,6 +20,7 @@ import { toBaseUnitQuantity } from "./types";
 import { createShipmentSchema } from "../../validation/serverSchemas";
 import { NotFoundError } from "../../errors";
 import { logReportEvent } from "@/app/lib/services/reportEvents";
+import { createPickTaskForAllocations } from "./warehouseTask";
 
 /**
  * tr-yeni bir sevkiyat oluşturur, rota kapasitelerini kontrol eder ve gerekirse depo stoğunu ayırır
@@ -312,17 +313,19 @@ export const createShipment = authenticatedAction(
           // Decrement inventory stock if it's from a warehouse
           const finalWarehouseId = shipment.originWarehouseId;
           if (finalWarehouseId && inventoryItems.length > 0) {
-            await Promise.all(
-              inventoryItems.map(async (item: InventoryShipmentItem) => {
-                const invItem = await tx.inventory.findFirst({
-                  where: {
-                    warehouseId: finalWarehouseId,
-                    sku: item.sku,
-                    companyId,
-                  },
-                });
+            const allocations = (
+              await Promise.all(
+                inventoryItems.map(async (item: InventoryShipmentItem) => {
+                  const invItem = await tx.inventory.findFirst({
+                    where: {
+                      warehouseId: finalWarehouseId,
+                      sku: item.sku,
+                      companyId,
+                    },
+                  });
 
-                if (invItem) {
+                  if (!invItem) return null;
+
                   const baseUnitQuantity = toBaseUnitQuantity(item);
 
                   await tx.inventory.update({
@@ -343,26 +346,22 @@ export const createShipment = authenticatedAction(
                     },
                   });
 
-                  // Allocating stock for a shipment is the trigger for a
-                  // warehouse worker to actually pick it — without this the
-                  // worker dashboard never reflects shipment activity, even
-                  // though stock was reserved. One task per line item so a
-                  // worker can pick/complete them independently.
-                  await tx.warehouseTask.create({
-                    data: {
-                      warehouseId: finalWarehouseId,
-                      companyId: companyId!,
-                      kind: "PICK",
-                      name: item.name,
-                      sku: item.sku,
-                      orderRef: shipment.trackingId,
-                      zone: invItem.zone || "UNASSIGNED",
-                      totalUnits: baseUnitQuantity,
-                    },
-                  });
-                }
-              })
-            );
+                  return {
+                    name: item.name,
+                    sku: item.sku,
+                    zone: invItem.zone || "UNASSIGNED",
+                    totalUnits: baseUnitQuantity,
+                  };
+                })
+              )
+            ).filter((a): a is NonNullable<typeof a> => a !== null);
+
+            await createPickTaskForAllocations(tx, {
+              companyId: companyId!,
+              warehouseId: finalWarehouseId,
+              orderRef: shipment.trackingId,
+              allocations,
+            });
           }
 
           await logReportEvent(tx, {

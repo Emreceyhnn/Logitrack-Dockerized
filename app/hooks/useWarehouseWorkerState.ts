@@ -64,9 +64,9 @@ export function useWarehouseWorkerState(selectedWarehouseId: string | undefined)
       kind: t.kind,
       name: t.name,
       order: t.orderRef,
-      zone: t.zone,
-      done: t.done,
-      total: t.total,
+      items: t.items,
+      done: t.items.reduce((s, i) => s + i.done, 0),
+      total: t.items.reduce((s, i) => s + i.total, 0),
       priority: prioFromServer(t.priority),
     }))
   );
@@ -226,14 +226,15 @@ export function useWarehouseWorkerState(selectedWarehouseId: string | undefined)
   // the Next-task card's single-tap "Start" still works. Never blocks on it —
   // the counter is a best-effort nudge, not a hard gate, since a worker may
   // legitimately batch several scans before committing progress.
-  const advanceTask = async (id: string, delta?: number) => {
+  const advanceTask = async (id: string, itemId: string, delta?: number) => {
     if (!canWrite) return showToast(ww.readOnlyRole, "warning");
-    const willComplete = tasks.some(
-      (t) => t.id === id && delta && t.done + delta >= t.total
+    const willComplete = tasks.some((t) =>
+      t.id === id &&
+      t.items.some((i) => i.id === itemId && delta && i.done + delta >= i.total)
     );
     try {
-      const res = await advanceTaskMutation.mutateAsync({ taskId: id, delta });
-      if (res.complete) {
+      const res = await advanceTaskMutation.mutateAsync({ taskId: id, itemId, delta });
+      if (res.taskComplete) {
         showToast(
           scanActivityCount > 0 ? ww.taskComplete : ww.ui.taskCompleteNoScan,
           scanActivityCount > 0 ? "success" : "warning"

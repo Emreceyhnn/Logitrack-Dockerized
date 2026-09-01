@@ -19,7 +19,7 @@ import { I } from "@/app/lib/utils/warehouseWorkerUi";
 interface WWNextTaskCardProps {
   /** Highest-priority open task, or null when the queue is clear. */
   nextTask: Task | null;
-  advanceTask: (id: string) => void;
+  advanceTask: (id: string, itemId: string, delta?: number) => void;
   ww: WarehouseWorkerDict;
 }
 
@@ -95,6 +95,8 @@ export default function WWNextTaskCard({
             label: ww.low,
           };
   const pct = Math.round((nextTask.done / nextTask.total) * 100);
+  const targetItem =
+    nextTask.items.find((i) => i.done < i.total) ?? nextTask.items[0];
 
   return (
     <Box
@@ -192,7 +194,8 @@ export default function WWNextTaskCard({
                 {pm.label}
               </Box>
               <Typography variant="caption" noWrap>
-                {nextTask.order} · {ww.ui.zone} {nextTask.zone} · {nextTask.done}
+                {nextTask.order}
+                {targetItem ? ` · ${ww.ui.zone} ${targetItem.zone} · ${targetItem.sku}` : ""} · {nextTask.done}
                 /{nextTask.total}
               </Typography>
             </Stack>
@@ -200,7 +203,8 @@ export default function WWNextTaskCard({
         </Stack>
 
         <Button
-          onClick={() => advanceTask(nextTask.id)}
+          onClick={() => targetItem && advanceTask(nextTask.id, targetItem.id)}
+          disabled={!targetItem}
           variant="contained"
           sx={{
             flexShrink: 0,

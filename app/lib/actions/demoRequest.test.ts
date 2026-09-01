@@ -10,7 +10,10 @@ import { expect } from "expect";
 // sure it doesn't fire for the cases it must not (signed out, unverified,
 // mismatched email).
 const dbMock = {
-  demoRequest: { create: mock.fn(async () => ({})) },
+  demoRequest: {
+    create: mock.fn(async () => ({})),
+    findFirst: mock.fn<() => Promise<unknown>>(),
+  },
   user: { findUnique: mock.fn<() => Promise<unknown>>() },
 };
 
@@ -69,6 +72,7 @@ describe("actions/demoRequest.ts", () => {
   beforeEach(() => {
     for (const m of [
       dbMock.demoRequest.create,
+      dbMock.demoRequest.findFirst,
       dbMock.user.findUnique,
       rateLimitMock,
       getUserSessionMock,
@@ -83,6 +87,7 @@ describe("actions/demoRequest.ts", () => {
     rateLimitMock.mock.mockImplementation(async () => ({ success: true }));
     getUserSessionMock.mock.mockImplementation(async () => null);
     dbMock.user.findUnique.mock.mockImplementation(async () => null);
+    dbMock.demoRequest.findFirst.mock.mockImplementation(async () => null);
   });
 
   const INPUT = { fullName: "Ada Lovelace", email: "ada@acme.com", type: "DEMO" as const };
@@ -169,5 +174,59 @@ describe("actions/demoRequest.ts", () => {
     expect(result.trialGranted).toBeUndefined();
     expect(grantTrialMock.mock.callCount()).toBe(0);
     expect(dbMock.user.findUnique.mock.callCount()).toBe(0);
+  });
+
+  it("rejects a DEMO request from a signed-in user who already belongs to a company", async () => {
+    getUserSessionMock.mock.mockImplementation(async () => ({ id: "u1" }));
+    dbMock.user.findUnique.mock.mockImplementation(async () => ({
+      id: "u1",
+      email: "ada@acme.com",
+      companyId: "company-1",
+    }));
+
+    const result = await submitDemoRequest(INPUT);
+
+    expect(result.error).toBe("ALREADY_HAS_COMPANY");
+    expect(dbMock.demoRequest.create.mock.callCount()).toBe(0);
+    expect(grantTrialMock.mock.callCount()).toBe(0);
+  });
+
+  it("rejects a DEMO request from a signed-out existing account that already belongs to a company", async () => {
+    getUserSessionMock.mock.mockImplementation(async () => null);
+    dbMock.user.findUnique.mock.mockImplementation(async () => ({
+      id: "u2",
+      email: "ada@acme.com",
+      companyId: "company-1",
+    }));
+
+    const result = await submitDemoRequest(INPUT);
+
+    expect(result.error).toBe("ALREADY_HAS_COMPANY");
+    expect(dbMock.demoRequest.create.mock.callCount()).toBe(0);
+    expect(grantTrialMock.mock.callCount()).toBe(0);
+  });
+
+  it("rejects a repeat DEMO request for an email that has already requested one", async () => {
+    dbMock.demoRequest.findFirst.mock.mockImplementation(async () => ({
+      id: "prev-request",
+    }));
+
+    const result = await submitDemoRequest(INPUT);
+
+    expect(result.error).toBe("DEMO_ALREADY_REQUESTED");
+    expect(dbMock.demoRequest.create.mock.callCount()).toBe(0);
+    expect(dbMock.user.findUnique.mock.callCount()).toBe(0);
+  });
+
+  it("allows a repeat CONTACT message even if a prior DEMO request exists for the email", async () => {
+    dbMock.demoRequest.findFirst.mock.mockImplementation(async () => ({
+      id: "prev-request",
+    }));
+
+    const result = await submitDemoRequest({ ...INPUT, type: "CONTACT" });
+
+    expect(result.success).toBe(true);
+    expect(result.error).toBeUndefined();
+    expect(dbMock.demoRequest.create.mock.callCount()).toBe(1);
   });
 });
