@@ -18,7 +18,7 @@ export async function POST(request: NextRequest) {
   // API URL comes from env; the destination is fixed server-side so the client
   // can never redirect this request elsewhere (no SSRF).
   const apiUrl =
-    process.env.NEXT_PUBLIC_VALHALLA_API_URL || "http://63.176.164.179:8080";
+    process.env.NEXT_PUBLIC_VALHALLA_API_URL || "http://localhost:8080";
   const url = `${apiUrl}/route`;
 
   try {
@@ -49,7 +49,10 @@ export async function POST(request: NextRequest) {
       typeof req.costing !== "string"
     ) {
       return NextResponse.json(
-        { error: "Invalid routing request: 'locations' (>=2) and 'costing' are required" },
+        {
+          error:
+            "Invalid routing request: 'locations' (>=2) and 'costing' are required",
+        },
         { status: 400 }
       );
     }

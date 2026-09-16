@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
   }
 
   const apiUrl =
-    process.env.NEXT_PUBLIC_VALHALLA_API_URL || "http://63.176.164.179:8080";
+    process.env.NEXT_PUBLIC_VALHALLA_API_URL || "http://localhost:8080";
   const url = `${apiUrl}/route`;
 
   try {
