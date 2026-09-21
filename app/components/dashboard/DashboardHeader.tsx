@@ -7,11 +7,10 @@ import { AuthenticatedUser } from "@/app/lib/auth-middleware";
 import DashboardBreadcrumbs from "./DashboardBreadcrumbs";
 import SideBar from "../sidebar";
 
-// NotificationBell drags the whole firebase SDK (~237 kB) with it via
-// useNotifications → lib/firebase. Lazy-loading it keeps firebase out of
-// every dashboard route's First Load JS; the bell mounts right after
-// hydration instead of blocking it. The 40px placeholder prevents layout
-// shift in the header while the chunk streams in.
+// useNotifications opens an EventSource, which doesn't exist during SSR —
+// ssr: false is required, not just an optimization. Lazy-loading also means
+// the bell mounts right after hydration instead of blocking it; the 40px
+// placeholder prevents layout shift in the header while the chunk streams in.
 const NotificationBell = dynamic(() => import("../notifications/NotificationBell"), {
   ssr: false,
   loading: () => <Box sx={{ width: 40, height: 40 }} />,

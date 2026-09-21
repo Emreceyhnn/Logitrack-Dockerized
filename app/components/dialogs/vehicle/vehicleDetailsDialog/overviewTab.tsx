@@ -18,9 +18,8 @@ import OilBarrelIcon from "@mui/icons-material/OilBarrel";
 import dynamic from "next/dynamic";
 import { Skeleton } from "@mui/material";
 
-// ./map statically imports useVehicleTracking → lib/firebase (~237 kB).
-// Lazy-loading the card keeps the firebase SDK out of the vehicle route's
-// First Load JS — it only downloads when this dialog tab actually renders.
+// Lazy-loaded to keep the map/Leaflet bundle out of this tab's initial render
+// — it only downloads once this dialog tab actually mounts.
 const MapVehicleOverviewCard = dynamic(() => import("./map"), {
   ssr: false,
   loading: () => (

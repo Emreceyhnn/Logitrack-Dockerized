@@ -94,11 +94,11 @@ const HEAVY_IMPORT_MARKERS = ["@mui/x-charts"];
 const HEAVY_BATCH_TIMEOUT_MS = 240_000;
 
 /**
- * Live-integration tests (`*.live.test.ts[x]`) talk to real services
- * (Firebase, Redis) and need real credentials, so they are excluded from the
- * default run and executed via `--live` instead — without jsdom, because
- * firebase-admin's token fetch breaks under a fake browser environment
- * ("fetchImpl is not a function") and its RTDB client then retries forever.
+ * Live-integration tests (`*.live.test.ts[x]`) talk to a real service (e.g.
+ * Redis) and need real credentials, so they are excluded from the default run
+ * and executed via `--live` instead — without jsdom, since these tests hit
+ * real network clients that a fake browser environment can break in subtle
+ * ways.
  */
 const args = process.argv.slice(2);
 const liveMode = args.includes("--live");

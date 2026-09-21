@@ -1,18 +1,10 @@
 "use client";
 
 import { useEffect, useState, useMemo, useCallback, useRef } from "react";
-import {
-  db,
-  ref,
-  onValue,
-  off,
-  type DataSnapshot,
-  type DatabaseReference,
-} from "@/app/lib/firebase";
-import { ensureFirebaseAuth } from "@/app/lib/firebase-auth";
 import { NotificationType } from "@/app/lib/type/notification";
 import { logger } from "@/app/lib/logger";
 import {
+  getNotificationsAction,
   markAsReadAction,
   deleteNotificationAction,
 } from "@/app/lib/actions/notifications";
@@ -26,7 +18,6 @@ export interface Notification {
   isRead: boolean;
   link?: string;
   metadata?: Record<string, unknown>;
-  _sourcePath?: string;
 }
 
 interface UserContext {
@@ -35,17 +26,41 @@ interface UserContext {
   roleId?: string | null;
 }
 
+/** Shape pushed by the SSE stream — see app/lib/notificationBus.ts. */
+interface NotificationStreamEvent {
+  id: string;
+  title: string;
+  message: string;
+  type: NotificationType;
+  link: string | null;
+  metadata: Record<string, unknown> | null;
+  isRead: boolean;
+  createdAt: number;
+}
+
+function toClientNotification(evt: NotificationStreamEvent): Notification {
+  return {
+    id: evt.id,
+    title: evt.title,
+    message: evt.message,
+    type: evt.type,
+    createdAt: evt.createdAt,
+    isRead: evt.isRead,
+    ...(evt.link ? { link: evt.link } : {}),
+    ...(evt.metadata ? { metadata: evt.metadata } : {}),
+  };
+}
+
 export const useNotifications = (user: UserContext | undefined) => {
   const [notificationMap, setNotificationMap] = useState<
     Record<string, Notification>
   >({});
   const [loading, setLoading] = useState(true);
   const [prevUserId, setPrevUserId] = useState(user?.id);
-  // IDs with an optimistic delete in flight. The RTDB listener still fires
-  // mid-delete with the pre-delete snapshot (Firebase resync, sibling write,
-  // etc.); without this guard that snapshot resurrects the row a moment
-  // after the optimistic removal, then it vanishes again once the real
-  // delete commits — the "gidiyor geri geliyor" flicker.
+  // IDs with an optimistic delete in flight. The SSE stream can still emit a
+  // stale event for an id being deleted (a duplicate publish, a reconnect
+  // replaying a recent event); without this guard that event resurrects the
+  // row a moment after the optimistic removal.
   const pendingDeletesRef = useRef<Set<string>>(new Set());
 
   if (user?.id !== prevUserId) {
@@ -60,101 +75,48 @@ export const useNotifications = (user: UserContext | undefined) => {
 
   useEffect(() => {
     if (!user?.id) return;
-
-    const paths = [
-      { key: "everybody", path: "notifications/broadcast" },
-      { key: "personal", path: `notifications/inbox/${user.id}` },
-      ...(user.companyId
-        ? [
-            {
-              key: "company",
-              path: `notifications/company/${user.companyId}/all`,
-            },
-          ]
-        : []),
-      ...(user.companyId && user.roleId
-        ? [
-            {
-              key: "role",
-              path: `notifications/company/${user.companyId}/role/${user.roleId}`,
-            },
-          ]
-        : []),
-    ];
-
-    const listeners: Array<{
-      nodeRef: DatabaseReference;
-      listener: (snap: DataSnapshot) => void;
-      path: string;
-    }> = [];
-
-    setLoading(true);
-    let pathsLoaded = 0;
     let cancelled = false;
 
-    // RTDB security rules require an authenticated Firebase session scoped to
-    // the caller's companyId. Sign in before subscribing; if the effect is torn
-    // down first, `cancelled` prevents a late subscription.
-    void ensureFirebaseAuth()
-      .then(() => {
-        if (cancelled) return;
-        subscribeAll();
-      })
-      .catch((err) => {
-        logger.error("[useNotifications] Firebase auth failed:", err);
-        if (!cancelled) setLoading(false);
-      });
+    setLoading(true);
 
-    function subscribeAll() {
-    paths.forEach(({ path }) => {
-      const nodeRef = ref(db, path);
-      const listener = (snapshot: DataSnapshot) => {
-        const data = snapshot.val() as Record<
-          string,
-          Omit<Notification, "id">
-        > | null;
-
-        setNotificationMap((prev) => {
-          const next = { ...prev };
-
-          Object.keys(next).forEach((id) => {
-            if (next[id]?._sourcePath === path && !pendingDeletesRef.current.has(id)) {
-              delete next[id];
-            }
-          });
-
-          if (data) {
-            Object.entries(data).forEach(([id, val]) => {
-              if (pendingDeletesRef.current.has(id)) return;
-              next[id] = { ...val, id, _sourcePath: path } as Notification;
-            });
-          }
-          return next;
+    // Backfill history first — the SSE stream below only carries events
+    // published after it connects, never what already exists.
+    void getNotificationsAction().then((res) => {
+      if (cancelled) return;
+      if (res.success) {
+        const map: Record<string, Notification> = {};
+        res.notifications.forEach((n) => {
+          map[n.id] = n as Notification;
         });
-
-        if (pathsLoaded < paths.length) {
-          pathsLoaded++;
-          if (pathsLoaded === paths.length) setLoading(false);
-        }
-      };
-
-      onValue(nodeRef, listener, (err) => {
-        logger.error(`Subscription error on [${path}]:`, err);
-        if (pathsLoaded < paths.length) {
-          pathsLoaded++;
-          if (pathsLoaded === paths.length) setLoading(false);
-        }
-      });
-
-      listeners.push({ nodeRef, listener, path });
+        setNotificationMap(map);
+      } else {
+        logger.error("[useNotifications] Failed to load history:", res.error);
+      }
+      setLoading(false);
     });
-    }
+
+    const eventSource = new EventSource("/api/notifications/stream");
+
+    eventSource.addEventListener("notification", (e) => {
+      const evt = JSON.parse(
+        (e as MessageEvent<string>).data
+      ) as NotificationStreamEvent;
+      if (pendingDeletesRef.current.has(evt.id)) return;
+      setNotificationMap((prev) => ({
+        ...prev,
+        [evt.id]: toClientNotification(evt),
+      }));
+    });
+
+    eventSource.onerror = (err) => {
+      // EventSource retries connecting on its own; this is purely
+      // diagnostic — no manual reconnect logic is needed.
+      logger.error("[useNotifications] SSE connection error:", err);
+    };
 
     return () => {
       cancelled = true;
-      listeners.forEach(({ nodeRef, listener }) =>
-        off(nodeRef, "value", listener)
-      );
+      eventSource.close();
     };
   }, [user?.id, user?.companyId, user?.roleId]);
 
@@ -171,16 +133,15 @@ export const useNotifications = (user: UserContext | undefined) => {
 
   const markAsRead = useCallback(
     async (notification: Notification) => {
-      if (!user?.id || !notification._sourcePath) return;
+      if (!user?.id) return;
       const wasRead = notification.isRead;
-      // Optimistic: flip isRead immediately — the RTDB listener will confirm
-      // (or, on failure below, we roll back) rather than waiting on the round trip.
+      // Optimistic: flip isRead immediately — roll back below on failure.
       setNotificationMap((prev) => {
         const current = prev[notification.id];
         return current ? { ...prev, [notification.id]: { ...current, isRead: true } } : prev;
       });
       try {
-        const res = await markAsReadAction(notification._sourcePath, notification.id);
+        const res = await markAsReadAction(notification.id);
         if (!res.success) throw new Error(res.error);
       } catch (err) {
         logger.error("Mark read failed:", err);
@@ -195,7 +156,7 @@ export const useNotifications = (user: UserContext | undefined) => {
 
   const markAllAsRead = useCallback(async () => {
     if (!user?.id || notifications.length === 0) return;
-    const targets = notifications.filter((n) => !n.isRead && n._sourcePath);
+    const targets = notifications.filter((n) => !n.isRead);
     if (targets.length === 0) return;
 
     const patchIsRead = (
@@ -215,7 +176,7 @@ export const useNotifications = (user: UserContext | undefined) => {
 
     try {
       const results = await Promise.all(
-        targets.map((n) => markAsReadAction(n._sourcePath!, n.id))
+        targets.map((n) => markAsReadAction(n.id))
       );
       const failedIds = targets
         .filter((_, i) => !results[i]?.success)
@@ -231,12 +192,11 @@ export const useNotifications = (user: UserContext | undefined) => {
 
   const deleteNotification = useCallback(
     async (notification: Notification) => {
-      if (!user?.id || !notification._sourcePath) return;
+      if (!user?.id) return;
       const previous = notification;
       // Optimistic: remove from the list immediately, restore on failure.
-      // The id stays in pendingDeletesRef until the server call settles so an
-      // in-flight RTDB snapshot (still showing the pre-delete data) can't
-      // resurrect it in the meantime.
+      // The id stays in pendingDeletesRef until the server call settles so a
+      // stray SSE event for it can't resurrect it in the meantime.
       pendingDeletesRef.current.add(notification.id);
       setNotificationMap((prev) => {
         const next = { ...prev };
@@ -244,10 +204,7 @@ export const useNotifications = (user: UserContext | undefined) => {
         return next;
       });
       try {
-        const res = await deleteNotificationAction(
-          notification._sourcePath,
-          notification.id
-        );
+        const res = await deleteNotificationAction(notification.id);
         if (!res.success) throw new Error(res.error);
       } catch (err) {
         logger.error("Delete failed:", err);

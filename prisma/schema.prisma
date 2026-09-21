@@ -41,6 +41,7 @@ model Company {
   warehouseTaskItems WarehouseTaskItem[]
   invitations        Invitation[]
   joinRequests       JoinRequest[]
+  notifications      Notification[]
 
   @@map("companies")
 }
@@ -113,6 +114,8 @@ model User {
   decidedJoinRequests     JoinRequest[]            @relation("JoinRequestDecidedBy")
   passwordResetTokens     PasswordResetToken[]
   emailVerificationTokens EmailVerificationToken[]
+
+  notifications           Notification[]
 
   @@index([companyId])
   @@index([roleId])
@@ -809,6 +812,54 @@ model Issue {
   @@index([trailerId])
   @@index([warehouseId, status])
   @@map("issues")
+}
+
+// Deliberately outside TENANT_MODELS/SOFT_DELETE_MODELS in db.ts: companyId is
+// nullable here (null on a global broadcast), which the tenant-guard's
+// automatic companyId injection/enforcement isn't built for. Every query
+// against this model filters userId/companyId/roleId explicitly instead — see
+// resolveRecipients() and getNotificationsAction() in
+// app/lib/actions/notifications.ts.
+model Notification {
+  id        String                @id @default(cuid())
+  title     String
+  message   String
+  type      NotificationType
+  category  NotificationCategory?
+  link      String?
+  metadata  Json?
+  isRead    Boolean               @default(false)
+  createdAt DateTime              @default(now())
+
+  // userId set            -> personal notification
+  // userId null, companyId set -> company-wide (or role-scoped if roleId is set)
+  // userId null, companyId null -> global broadcast
+  userId    String?
+  companyId String?
+  roleId    String?
+
+  user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  company   Company? @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@index([userId, isRead, createdAt])
+  @@index([companyId, roleId, createdAt])
+  @@index([createdAt])
+  @@map("notifications")
+}
+
+enum NotificationType {
+  INFO
+  WARNING
+  ERROR
+  SUCCESS
+}
+
+enum NotificationCategory {
+  SHIPMENT_UPDATE
+  MAINTENANCE_ALERT
+  NEW_ASSIGNMENT
+  DELAY_ALERT
+  SYSTEM
 }
 
 model Session {

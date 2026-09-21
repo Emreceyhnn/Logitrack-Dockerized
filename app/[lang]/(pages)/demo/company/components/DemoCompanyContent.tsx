@@ -21,17 +21,14 @@ import {
   LocalShipping,
 } from "@mui/icons-material";
 import KpiCards from "@/app/components/cards/KpiCards";
-import CompanyMemberDetailsDialog from "@/app/components/dialogs/company/CompanyMemberDetailsDialog";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { toast } from "sonner";
 
 /**
  * Demo-only counterpart to CompanyContent — same KPI/info/members layout,
  * backed by the fixed demo dataset. The members table is DemoCompanyMembersTable
- * (no edit/delete dialogs, no real mutation). Selecting a member opens the
- * read-only CompanyMemberDetailsDialog, which is purely presentational — it
- * renders the row it is handed and calls nothing. Add-member and the mutating
- * row actions show a "disabled in demo" toast.
+ * (no edit/delete/details dialogs, no real mutation). Add-member, row actions
+ * and details all show a "disabled in demo" toast.
  */
 export default function DemoCompanyContent() {
   /* -------------------------------- VARIABLES ------------------------------- */
@@ -40,10 +37,6 @@ export default function DemoCompanyContent() {
 
   /* ---------------------------------- STATE --------------------------------- */
   const [pagination, setPagination] = useState({ page: 1, pageSize: 10 });
-  const [selectedMember, setSelectedMember] = useState<CompanyMember | null>(
-    null
-  );
-  const [detailOpen, setDetailOpen] = useState(false);
 
   /* ---------------------------------- HOOKS --------------------------------- */
   const {
@@ -57,16 +50,6 @@ export default function DemoCompanyContent() {
   const notifyDisabled = useCallback(() => {
     toast.info(dict.toasts.demoActionDisabled);
   }, [dict]);
-
-  const handleOpenDetails = useCallback((member: CompanyMember) => {
-    setSelectedMember(member);
-    setDetailOpen(true);
-  }, []);
-
-  const handleCloseDetails = useCallback(() => {
-    setDetailOpen(false);
-    setSelectedMember(null);
-  }, []);
 
   const state = useMemo(
     () => ({
@@ -213,16 +196,10 @@ export default function DemoCompanyContent() {
           <DemoCompanyMembersTable
             props={{ state, actions }}
             onAction={notifyDisabled}
-            onDetails={handleOpenDetails}
+            onDetails={notifyDisabled}
           />
         </Box>
       </Stack>
-
-      <CompanyMemberDetailsDialog
-        open={detailOpen}
-        onClose={handleCloseDetails}
-        member={selectedMember}
-      />
     </Box>
   );
 }

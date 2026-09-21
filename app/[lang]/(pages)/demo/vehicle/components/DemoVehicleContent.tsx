@@ -53,8 +53,7 @@ export default function DemoVehicleContent() {
     handleTrailerDetach,
     kpiItems,
     updateTrailerFilters,
-    setAddDialogOpen,
-    setAddTrailerOpen,
+    notifyDisabled,
   } = contentState;
 
   return (
@@ -75,7 +74,7 @@ export default function DemoVehicleContent() {
             data-tour="vehicle-add"
             variant="contained"
             startIcon={<AddIcon />}
-            onClick={() => activeTab === 0 ? setAddDialogOpen(true) : setAddTrailerOpen(true)}
+            onClick={notifyDisabled}
             sx={{ textTransform: "none", borderRadius: 2 }}
           >
             {activeTab === 0 ? dict.vehicles.addVehicle : dict.trailers.addTrailer}

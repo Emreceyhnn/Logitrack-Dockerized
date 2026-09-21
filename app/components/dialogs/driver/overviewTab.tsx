@@ -16,6 +16,8 @@ import HistoryIcon from "@mui/icons-material/History";
 import EventAvailableIcon from "@mui/icons-material/EventAvailable";
 import HomeWorkIcon from "@mui/icons-material/HomeWork";
 import { useState } from "react";
+import { usePathname } from "next/navigation";
+import { toast } from "sonner";
 import DriverHistoryDialog from "./DriverHistoryDialog";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { useDriverMutations } from "@/app/hooks/useDrivers";
@@ -108,11 +110,17 @@ const OverviewTab = ({ driver }: OverviewTabProps) => {
   const theme = useTheme();
   const dict = useDictionary();
   const dateSettings = useDateSettings();
+  const pathname = usePathname();
+  const isDemo = pathname?.includes("/demo");
   const [historyOpen, setHistoryOpen] = useState(false);
   const { updateDriverStatus } = useDriverMutations();
 
   const handleStatusChange = (newStatus: DriverStatus) => {
     if (!driver) return;
+    if (isDemo) {
+      toast.info(dict.toasts.demoActionDisabled);
+      return;
+    }
     updateDriverStatus.mutate({ id: driver.id, status: newStatus });
   };
 

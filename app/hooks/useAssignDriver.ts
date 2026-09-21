@@ -1,4 +1,6 @@
 import { useState, useCallback, useEffect } from "react";
+import { usePathname } from "next/navigation";
+import { toast } from "sonner";
 import { getAvailableDrivers } from "@/app/lib/controllers/vehicle";
 import { useVehicleMutations } from "@/app/hooks/useVehicles";
 import { DriverWithUser } from "@/app/lib/type/vehicle";
@@ -6,6 +8,8 @@ import { logger } from "@/app/lib/logger";
 import { Dictionary } from "@/app/lib/language/language";
 
 export const useAssignDriver = (vehicleId: string, open: boolean, onClose: () => void, onSuccess: () => void, dict: Dictionary) => {
+  const pathname = usePathname();
+  const isDemo = pathname?.includes("/demo");
   const [drivers, setDrivers] = useState<DriverWithUser[]>([]);
   const [selectedDriverId, setSelectedDriverId] = useState<string>("");
   const [loading, setLoading] = useState(false);
@@ -37,6 +41,11 @@ export const useAssignDriver = (vehicleId: string, open: boolean, onClose: () =>
     if (!selectedDriverId) return;
     const driver = drivers.find((d) => d.id === selectedDriverId);
     if (!driver) return;
+    if (isDemo) {
+      toast.info(dict.toasts.demoActionDisabled);
+      onClose();
+      return;
+    }
     try {
       await assignDriver.mutateAsync({ vehicleId, driver });
       onSuccess();
@@ -48,6 +57,11 @@ export const useAssignDriver = (vehicleId: string, open: boolean, onClose: () =>
   };
 
   const handleUnassign = async () => {
+    if (isDemo) {
+      toast.info(dict.toasts.demoActionDisabled);
+      onClose();
+      return;
+    }
     try {
       await unassignDriver.mutateAsync(vehicleId);
       onSuccess();

@@ -191,25 +191,6 @@ export async function getHealthMatrix(): Promise<ServiceHealth[]> {
     );
   }
 
-  // Firebase Realtime Database — used for live vehicle tracking.
-  const firebaseDbUrl = process.env.NEXT_PUBLIC_FIREBASE_DATABASE_URL;
-  if (firebaseDbUrl) {
-    checks.push(
-      probe("firebase", "Firebase RTDB", async () => {
-        const res = await fetch(`${firebaseDbUrl}/.json?shallow=true`, {
-          cache: "no-store",
-        });
-        // 401 still proves the endpoint is reachable and serving; database
-        // rules simply reject an unauthenticated read.
-        if (!res.ok && res.status !== 401) {
-          throw new Error(`Firebase responded ${res.status}`);
-        }
-      })
-    );
-  } else {
-    checks.push(Promise.resolve(notConfigured("firebase", "Firebase RTDB")));
-  }
-
   // Valhalla routing service.
   const valhallaUrl = process.env.VALHALLA_URL;
   if (valhallaUrl) {

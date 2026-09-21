@@ -46,14 +46,18 @@ export const useDemoVehicleContent = () => {
   }, [refetchVehicleWithDashboard]);
 
   const selectVehicle = useCallback((id: string | null) => {
+    if (id) {
+      notifyDisabled();
+      return;
+    }
     setState((prev) => ({ ...prev, selectedVehicleId: id }));
-  }, []);
+  }, [notifyDisabled]);
 
   useEffect(() => {
     if (vehicleIdFromUrl) {
-      selectVehicle(vehicleIdFromUrl);
+      notifyDisabled();
     }
-  }, [vehicleIdFromUrl, selectVehicle]);
+  }, [vehicleIdFromUrl, notifyDisabled]);
 
   const updateFilters = useCallback(
     (newFilters: Partial<VehiclePageState["filters"]>) => {
@@ -72,37 +76,29 @@ export const useDemoVehicleContent = () => {
 
   const actions: VehiclePageActions = useMemo(() => ({ fetchVehicles: async () => {}, fetchDashboardData: async () => {}, refreshAll, selectVehicle, updateFilters }), [refreshAll, selectVehicle, updateFilters]);
 
-  const handleEdit = useCallback((id: string) => {
-    const v = vehicles?.find((item) => item.id === id) || null;
-    setActionVehicle(v);
-    setEditDialogOpen(true);
-  }, [vehicles]);
+  const handleEdit = useCallback(() => {
+    notifyDisabled();
+  }, [notifyDisabled]);
 
-  const handleDelete = useCallback((id: string) => {
-    const v = vehicles?.find((item) => item.id === id) || null;
-    setActionVehicle(v);
-    setDeleteDialogOpen(true);
-  }, [vehicles]);
+  const handleDelete = useCallback(() => {
+    notifyDisabled();
+  }, [notifyDisabled]);
 
-  const handleTrailerEdit = useCallback((trailer: TrailerWithRelations) => {
-    setActionTrailer(trailer);
-    setEditTrailerOpen(true);
-  }, []);
+  const handleTrailerEdit = useCallback(() => {
+    notifyDisabled();
+  }, [notifyDisabled]);
 
-  const handleTrailerDelete = useCallback((trailer: TrailerWithRelations) => {
-    setActionTrailer(trailer);
-    setDeleteDialogOpen(true);
-  }, []);
+  const handleTrailerDelete = useCallback(() => {
+    notifyDisabled();
+  }, [notifyDisabled]);
 
-  const handleTrailerAssign = useCallback((trailer: TrailerWithRelations) => {
-    setActionTrailer(trailer);
-    setAssignTrailerOpen(true);
-  }, []);
+  const handleTrailerAssign = useCallback(() => {
+    notifyDisabled();
+  }, [notifyDisabled]);
 
-  const handleTrailerDetach = useCallback(async (trailer: TrailerWithRelations) => {
-    setActionTrailer(trailer);
-    setAssignTrailerOpen(true);
-  }, []);
+  const handleTrailerDetach = useCallback(() => {
+    notifyDisabled();
+  }, [notifyDisabled]);
 
   const handleAddSuccess = useCallback(() => {
     setAddDialogOpen(false);

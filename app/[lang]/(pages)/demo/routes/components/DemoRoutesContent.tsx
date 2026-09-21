@@ -10,9 +10,7 @@ import {
   RouteEfficiencyStats,
   MapRouteData,
   RoutesPageState,
-  RouteWithRelations,
 } from "@/app/lib/type/routes";
-import RouteDialog from "@/app/components/dialogs/routes";
 import { useDemoRoutesWithDashboard } from "@/app/hooks/demo/useDemoRoutes";
 import { AltRoute, Loop, CheckCircle, Warning } from "@mui/icons-material";
 import KpiCards from "@/app/components/cards/KpiCards";
@@ -35,10 +33,6 @@ export default function DemoRoutesContent() {
   /* --------------------------------- STATE --------------------------------- */
   const [filters, setFilters] = useState<RoutesPageState["filters"]>({});
   const [pagination, setPagination] = useState({ page: 1, pageSize: 10 });
-  const [selectedRoute, setSelectedRoute] = useState<RouteWithRelations | null>(
-    null
-  );
-  const [detailOpen, setDetailOpen] = useState(false);
 
   /* ---------------------------------- HOOKS --------------------------------- */
   const {
@@ -62,16 +56,6 @@ export default function DemoRoutesContent() {
   const notifyDisabled = useCallback(() => {
     toast.info(dict.toasts.demoActionDisabled);
   }, [dict]);
-
-  const handleOpenDetails = useCallback((route: RouteWithRelations) => {
-    setSelectedRoute(route);
-    setDetailOpen(true);
-  }, []);
-
-  const handleCloseDetails = useCallback(() => {
-    setDetailOpen(false);
-    setSelectedRoute(null);
-  }, []);
 
   const updateFilters = useCallback(
     (newFilters: Partial<RoutesPageState["filters"]>) => {
@@ -178,20 +162,13 @@ export default function DemoRoutesContent() {
             onEdit={notifyDisabled}
             onDelete={notifyDisabled}
             onAction={notifyDisabled}
-            onDetails={handleOpenDetails}
+            onDetails={notifyDisabled}
             onRefresh={refreshAll}
             filters={{ status: filters.status, search: filters.search }}
             onFilterChange={updateFilters}
           />
         )}
       </Stack>
-
-      <RouteDialog
-        key={selectedRoute?.id}
-        open={detailOpen}
-        onClose={handleCloseDetails}
-        route={selectedRoute}
-      />
     </Box>
   );
 }

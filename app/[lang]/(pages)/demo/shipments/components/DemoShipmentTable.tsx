@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useMemo, useEffect, useRef } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { Typography } from "@mui/material";
 import DataTable from "@/app/components/ui/DataTable";
 import type {
@@ -9,7 +9,6 @@ import type {
   DataTableRowAction,
 } from "@/app/lib/type/dataTable";
 import { StatusChip } from "@/app/components/chips/statusChips";
-import ShipmentDetailDialog from "@/app/components/dialogs/shipment/shipmentDetailDialog";
 import ContentPasteIcon from "@mui/icons-material/ContentPaste";
 import EditIcon from "@mui/icons-material/Edit";
 import SwapHorizIcon from "@mui/icons-material/SwapHoriz";
@@ -42,10 +41,9 @@ const VISIBLE_SHIPMENT_STATUSES: ShipmentStatus[] = [
  * useShipmentMutations() internally (for the row-level "Update status"
  * action → StatusUpdateDialog), which is a real server-action mutation — a
  * seam the top-level DemoShipmentContent fork can't intercept from outside.
- * This copy drops StatusUpdateDialog and useShipmentMutations entirely and
- * routes every mutating row action through a "disabled in demo" toast.
- * ShipmentDetailDialog is reused as-is: it is read-only (verified — no
- * mutation hooks inside it).
+ * This copy drops StatusUpdateDialog, useShipmentMutations and
+ * ShipmentDetailDialog entirely — every row action, including Details,
+ * routes through a "disabled in demo" toast and no dialog is ever mounted.
  */
 const DemoShipmentTable = ({
   state,
@@ -58,7 +56,7 @@ const DemoShipmentTable = ({
 
   const dateSettings = useDateSettings();
   const { shipments, loading = false, filters } = state;
-  const { selectShipment, onEdit, onDelete, updateFilters } = actions;
+  const { onEdit, onDelete, updateFilters } = actions;
 
   const notifyDisabled = useCallback(() => {
     toast.info(dict.toasts.demoActionDisabled);
@@ -81,11 +79,6 @@ const DemoShipmentTable = ({
       },
     ];
   }, [dict]);
-
-  /* --------------------------------- dialog state --------------------------------- */
-  const [detailOpen, setDetailOpen] = useState(false);
-  const [selectedShipment, setSelectedShipment] =
-    useState<ShipmentWithRelations | null>(null);
 
   /* --------------------------------- pagination fallback --------------------------------- */
   const [localPage, setLocalPage] = useState(1);
@@ -115,45 +108,9 @@ const DemoShipmentTable = ({
   }, [shipments, meta.page, meta.limit, pagination]);
 
   /* --------------------------------- handlers --------------------------------- */
-  const handleOpenDetails = useCallback(
-    (row: ShipmentWithRelations) => {
-      setSelectedShipment(row);
-      setDetailOpen(true);
-      selectShipment(row.id);
-    },
-    [selectShipment]
-  );
-
-  const handleCloseDetails = useCallback(() => {
-    setDetailOpen(false);
-    selectShipment(null);
-  }, [selectShipment]);
-
-  // Deep-link support: open the dialog when a shipment id arrives via state
-  // (e.g. from the ?id= URL param handled by the parent container).
-  //
-  // Deliberately keyed on the *id* rather than the resolved object: a
-  // background refetch hands us a referentially-new `shipments` array holding
-  // semantically identical rows, and re-running setSelectedShipment with that
-  // new object reference cascaded into the detail dialog's Valhalla effect and
-  // spun a render loop. Re-selecting the same id is a no-op now.
-  const openedShipmentIdRef = useRef<string | null>(null);
-
-  useEffect(() => {
-    const id = state.selectedShipmentId;
-    if (!id) {
-      openedShipmentIdRef.current = null;
-      return;
-    }
-    if (openedShipmentIdRef.current === id) return;
-
-    const match = shipments.find((s) => s.id === id);
-    if (match) {
-      openedShipmentIdRef.current = id;
-      setSelectedShipment(match);
-      setDetailOpen(true);
-    }
-  }, [state.selectedShipmentId, shipments]);
+  const handleOpenDetails = useCallback(() => {
+    notifyDisabled();
+  }, [notifyDisabled]);
 
   const handleSearchChange = useCallback(
     (value: string) => {
@@ -289,13 +246,6 @@ const DemoShipmentTable = ({
         onLimitChange={handleLimitChange}
         wrapCard={true}
         tableTitle={dict.shipments.table.title}
-      />
-
-      <ShipmentDetailDialog
-        open={detailOpen}
-        onClose={handleCloseDetails}
-        shipment={selectedShipment}
-        onUpdateStatus={notifyDisabled}
       />
     </>
   );

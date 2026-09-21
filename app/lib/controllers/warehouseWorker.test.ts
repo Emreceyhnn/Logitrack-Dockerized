@@ -74,7 +74,7 @@ const nextCacheMock = {
 };
 
 // The restock notifier is exercised on its own (see notifyRestock.test.ts); here
-// it is stubbed so the mutation tests don't reach Firebase.
+// it is stubbed so the mutation tests don't reach the real notification pipeline.
 const notifyRestockMock = {
   notifyManagerOfRestockRequest: mock.fn(async () => {}),
 };

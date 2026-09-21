@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: production
-      url: https://logitrack.example.com
+      url: https://logitrackenterprise.emreceyhan.xyz
     steps:
       - name: Deploy edilecek immutable image tag'ini hesapla
         id: image

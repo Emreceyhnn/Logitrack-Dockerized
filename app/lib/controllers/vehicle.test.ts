@@ -56,11 +56,6 @@ const notificationsMock = {
   sendNotificationAction: mock.fn(),
 };
 
-// Vehicle Tracking Mock (Firebase sync)
-const vehicleTrackingMock = {
-  syncVehicleToFirebaseAction: mock.fn(async () => {}),
-};
-
 // Modülleri Sisteme Enjekte Etme
 mock.module("../db.ts", {
   namedExports: { db: dbMock },
@@ -80,10 +75,6 @@ mock.module("./utils/checkPermission.ts", {
 
 mock.module("../actions/notifications.ts", {
   namedExports: { sendNotificationAction: notificationsMock.sendNotificationAction },
-});
-
-mock.module("../actions/vehicleTracking.ts", {
-  namedExports: { syncVehicleToFirebaseAction: vehicleTrackingMock.syncVehicleToFirebaseAction },
 });
 
 mock.module("../services/exchangeRate.ts", {
@@ -115,7 +106,6 @@ describe("Vehicle Controller", () => {
     cacheUtilsMock.invalidatePattern.mock.resetCalls();
     checkPermissionMock.checkPermission.mock.resetCalls();
     notificationsMock.sendNotificationAction.mock.resetCalls();
-    vehicleTrackingMock.syncVehicleToFirebaseAction.mock.resetCalls();
   });
 
   describe("createVehicle() metodu", () => {
@@ -124,7 +114,7 @@ describe("Vehicle Controller", () => {
       companyId: "company-1",
     };
 
-    it("should_CreateVehicle_AndSyncToFirebase_WhenValidDataProvided", async () => {
+    it("should_CreateVehicle_WhenValidDataProvided", async () => {
       // Arrange
       dbMock.vehicle.findFirst.mock.mockImplementation(async () => null); // No existing vehicle
       dbMock.vehicle.create.mock.mockImplementation(async (args: Record<string, unknown>) => ({
@@ -147,10 +137,6 @@ describe("Vehicle Controller", () => {
       expect(result.plate).toBe("34 ABC 123");
       expect(dbMock.vehicle.create.mock.calls.length).toBe(1);
       expect(cacheUtilsMock.invalidatePattern.mock.calls.length).toBe(1);
-      
-      // Wait a tick for async background sync (using setImmediate)
-      await new Promise(resolve => setImmediate(resolve));
-      expect(vehicleTrackingMock.syncVehicleToFirebaseAction.mock.calls.length).toBe(1);
     });
 
     it("should_RethrowUniqueConstraintError_WhenPlateAlreadyExists", async () => {
@@ -176,9 +162,8 @@ describe("Vehicle Controller", () => {
         vehicleController.createVehicle(mockUser, vehicleData)
       ).rejects.toThrow("Unique constraint failed");
 
-      // No cache invalidation or Firebase sync for a failed create
+      // No cache invalidation for a failed create
       expect(cacheUtilsMock.invalidatePattern.mock.calls.length).toBe(0);
-      expect(vehicleTrackingMock.syncVehicleToFirebaseAction.mock.calls.length).toBe(0);
     });
   });
 

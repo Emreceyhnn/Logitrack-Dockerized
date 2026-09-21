@@ -137,8 +137,6 @@ const ENV_REGISTRY: { key: string; secret: boolean }[] = [
   { key: "CLOUDINARY_CLOUD_NAME", secret: false },
   { key: "CLOUDINARY_API_KEY", secret: true },
   { key: "CLOUDINARY_API_SECRET", secret: true },
-  { key: "NEXT_PUBLIC_FIREBASE_DATABASE_URL", secret: false },
-  { key: "FIREBASE_SERVICE_ACCOUNT", secret: true },
   { key: "VALHALLA_URL", secret: false },
   { key: "PLATFORM_ADMIN_USER_IDS", secret: true },
 ];

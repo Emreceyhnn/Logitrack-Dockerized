@@ -1,6 +1,5 @@
 "use server";
 
-import { adminDb } from "@/app/lib/firebase-admin";
 import {
   Notification,
   NotificationCategory,
@@ -10,6 +9,8 @@ import { db } from "../db";
 import { Prisma } from "@prisma/client";
 import { logger } from "@/app/lib/logger";
 import { sendNotificationEmail } from "@/app/lib/services/email";
+import { getAuthenticatedUser } from "@/app/lib/auth-middleware";
+import { notificationBus, type NotificationEvent } from "@/app/lib/notificationBus";
 
 type UserPreferenceField = Extract<
   keyof Prisma.UserWhereInput,
@@ -168,6 +169,44 @@ function acceptsInbox(
 }
 
 /**
+ * Shapes a freshly written row into the wire event the SSE stream (and thus
+ * every connected client) receives. `isGlobal` is derived here rather than
+ * stored, so the stream's matching logic (app/api/notifications/stream) has
+ * a single boolean to check instead of re-deriving it from two nullable
+ * columns on every event.
+ */
+function toEvent(row: {
+  id: string;
+  title: string;
+  message: string;
+  type: Notification["type"];
+  category: NotificationCategory | null;
+  link: string | null;
+  metadata: Prisma.JsonValue;
+  isRead: boolean;
+  createdAt: Date;
+  userId: string | null;
+  companyId: string | null;
+  roleId: string | null;
+}): NotificationEvent {
+  return {
+    id: row.id,
+    title: row.title,
+    message: row.message,
+    type: row.type,
+    category: row.category,
+    link: row.link,
+    metadata: row.metadata as Record<string, unknown> | null,
+    isRead: row.isRead,
+    createdAt: row.createdAt.getTime(),
+    userId: row.userId,
+    companyId: row.companyId,
+    roleId: row.roleId,
+    isGlobal: !row.userId && !row.companyId,
+  };
+}
+
+/**
  * tr-belirtilen hedefe yeni bir bildirim gönderir
  * en-sends a new notification to the specified target
  * input (target: NotificationTarget, notification: Omit<Notification, "id" | "createdAt" | "isRead">)
@@ -178,26 +217,27 @@ export async function sendNotificationAction(
   notification: Omit<Notification, "id" | "createdAt" | "isRead">
 ) {
   try {
-    if (!adminDb) {
-      logger.warn(
-        "⚠️ Firebase Admin SDK not initialized. Skipping notification."
-      );
-      return { success: false, error: "Firebase not initialized" };
-    }
-    // tr-Global yayın tek bir paylaşılan düğüme yazılır: somut bir alıcı listesi yoktur,
-    //    dolayısıyla kişiselleştirilmiş e-posta da üretilemez.
-    // en-A global broadcast writes to one shared node: there is no concrete recipient list,
-    //    so no per-user email can be produced for it.
+    const baseData = {
+      title: notification.title,
+      message: notification.message,
+      type: notification.type,
+      category: notification.category ?? null,
+      link: notification.link ?? null,
+      metadata: (notification.metadata ?? null) as Prisma.InputJsonValue,
+    };
+
+    // tr-Global yayın: tek bir satır, hem userId hem companyId null. SSE tarafı bunu
+    //    `isGlobal` ile tanıyıp her bağlı istemciye iletir. Somut bir alıcı listesi
+    //    yoktur, dolayısıyla kişiselleştirilmiş e-posta da üretilemez.
+    // en-Global broadcast: a single row with both userId and companyId null. The SSE
+    //    side recognises it via `isGlobal` and fans it out to every connected client.
+    //    There is no concrete recipient list, so no per-user email can be produced.
     if (target.isGlobal) {
-      const broadcastRef = adminDb.ref("notifications/broadcast").push();
-      const broadcast: Notification = {
-        ...notification,
-        id: broadcastRef.key!,
-        createdAt: Date.now(),
-        isRead: false,
-      };
-      await broadcastRef.set(broadcast);
-      return { success: true, id: broadcastRef.key };
+      const row = await db.notification.create({
+        data: { ...baseData, userId: null, companyId: null, roleId: null },
+      });
+      notificationBus.publish(toEvent(row));
+      return { success: true, id: row.id };
     }
 
     if (!target.userId && !target.companyId) {
@@ -205,11 +245,17 @@ export async function sendNotificationAction(
     }
 
     // tr-Hedef şekli ne olursa olsun (tek kullanıcı, şirket ya da rol kapsamı) aynı yolu izler:
-    //    alıcıları çöz, her birinin kişisel gelen kutusuna yaz, ardından e-postayı gönder.
-    //    Bireysel bildirimlerin e-posta üretmemesine yol açan ayrık dal bu sayede ortadan kalkar.
-    // en-Every target shape — single user, company, or role scope — now follows one path:
-    //    resolve recipients, write each personal inbox, then dispatch email. This removes the
-    //    separate branch that let individually-addressed notifications skip email entirely.
+    //    alıcıları çöz (e-posta tercihi ve gelen kutusu tercihi için), ardından hedefin
+    //    şekline göre TEK bir satır yaz. Şirket/rol geneli hedeflerde alıcı sayısı kadar
+    //    satır YAZILMAZ — bir tek paylaşılan satır yazılır ve SSE tarafı onu companyId/roleId
+    //    eşleşen her bağlı istemciye ayrı ayrı iletir. Bu, "okundu" durumunun şirket/rol geneli
+    //    bildirimlerde kullanıcılar arası paylaşılmasına yol açar (bilinçli bir sadeleştirme).
+    // en-Every target shape — single user, company, or role scope — follows one path:
+    //    resolve recipients (for email + inbox opt-in), then write exactly ONE row shaped by
+    //    the target. Company/role-wide targets do NOT get one row per recipient — a single
+    //    shared row is written and the SSE side fans it out to every connected client whose
+    //    companyId/roleId matches. This means "read" is shared across users on company/role-wide
+    //    notifications (a deliberate simplification).
     const recipients = await resolveRecipients(target, notification.category);
 
     if (recipients.length === 0) {
@@ -223,19 +269,35 @@ export async function sendNotificationAction(
       acceptsInbox(recipient, notification.category)
     );
 
-    const writtenIds = await Promise.all(
-      inboxRecipients.map(async (recipient) => {
-        if (!adminDb) return null;
-        const ref = adminDb.ref(`notifications/inbox/${recipient.id}`).push();
-        await ref.set({
-          ...notification,
-          id: ref.key!,
-          createdAt: Date.now(),
-          isRead: false,
+    let writtenId: string | null = null;
+
+    if (target.userId) {
+      // tr-Tek kullanıcı hedefi: inboxRecipients tam olarak 0 veya 1 eleman içerir.
+      // en-Single-user target: inboxRecipients holds exactly 0 or 1 element.
+      if (inboxRecipients.length === 1) {
+        const row = await db.notification.create({
+          data: {
+            ...baseData,
+            userId: target.userId,
+            companyId: target.companyId ?? null,
+            roleId: null,
+          },
         });
-        return ref.key;
-      })
-    );
+        writtenId = row.id;
+        notificationBus.publish(toEvent(row));
+      }
+    } else if (inboxRecipients.length > 0) {
+      const row = await db.notification.create({
+        data: {
+          ...baseData,
+          userId: null,
+          companyId: target.companyId ?? null,
+          roleId: target.roleId ?? null,
+        },
+      });
+      writtenId = row.id;
+      notificationBus.publish(toEvent(row));
+    }
 
     // tr-E-posta alıcıları gelen kutusundan bağımsız olarak süzülür: kategorinin e-posta
     //    tercihi yoksa hiç gönderilmez, varsa yalnızca o tercihi açık olanlara gider.
@@ -260,27 +322,50 @@ export async function sendNotificationAction(
       );
     }
 
-    // tr-Tek alıcılı hedeflerde çağıranların beklediği id sözleşmesi korunur
-    // en-Preserve the id contract callers expect for single-recipient targets
-    return inboxRecipients.length === 1 && writtenIds[0]
-      ? { success: true, id: writtenIds[0] }
-      : { success: true };
+    return writtenId ? { success: true, id: writtenId } : { success: true };
   } catch (error) {
-    logger.error("Failed to send notification via Admin SDK:", error);
+    logger.error("Failed to send notification:", error);
     return { success: false, error: String(error) };
   }
 }
 
 /**
+ * tr-Çağıranın bu bildirimin gerçek sahibi olup olmadığını doğrular. Kişisel bildirimlerde
+ *    userId eşleşmesi yeterli; şirket/rol geneli ve global bildirimlerde ise çağıranın o
+ *    şirkete/kapsam içinde olması yeterlidir (bu satırlarda userId hep null'dur).
+ * en-Verifies the caller genuinely owns this notification. A personal notification matches by
+ *    userId; a company/role-wide or global one only requires the caller to be within that scope
+ *    (userId is always null on those rows).
+ * input (userId: string, companyId: string | null)
+ * output (Prisma.NotificationWhereInput["OR"])
+ */
+function ownershipClause(
+  userId: string,
+  companyId: string | null
+): Prisma.NotificationWhereInput[] {
+  return [
+    { userId },
+    { userId: null, companyId: null },
+    ...(companyId ? [{ userId: null, companyId }] : []),
+  ];
+}
+
+/**
  * tr-belirtilen bildirimi okundu olarak işaretler
  * en-marks the specified notification as read
- * input (path: string, notificationId: string)
+ * input (notificationId: string)
  * output (Promise<{ success: boolean; error?: string }>)
  */
-export async function markAsReadAction(path: string, notificationId: string) {
+export async function markAsReadAction(notificationId: string) {
   try {
-    if (!adminDb) throw new Error("Firebase not initialized");
-    await adminDb.ref(`${path}/${notificationId}`).update({ isRead: true });
+    const user = await getAuthenticatedUser();
+    if (!user) throw new Error("Unauthenticated");
+
+    const result = await db.notification.updateMany({
+      where: { id: notificationId, OR: ownershipClause(user.id, user.companyId) },
+      data: { isRead: true },
+    });
+    if (result.count === 0) throw new Error("Not found or not owned");
     return { success: true };
   } catch (error) {
     logger.error("Failed to mark notification as read:", error);
@@ -291,19 +376,73 @@ export async function markAsReadAction(path: string, notificationId: string) {
 /**
  * tr-belirtilen bildirimi siler
  * en-deletes the specified notification
- * input (path: string, notificationId: string)
+ * input (notificationId: string)
  * output (Promise<{ success: boolean; error?: string }>)
  */
-export async function deleteNotificationAction(
-  path: string,
-  notificationId: string
-) {
+export async function deleteNotificationAction(notificationId: string) {
   try {
-    if (!adminDb) throw new Error("Firebase not initialized");
-    await adminDb.ref(`${path}/${notificationId}`).remove();
+    const user = await getAuthenticatedUser();
+    if (!user) throw new Error("Unauthenticated");
+
+    const result = await db.notification.deleteMany({
+      where: { id: notificationId, OR: ownershipClause(user.id, user.companyId) },
+    });
+    if (result.count === 0) throw new Error("Not found or not owned");
     return { success: true };
   } catch (error) {
     logger.error("Failed to delete notification:", error);
     return { success: false, error: String(error) };
+  }
+}
+
+/**
+ * tr-oturum açmış kullanıcının görebileceği bildirimleri getirir (kişisel + şirket/rol geneli
+ *    + global broadcast). Sayfa açılışında geçmişi doldurmak için kullanılır — SSE akışı
+ *    yalnızca bundan sonra oluşan yeni bildirimleri taşır.
+ * en-Fetches the notifications the signed-in user can see (personal + company/role-wide +
+ *    global broadcast). Used to backfill history on page load — the SSE stream only carries
+ *    notifications created after the connection opens.
+ * input (void)
+ * output (Promise<{ success: true; notifications: Notification[] } | { success: false; error: string }>)
+ */
+export async function getNotificationsAction() {
+  try {
+    const user = await getAuthenticatedUser();
+    if (!user) return { success: false as const, error: "Unauthenticated" };
+
+    const or: Prisma.NotificationWhereInput[] = [
+      { userId: user.id },
+      { userId: null, companyId: null },
+    ];
+    if (user.companyId) {
+      or.push({ userId: null, companyId: user.companyId, roleId: null });
+      if (user.roleId) {
+        or.push({ userId: null, companyId: user.companyId, roleId: user.roleId });
+      }
+    }
+
+    const rows = await db.notification.findMany({
+      where: { OR: or },
+      orderBy: { createdAt: "desc" },
+      take: 100,
+    });
+
+    return {
+      success: true as const,
+      notifications: rows.map((row) => ({
+        id: row.id,
+        title: row.title,
+        message: row.message,
+        type: row.type,
+        category: row.category ?? undefined,
+        link: row.link ?? undefined,
+        metadata: row.metadata as Record<string, unknown> | undefined,
+        isRead: row.isRead,
+        createdAt: row.createdAt.getTime(),
+      })),
+    };
+  } catch (error) {
+    logger.error("Failed to load notifications:", error);
+    return { success: false as const, error: String(error) };
   }
 }

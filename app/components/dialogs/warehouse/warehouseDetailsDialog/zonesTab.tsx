@@ -67,6 +67,11 @@ const ZonesTab = ({ warehouse }: ZonesTabProps) => {
 
   const handleSubmit = async () => {
     if (!form) return;
+    if (isDemo) {
+      notifyDisabled();
+      closeForm();
+      return;
+    }
     const code = form.code.trim();
     if (!code) return;
     const capacityPallets = form.capacityPallets ? Number(form.capacityPallets) : 0;
@@ -86,6 +91,10 @@ const ZonesTab = ({ warehouse }: ZonesTabProps) => {
     if (!deleteTarget) return;
     const id = deleteTarget.id;
     setDeleteTarget(null);
+    if (isDemo) {
+      notifyDisabled();
+      return;
+    }
     await deleteZone.mutateAsync(id);
   };
 

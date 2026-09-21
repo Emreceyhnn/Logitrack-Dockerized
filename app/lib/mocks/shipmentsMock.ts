@@ -17,6 +17,24 @@ import {
  * statusDistribution } — as served by /api/shipments/dashboard.
  */
 
+// Real-world coordinates so the Valhalla routing engine can actually draw a
+// road route between them — offsetting a single base point (the previous
+// approach) drifted origin/destination out of Turkey entirely as the mock
+// index grew, which Valhalla can't route through.
+const TR_CITIES: Record<string, { lat: number; lng: number }> = {
+  "İstanbul": { lat: 41.0082, lng: 28.9784 },
+  "Ankara": { lat: 39.9334, lng: 32.8597 },
+  "İzmir": { lat: 38.4237, lng: 27.1428 },
+  "Bursa": { lat: 40.1885, lng: 29.0610 },
+  "Antalya": { lat: 36.8969, lng: 30.7133 },
+  "Adana": { lat: 37.0000, lng: 35.3213 },
+  "Konya": { lat: 37.8746, lng: 32.4932 },
+  "Gaziantep": { lat: 37.0662, lng: 37.3833 },
+  "Mersin": { lat: 36.8121, lng: 34.6415 },
+  "Trabzon": { lat: 41.0027, lng: 39.7168 },
+  "Samsun": { lat: 41.2867, lng: 36.3300 },
+};
+
 const TR_ROUTES: Array<{ origin: string; destination: string }> = [
   { origin: "İstanbul", destination: "Ankara" },
   { origin: "İzmir", destination: "Bursa" },
@@ -85,6 +103,8 @@ const DRIVER_NAMES: Array<{ name: string; surname: string }> = [
 
 function buildShipment(index: number): ShipmentWithRelations {
   const route = TR_ROUTES[index % TR_ROUTES.length]!;
+  const originCity = TR_CITIES[route.origin]!;
+  const destinationCity = TR_CITIES[route.destination]!;
   const status = STATUS_CYCLE[index % STATUS_CYCLE.length]!;
   const priority = PRIORITY_CYCLE[index % PRIORITY_CYCLE.length]!;
   const type = TYPE_CYCLE[index % TYPE_CYCLE.length]!;
@@ -92,6 +112,11 @@ function buildShipment(index: number): ShipmentWithRelations {
   const driver = DRIVER_NAMES[index % DRIVER_NAMES.length]!;
   const createdAt = new Date(Date.now() - (20 - index) * 24 * 60 * 60 * 1000);
   const hasDriver = status !== ShipmentStatus.PENDING && status !== ShipmentStatus.CANCELLED;
+
+  // Tiny deterministic jitter (within city limits) so shipments sharing a
+  // route don't all render as one stacked marker, while staying close enough
+  // for Valhalla to still resolve a road edge.
+  const jitter = (n: number) => ((n * 37) % 100) / 10000 - 0.005;
 
   return {
     id: `demo-shipment-${index}`,
@@ -102,11 +127,11 @@ function buildShipment(index: number): ShipmentWithRelations {
     status,
     origin: route.origin,
     originWarehouseId: `demo-warehouse-${index % 3}`,
-    originLat: 41.0082 - index * 0.05,
-    originLng: 28.9784 + index * 0.05,
+    originLat: originCity.lat + jitter(index),
+    originLng: originCity.lng + jitter(index + 1),
     destination: route.destination,
-    destinationLat: 39.9334 - index * 0.03,
-    destinationLng: 32.8597 + index * 0.03,
+    destinationLat: destinationCity.lat + jitter(index + 2),
+    destinationLng: destinationCity.lng + jitter(index + 3),
     itemsCount: 5 + (index % 12),
     priority,
     type,

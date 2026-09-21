@@ -36,8 +36,9 @@ import SideBar from "../sidebar";
 /**
  * Demo-only counterpart to DashboardHeader — same visual chrome (breadcrumbs,
  * sticky blur header, right-side icon stack) but every interactive element is
- * safe for an anonymous visitor: no useNotifications (real Firebase stream),
- * no getUserSession/logoutAction, no ProfileDialog/SettingsDialog mutations.
+ * safe for an anonymous visitor: no useNotifications (real per-user SSE
+ * stream), no getUserSession/logoutAction, no ProfileDialog/SettingsDialog
+ * mutations.
  */
 export default function DemoDashboardHeader({
   user,

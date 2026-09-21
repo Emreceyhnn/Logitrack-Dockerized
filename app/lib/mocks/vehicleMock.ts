@@ -42,6 +42,7 @@ function buildVehicle(index: number): VehicleWithRelations {
   const status = STATUS_CYCLE[index % STATUS_CYCLE.length]!;
   const type = index % 4 === 0 ? VehicleType.VAN : VehicleType.TRUCK;
   const now = new Date();
+  const odometerKm = 40000 + index * 8000;
 
   return {
     id: `demo-vehicle-${index}`,
@@ -53,14 +54,15 @@ function buildVehicle(index: number): VehicleWithRelations {
     type,
     maxLoadKg: 8000 + index * 500,
     fuelType: index % 5 === 0 ? "ELECTRIC" : "DIESEL",
-    nextServiceKm: 5000 + index * 300,
     avgFuelConsumption: 28 + (index % 10),
     status,
-    odometerKm: 40000 + index * 8000,
+    odometerKm,
     fuelLevel: 40 + (index % 60),
     fuelCapacity: 400,
     currentLat: 41.0082 - index * 0.04,
     currentLng: 28.9784 + index * 0.04,
+    // service interval is always ahead of the current odometer reading
+    nextServiceKm: odometerKm + 5000 + (index % 6) * 1000,
     driver:
       status === VehicleStatus.ON_TRIP
         ? {

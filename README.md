@@ -1,8 +1,10 @@
-# LogiTrack v2
+# LogiTrack
 
 **LogiTrack** is a multi-tenant logistics and fleet management platform. It covers the full operational lifecycle of a logistics company — shipments, routes, drivers, vehicles, trailers, warehouses, inventory, customers, fuel tracking, maintenance, and analytics — behind a role-based, company-scoped access model.
 
 Built with **Next.js 16 (App Router)**, **React 19**, **TypeScript**, **Prisma 7** on **Neon Postgres**, and **MUI 7**.
+
+🔗 **Live demo:** [logitrackenterprise.emreceyhan.xyz](https://logitrackenterprise.emreceyhan.xyz) — a public, read-mostly walkthrough of the dashboard backed by a fixed demo dataset (no sign-up needed; every mutating action shows a "disabled in demo" toast instead of touching real data). Running dockerized on a VPS — see [Deployment](#-deployment) below.
 
 ---
 
@@ -10,7 +12,7 @@ Built with **Next.js 16 (App Router)**, **React 19**, **TypeScript**, **Prisma 7
 
 - **Shipment management** — full shipment lifecycle with a strict status state machine (including `FAILED` / `RETURNED` / `DELAYED` states), priorities, service types, multi-stop support, item-level tracking, and audit history.
 - **Route planning & dispatch** — routes with ordered stops, driver/vehicle assignment with conflict and capacity guards, and route status tracking. Turn-by-turn routing via **Valhalla** and polyline decoding for map display.
-- **Live fleet tracking** — real-time vehicle positions on **Leaflet** maps, powered by **Firebase Realtime Database**.
+- **In-app notifications** — personal, company/role-wide, and global-broadcast notifications delivered over Server-Sent Events, backed by Postgres and a process-local event bus (`app/lib/notificationBus.ts`).
 - **Fleet & maintenance** — vehicles, trailers and trailer assignments, fuel logs, maintenance records with status/type tracking, and document management (with signed document access via Cloudinary).
 - **Warehouse operations** — warehouses, zones, warehouse tasks (pick/pack/etc. with priorities), inventory and inventory movements, plus a dedicated **warehouse-worker** UI surface.
 - **Customer management** — customers with multiple locations and Google Places address autocomplete.
@@ -25,7 +27,7 @@ Built with **Next.js 16 (App Router)**, **React 19**, **TypeScript**, **Prisma 7
 - **Tenant isolation** — every domain record is scoped by a required `companyId`; a tenant guard enforces isolation at the data-access layer (`app/lib/tenant-context.ts`).
 - **Authentication** — JWT access/refresh tokens (`jose`), password hashing with `bcryptjs`, and **immediate session revocation** via an Upstash Redis denylist.
 - **Authorization** — permission-based RBAC. Roles and their permission sets are defined in [`roles.json`](roles.json) (Administrator, Warehouse Manager, Dispatcher, Warehouse Operator, …) and enforced in `app/lib/auth-middleware.ts`.
-- **Edge middleware** ([`proxy.ts`](proxy.ts)) — locale routing, route protection, IP-based **rate limiting**, and a strict **nonce-based CSP** (the nonce is propagated on request headers so Next.js can pick it up during SSR).
+- **Proxy** ([`proxy.ts`](proxy.ts), Node.js runtime — required for the Redis-backed session/rate-limit checks) — locale routing, route protection, IP-based **rate limiting**, and a strict **nonce-based CSP** (the nonce is propagated on request headers so Next.js can pick it up during SSR).
 - **Rate limiting** — Redis-backed limiter shared by the middleware and API routes.
 - **Audit logging** — `AuditLog` model records domain mutations.
 - **Soft deletes** — domain entities are soft-deleted, never hard-deleted.
@@ -47,6 +49,7 @@ app/
 │   ├── auth/ company/ customers/ drivers/ inventory/ routes/
 │   ├── shipments/ trailers/ vehicles/ warehouses/ warehouse-worker/
 │   ├── analytics/ overview/ reports/ exchange-rates/ valhalla/
+│   ├── notifications/stream/ # SSE endpoint for in-app notifications
 │   └── cron/                # Scheduled jobs (expiration checks, SLA)
 ├── components/              # Shared React components
 ├── hooks/                   # Shared React hooks
@@ -60,10 +63,11 @@ app/
     ├── auth-middleware.ts   # AuthN/AuthZ for API routes
     ├── tenant-context.ts    # Multi-tenant guard
     ├── rate-limiter.ts      # Redis-backed rate limiting
+    ├── notificationBus.ts   # In-process event bus for the SSE notification stream
     └── db.ts                # Prisma client (Neon serverless adapter)
 ```
 
-**Request flow:** `proxy.ts` (edge: locale + auth gate + rate limit + CSP) → route handler / server action → `auth-middleware` (permissions) → `tenant-context` (company scoping) → controller → Prisma.
+**Request flow:** `proxy.ts` (locale + auth gate + rate limit + CSP) → route handler / server action → `auth-middleware` (permissions) → `tenant-context` (company scoping) → controller → Prisma.
 
 API route errors are normalized through a central `handleApiError()` that maps `AppError` statuses to proper HTTP responses (403/404/409/429).
 
@@ -78,7 +82,7 @@ Client and server intentionally use **different** validation libraries to keep t
 
 ### Data model
 
-The Prisma schema (~27 models) centers on `Company` as the tenant root, with `User`/`Role`/`Session`, fleet entities (`Driver`, `Vehicle`, `Trailer`, `MaintenanceRecord`, `FuelLog`), warehouse entities (`Warehouse`, `WarehouseZone`, `WarehouseTask`, `Inventory`, `InventoryMovement`), commerce entities (`Customer`, `CustomerLocation`), and operations (`Shipment` + stops/items/history, `Route` + stops, `Document`, `Issue`, `AuditLog`, `ExchangeRate`).
+The Prisma schema (~36 models) centers on `Company` as the tenant root, with `User`/`Role`/`Session`, fleet entities (`Driver`, `Vehicle`, `Trailer`, `MaintenanceRecord`, `FuelLog`), warehouse entities (`Warehouse`, `WarehouseZone`, `WarehouseTask`, `Inventory`, `InventoryMovement`), commerce entities (`Customer`, `CustomerLocation`), and operations (`Shipment` + stops/items/history, `Route` + stops, `Document`, `Issue`, `Notification`, `AuditLog`, `ExchangeRate`).
 
 ## 🧰 Tech Stack
 
@@ -89,7 +93,7 @@ The Prisma schema (~27 models) centers on `Company` as the tenant root, with `Us
 | Data fetching | TanStack Query 5, TanStack Table 8 |
 | Database | PostgreSQL (Neon serverless) + Prisma 7 |
 | Cache / sessions / rate limit | Upstash Redis |
-| Realtime tracking | Firebase Realtime Database (+ firebase-admin) |
+| Realtime notifications | Server-Sent Events + in-process EventEmitter (`app/lib/notificationBus.ts`) |
 | File storage | Cloudinary (signed URLs) |
 | Maps & routing | Leaflet / react-leaflet, Valhalla, Google Places autocomplete |
 | Auth | jose (JWT), bcryptjs |
@@ -103,7 +107,7 @@ The Prisma schema (~27 models) centers on `Company` as the tenant root, with `Us
 
 - Node.js 20+
 - A PostgreSQL database (Neon recommended)
-- Upstash Redis, Firebase, and Cloudinary projects (see env vars below)
+- Upstash Redis and Cloudinary projects (see env vars below)
 
 ### Setup
 
@@ -132,7 +136,6 @@ See [`.env.example`](.env.example) for the full list. Key groups:
 | Database | `DATABASE_URL` |
 | Auth | `JWT_SECRET` (required at startup), `REFRESH_SECRET` |
 | Redis | `KV_REST_API_URL`, `KV_REST_API_TOKEN`, `REDIS_URL`, … |
-| Firebase | `NEXT_PUBLIC_FIREBASE_*`, `FIREBASE_CLIENT_EMAIL`, `FIREBASE_PRIVATE_KEY` |
 | Cloudinary | `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET` |
 | Maps | `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY`, `GOOGLE_MAPS_API_KEY` |
 | FX rates | `EXCHANGE_RATE_API_KEY`, `EXCHANGE_RATE_BASE_URL` |
@@ -166,7 +169,7 @@ Denied attempts are audited too — a non-admin probing the console is a securit
 | Area | Route | Notes |
 |---|---|---|
 | Overview | `/admin` | KPIs + activity charts, all from real rows |
-| Health matrix | `/admin/health` | Live probes: Postgres, Redis, LogiTrack Email Service, Cloudinary, Firebase, Valhalla |
+| Health matrix | `/admin/health` | Live probes: Postgres, Redis, LogiTrack Email Service, Cloudinary, Valhalla |
 | Tenants / Users / Sessions | `/admin/{tenants,users,sessions}` | Suspend, deactivate, kill sessions |
 | Audit logs | `/admin/audit` | Append-only; no edit or delete route exists |
 | Database browser | `/admin/database` | Read + soft-delete only; closed model allowlist, no editing |
@@ -203,6 +206,51 @@ This is not a shortcut — it is the only correct option here. Almost every fore
 - **`set-cookie` / `authorization` response headers are redacted** before reaching the browser.
 - **No credential columns are ever selected** — `User.password`, `User.googleId`, `Session.token`, `Session.refreshToken`. Covered by tests.
 - **The email tester sends real mail** through the LogiTrack Email Service using production templates, and says so in the UI.
+
+## 🐳 Deployment
+
+Production runs **dockerized on a VPS**, fronted by nginx, at [logitrackenterprise.emreceyhan.xyz](https://logitrackenterprise.emreceyhan.xyz).
+
+### Image
+
+[`Dockerfile`](Dockerfile) is a two-stage build:
+
+1. **Builder** (`node:22-alpine`) — installs dependencies, then runs `npm run build`. A `.env` is mounted only as a build **secret** (`--mount=type=secret,id=dotenv`), never baked into a layer, so `NEXT_PUBLIC_*` values can be inlined into the client bundle without leaking server secrets into the image history.
+2. **Runtime** (`node:22-alpine`) — copies the Next.js `standalone` output, static assets, and public files. The Prisma CLI (and its full `node_modules`, since `next build` only traces runtime imports) is copied separately into `/migrate`, kept out of the app's own tree.
+
+[`docker-entrypoint.sh`](docker-entrypoint.sh) runs `prisma migrate deploy` against `DATABASE_URL` on every container start — before the server boots — so a redeploy and its schema migration always happen together, in order.
+
+### Compose stack
+
+[`docker-compose.yml`](docker-compose.yml) runs five services on the VPS:
+
+| Service | Role |
+|---|---|
+| `nginx` | Public entrypoint (port 80), reverse-proxies to `web`, serves `/healthz` |
+| `web` | The Next.js app (`emrecyhn/logitrack:latest`, pulled — not built — on the VPS) |
+| `postgres` | Primary database, bound to `127.0.0.1` only |
+| `redis` | Sessions / rate-limit / cache, bound to `127.0.0.1` only |
+| `email-service` | `emrecyhn/logitrack-email-service:latest` |
+
+`web` has no published port — it's reachable only through `nginx` on the compose network, so nginx's rate limiting can't be bypassed. `postgres` and `redis` are bound to `127.0.0.1` so `psql`/`redis-cli` still work from the VPS itself without exposing either to the network.
+
+### CI/CD pipeline
+
+Push to `main` triggers two chained GitHub Actions workflows:
+
+1. **[`docker.publish.yml`](.github/workflows/docker.publish.yml)** — builds the image with Buildx (GHA layer cache), tags it (short SHA, branch, semver, and `latest` on the default branch), and pushes to Docker Hub as `emrecyhn/logitrack`. The production `.env` (`PRODUCTION_ENV_FILE` secret) is passed in as a build secret — the single source of truth for both the image's build-time env and the VPS's runtime `.env` (see next step), so the two never drift out of sync.
+2. **[`deploy.yml`](.github/workflows/deploy.yml)** — runs on that workflow's success; SSHes into the VPS, rewrites `.env` from the same `PRODUCTION_ENV_FILE` secret, pulls the newly built image tag, `docker compose down && up -d`, then polls `/healthz` (10 tries, 5s apart) and fails the deploy if the service never turns healthy.
+
+### Deploying manually
+
+The VPS only ever needs `docker-compose.yml`, `nginx/`, and `.env` — there's no source checkout on the server, a deploy is always pull + up:
+
+```bash
+cd /home/logitrack/client
+docker pull emrecyhn/logitrack:latest
+docker compose down
+docker compose up -d
+```
 
 ## 📜 Scripts
 

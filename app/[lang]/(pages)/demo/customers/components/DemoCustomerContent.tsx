@@ -14,7 +14,6 @@ import {
 import SearchIcon from "@mui/icons-material/Search";
 import AddIcon from "@mui/icons-material/Add";
 import CustomerList from "@/app/components/dashboard/customer/CustomerList";
-import CustomerDetailDialog from "@/app/components/dialogs/customer/customerDetailDialog";
 import QueryErrorState from "@/app/components/ui/QueryErrorState";
 import { useState, useMemo, useCallback } from "react";
 import { CustomerWithRelations } from "@/app/lib/type/customer";
@@ -43,10 +42,6 @@ export default function DemoCustomerContent() {
   /* ---------------------------------- STATE --------------------------------- */
   const [filters, setFilters] = useState<{ search: string }>({ search: "" });
   const [pagination, setPagination] = useState({ page: 1, pageSize: 10 });
-  const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(
-    null
-  );
-  const [detailOpen, setDetailOpen] = useState(false);
 
   /* ---------------------------------- HOOKS --------------------------------- */
   const {
@@ -69,29 +64,10 @@ export default function DemoCustomerContent() {
     []
   );
 
-  const handleSelect = useCallback((id: string) => {
-    if (!id) return;
-    setSelectedCustomerId(id);
-    setDetailOpen(true);
-  }, []);
-
-  const handleCloseDetail = useCallback(() => {
-    setDetailOpen(false);
-    setSelectedCustomerId(null);
-  }, []);
-
   /* --------------------------------- HELPERS -------------------------------- */
   const customers = useMemo(
     () => dashboardData?.customers || [],
     [dashboardData?.customers]
-  );
-
-  const selectedCustomer = useMemo(
-    () =>
-      customers.find(
-        (c: CustomerWithRelations) => c.id === selectedCustomerId
-      ) ?? null,
-    [customers, selectedCustomerId]
   );
 
   const mapLocations = useMemo(() => {
@@ -167,9 +143,9 @@ export default function DemoCustomerContent() {
           ) : (
             <CustomerList
               customers={customers}
-              selectedId={selectedCustomerId}
+              selectedId={null}
               loading={isLoading}
-              onSelect={handleSelect}
+              onSelect={notifyDisabled}
               onEdit={notifyDisabled}
               onDelete={notifyDisabled}
               meta={{
@@ -214,14 +190,6 @@ export default function DemoCustomerContent() {
           </Box>
         )}
       </Card>
-
-      <CustomerDetailDialog
-        key={selectedCustomerId}
-        open={detailOpen}
-        onClose={handleCloseDetail}
-        customerId={selectedCustomerId}
-        customerData={selectedCustomer}
-      />
     </Box>
   );
 }

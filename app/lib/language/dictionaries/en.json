@@ -1177,7 +1177,7 @@
         },
         "compliance": {
           "title": "Global Compliance",
-          "description": "Transparent and auditable infrastructure protected by Firebase Auth, Prisma, and modern cloud security standards."
+          "description": "Transparent and auditable infrastructure protected by JWT-based authentication, Prisma, and modern cloud security standards."
         }
       },
       "detail": {

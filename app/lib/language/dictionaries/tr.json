@@ -1177,7 +1177,7 @@
         },
         "compliance": {
           "title": "Küresel Uyumluluk",
-          "description": "Firebase Auth, Prisma ve modern bulut güvenlik standartları ile korunan, şeffaf ve denetlenebilir altyapı."
+          "description": "JWT tabanlı kimlik doğrulama, Prisma ve modern bulut güvenlik standartları ile korunan, şeffaf ve denetlenebilir altyapı."
         }
       },
       "detail": {

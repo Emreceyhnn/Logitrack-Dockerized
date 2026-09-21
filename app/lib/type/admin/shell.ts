@@ -22,7 +22,6 @@ export type ServiceKey =
   | "redis"
   | "email"
   | "storage"
-  | "firebase"
   | "valhalla";
 
 export interface ServiceHealth {

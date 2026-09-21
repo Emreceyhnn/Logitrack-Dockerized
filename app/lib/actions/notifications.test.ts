@@ -1,29 +1,35 @@
- 
+
 import { describe, it, mock, beforeEach, before } from "node:test";
 import { expect } from "expect";
 
 // 1. MOCK'LAR
-const adminDbMock = {
-  ref: mock.fn(() => ({
-    push: mock.fn(() => ({
-      key: "mock-key",
-      set: mock.fn(async () => {}),
-    })),
-    update: mock.fn(async () => {}),
-    remove: mock.fn(async () => {}),
-  })),
-};
-
 const dbMock = {
   user: {
     findMany: mock.fn(),
   },
+  notification: {
+    create: mock.fn(),
+    updateMany: mock.fn(),
+    deleteMany: mock.fn(),
+    findMany: mock.fn(),
+  },
+};
+
+const authMiddlewareMock = {
+  getAuthenticatedUser: mock.fn(),
+};
+
+const notificationBusMock = {
+  publish: mock.fn(),
 };
 
 const sendNotificationEmailMock = mock.fn(async () => {});
 
-mock.module("../firebase-admin.ts", { namedExports: { adminDb: adminDbMock } });
 mock.module("../db.ts", { namedExports: { db: dbMock } });
+mock.module("../auth-middleware.ts", { namedExports: authMiddlewareMock });
+mock.module("../notificationBus.ts", {
+  namedExports: { notificationBus: notificationBusMock },
+});
 mock.module("../services/email.ts", {
   namedExports: { sendNotificationEmail: sendNotificationEmailMock },
 });
@@ -46,6 +52,22 @@ const makeUser = (
   ...overrides,
 });
 
+const makeRow = (overrides: Record<string, unknown> = {}) => ({
+  id: "notif-1",
+  title: "Title",
+  message: "Message",
+  type: "INFO",
+  category: null,
+  link: null,
+  metadata: null,
+  isRead: false,
+  createdAt: new Date("2026-01-01T00:00:00Z"),
+  userId: null,
+  companyId: null,
+  roleId: null,
+  ...overrides,
+});
+
 // 2. TEST GRUPLARI
 describe("Notifications Actions", () => {
   let notificationsActions: unknown;
@@ -55,17 +77,26 @@ describe("Notifications Actions", () => {
   });
 
   beforeEach(() => {
-    adminDbMock.ref.mock.resetCalls();
     dbMock.user.findMany.mock.resetCalls();
+    dbMock.notification.create.mock.resetCalls();
+    dbMock.notification.updateMany.mock.resetCalls();
+    dbMock.notification.deleteMany.mock.resetCalls();
+    dbMock.notification.findMany.mock.resetCalls();
+    authMiddlewareMock.getAuthenticatedUser.mock.resetCalls();
+    notificationBusMock.publish.mock.resetCalls();
     sendNotificationEmailMock.mock.resetCalls();
+
+    dbMock.notification.create.mock.mockImplementation(async (args: { data: Record<string, unknown> }) =>
+      makeRow(args.data)
+    );
   });
 
   describe("sendNotificationAction() metodu", () => {
-    it("should_SendTargetedBroadcast_WhenCompanyIdAndCategoryAreProvided", async () => {
+    it("should_WriteOneSharedRow_WhenCompanyIdAndCategoryAreProvided", async () => {
       // Arrange
       const target = { companyId: "comp-1" };
       const notification = { title: "Update", message: "New update", type: "INFO", category: "SHIPMENT_UPDATE" };
-      
+
       // Preference filtering happens in the DB query itself; findMany only
       // returns users who opted in to shipment emails.
       dbMock.user.findMany.mock.mockImplementation(async () => [
@@ -79,15 +110,16 @@ describe("Notifications Actions", () => {
       // Assert
       expect(result.success).toBe(true);
       expect(dbMock.user.findMany.mock.calls.length).toBe(1);
-      // Opt-in filter must be part of the where clause for SHIPMENT_UPDATE
       const whereClause = dbMock.user.findMany.mock.calls[0].arguments[0].where;
       expect(whereClause.companyId).toBe("comp-1");
       expect(whereClause.notifEmailShipment).toBe(true);
 
-      // One personal inbox write per opted-in user
-      expect(adminDbMock.ref.mock.calls.length).toBe(2);
-      expect(adminDbMock.ref.mock.calls[0].arguments[0]).toBe("notifications/inbox/u-1");
-      expect(adminDbMock.ref.mock.calls[1].arguments[0]).toBe("notifications/inbox/u-2");
+      // Company/role-wide targets write exactly ONE shared row, not one per recipient.
+      expect(dbMock.notification.create.mock.calls.length).toBe(1);
+      const createArgs = dbMock.notification.create.mock.calls[0].arguments[0].data;
+      expect(createArgs.userId).toBe(null);
+      expect(createArgs.companyId).toBe("comp-1");
+      expect(notificationBusMock.publish.mock.calls.length).toBe(1);
     });
 
     it("should_SendEmail_WhenTargetIsSingleUserAndCategoryIsEmailScoped", async () => {
@@ -114,8 +146,9 @@ describe("Notifications Actions", () => {
       // Inbox and email share one column here, so it is asserted directly (no OR)
       expect(whereClause.notifEmailMaint).toBe(true);
 
-      // Personal inbox still written
-      expect(adminDbMock.ref.mock.calls[0].arguments[0]).toBe("notifications/inbox/u-9");
+      // Personal row written for this user
+      const createArgs = dbMock.notification.create.mock.calls[0].arguments[0].data;
+      expect(createArgs.userId).toBe("u-9");
 
       // ...and email is now actually dispatched, in the user's language
       expect(sendNotificationEmailMock.mock.calls.length).toBe(1);
@@ -145,7 +178,8 @@ describe("Notifications Actions", () => {
       // No category → no preference filter and no email
       expect(whereClause.notifEmailMaint).toBe(undefined);
       expect(sendNotificationEmailMock.mock.calls.length).toBe(0);
-      expect(adminDbMock.ref.mock.calls[0].arguments[0]).toBe("notifications/inbox/u-5");
+      const createArgs = dbMock.notification.create.mock.calls[0].arguments[0].data;
+      expect(createArgs.userId).toBe("u-5");
     });
 
     it("should_SendBothChannels_WhenCategoryIsNewAssignment", async () => {
@@ -174,7 +208,7 @@ describe("Notifications Actions", () => {
         { notifEmailAssignment: true },
       ]);
 
-      expect(adminDbMock.ref.mock.calls[0].arguments[0]).toBe("notifications/inbox/u-7");
+      expect(dbMock.notification.create.mock.calls.length).toBe(1);
       expect(sendNotificationEmailMock.mock.calls.length).toBe(1);
       const [recipients] = sendNotificationEmailMock.mock.calls[0].arguments;
       expect(recipients).toEqual([{ email: "d@test.com", lang: "tr" }]);
@@ -197,9 +231,9 @@ describe("Notifications Actions", () => {
       // Act
       const result = await notificationsActions.sendNotificationAction(target, notification as unknown);
 
-      // Assert — no inbox write, but email still goes out
+      // Assert — no inbox row written, but email still goes out
       expect(result.success).toBe(true);
-      expect(adminDbMock.ref.mock.calls.length).toBe(0);
+      expect(dbMock.notification.create.mock.calls.length).toBe(0);
       expect(sendNotificationEmailMock.mock.calls.length).toBe(1);
     });
 
@@ -220,9 +254,9 @@ describe("Notifications Actions", () => {
       // Act
       const result = await notificationsActions.sendNotificationAction(target, notification as unknown);
 
-      // Assert — inbox written, no email
+      // Assert — row written, no email
       expect(result.success).toBe(true);
-      expect(adminDbMock.ref.mock.calls[0].arguments[0]).toBe("notifications/inbox/u-11");
+      expect(dbMock.notification.create.mock.calls.length).toBe(1);
       expect(sendNotificationEmailMock.mock.calls.length).toBe(0);
     });
 
@@ -243,7 +277,7 @@ describe("Notifications Actions", () => {
 
       // Assert
       expect(result.success).toBe(true);
-      expect(adminDbMock.ref.mock.calls[0].arguments[0]).toBe("notifications/inbox/u-12");
+      expect(dbMock.notification.create.mock.calls.length).toBe(1);
       expect(sendNotificationEmailMock.mock.calls.length).toBe(0);
     });
 
@@ -262,9 +296,9 @@ describe("Notifications Actions", () => {
       // Act
       const result = await notificationsActions.sendNotificationAction(target, notification as unknown);
 
-      // Assert — no inbox write, no email, but not an error either
+      // Assert — no row written, no email, but not an error either
       expect(result.success).toBe(true);
-      expect(adminDbMock.ref.mock.calls.length).toBe(0);
+      expect(dbMock.notification.create.mock.calls.length).toBe(0);
       expect(sendNotificationEmailMock.mock.calls.length).toBe(0);
     });
 
@@ -278,24 +312,98 @@ describe("Notifications Actions", () => {
 
       // Assert
       expect(result.success).toBe(true);
-      expect(adminDbMock.ref.mock.calls.length).toBe(1);
-      expect(adminDbMock.ref.mock.calls[0].arguments[0]).toBe("notifications/broadcast");
+      expect(dbMock.notification.create.mock.calls.length).toBe(1);
+      const createArgs = dbMock.notification.create.mock.calls[0].arguments[0].data;
+      expect(createArgs.userId).toBe(null);
+      expect(createArgs.companyId).toBe(null);
+      expect(notificationBusMock.publish.mock.calls.length).toBe(1);
+      const publishedEvent = notificationBusMock.publish.mock.calls[0].arguments[0];
+      expect(publishedEvent.isGlobal).toBe(true);
     });
   });
 
   describe("markAsReadAction() metodu", () => {
-    it("should_MarkNotificationAsRead", async () => {
-      const result = await notificationsActions.markAsReadAction("inbox/u-1", "notif-1");
+    it("should_MarkNotificationAsRead_WhenOwnedByCaller", async () => {
+      authMiddlewareMock.getAuthenticatedUser.mock.mockImplementation(async () => ({
+        id: "u-1",
+        companyId: "comp-1",
+      }));
+      dbMock.notification.updateMany.mock.mockImplementation(async () => ({ count: 1 }));
+
+      const result = await notificationsActions.markAsReadAction("notif-1");
+
       expect(result.success).toBe(true);
-      expect(adminDbMock.ref.mock.calls[0].arguments[0]).toBe("inbox/u-1/notif-1");
+      const args = dbMock.notification.updateMany.mock.calls[0].arguments[0];
+      expect(args.where.id).toBe("notif-1");
+      expect(args.data.isRead).toBe(true);
+    });
+
+    it("should_Fail_WhenNotificationNotOwnedByCaller", async () => {
+      authMiddlewareMock.getAuthenticatedUser.mock.mockImplementation(async () => ({
+        id: "u-1",
+        companyId: "comp-1",
+      }));
+      dbMock.notification.updateMany.mock.mockImplementation(async () => ({ count: 0 }));
+
+      const result = await notificationsActions.markAsReadAction("notif-999");
+
+      expect(result.success).toBe(false);
+    });
+
+    it("should_Fail_WhenUnauthenticated", async () => {
+      authMiddlewareMock.getAuthenticatedUser.mock.mockImplementation(async () => null);
+
+      const result = await notificationsActions.markAsReadAction("notif-1");
+
+      expect(result.success).toBe(false);
+      expect(dbMock.notification.updateMany.mock.calls.length).toBe(0);
     });
   });
 
   describe("deleteNotificationAction() metodu", () => {
-    it("should_DeleteNotification", async () => {
-      const result = await notificationsActions.deleteNotificationAction("inbox/u-1", "notif-1");
+    it("should_DeleteNotification_WhenOwnedByCaller", async () => {
+      authMiddlewareMock.getAuthenticatedUser.mock.mockImplementation(async () => ({
+        id: "u-1",
+        companyId: "comp-1",
+      }));
+      dbMock.notification.deleteMany.mock.mockImplementation(async () => ({ count: 1 }));
+
+      const result = await notificationsActions.deleteNotificationAction("notif-1");
+
       expect(result.success).toBe(true);
-      expect(adminDbMock.ref.mock.calls[0].arguments[0]).toBe("inbox/u-1/notif-1");
+      const args = dbMock.notification.deleteMany.mock.calls[0].arguments[0];
+      expect(args.where.id).toBe("notif-1");
+    });
+  });
+
+  describe("getNotificationsAction() metodu", () => {
+    it("should_ReturnHistory_ForSignedInUser", async () => {
+      authMiddlewareMock.getAuthenticatedUser.mock.mockImplementation(async () => ({
+        id: "u-1",
+        companyId: "comp-1",
+        roleId: "role-1",
+      }));
+      dbMock.notification.findMany.mock.mockImplementation(async () => [makeRow()]);
+
+      const result = await notificationsActions.getNotificationsAction();
+
+      expect(result.success).toBe(true);
+      expect(result.notifications.length).toBe(1);
+      const whereClause = dbMock.notification.findMany.mock.calls[0].arguments[0].where;
+      expect(whereClause.OR).toEqual([
+        { userId: "u-1" },
+        { userId: null, companyId: null },
+        { userId: null, companyId: "comp-1", roleId: null },
+        { userId: null, companyId: "comp-1", roleId: "role-1" },
+      ]);
+    });
+
+    it("should_Fail_WhenUnauthenticated", async () => {
+      authMiddlewareMock.getAuthenticatedUser.mock.mockImplementation(async () => null);
+
+      const result = await notificationsActions.getNotificationsAction();
+
+      expect(result.success).toBe(false);
     });
   });
 });

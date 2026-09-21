@@ -18,17 +18,13 @@ import { useTheme } from "@mui/material/styles";
 import KpiCards from "@/app/components/cards/KpiCards";
 import QueryErrorState from "@/app/components/ui/QueryErrorState";
 import { useCurrency } from "@/app/hooks/useCurrency";
-import InventoryDetailsDialog from "@/app/components/dialogs/inventory/InventoryDetailsDialog";
-import type { InventoryWithRelations } from "@/app/lib/type/inventory";
 import { toast } from "sonner";
 
 /**
  * Demo-only counterpart to InventoryContent — same header/KPI/table layout,
- * backed by the fixed demo dataset. Selecting a row opens the real
- * InventoryDetailsDialog, which is demo-aware: it serves mock movements and
- * refuses stock adjustments rather than calling an authenticated action. The
- * header is DemoInventoryHeader (no useWarehouses fetch). Add/Edit/Delete
- * still only show a "disabled in demo" toast.
+ * backed by the fixed demo dataset. The header is DemoInventoryHeader (no
+ * useWarehouses fetch). Add/Edit/Delete/details all just show a "disabled in
+ * demo" toast; no dialog is ever mounted.
  */
 export default function DemoInventoryContent() {
   /* -------------------------------- VARIABLES ------------------------------- */
@@ -45,9 +41,6 @@ export default function DemoInventoryContent() {
     field: "name",
     order: "asc",
   });
-  const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
-  const [detailOpen, setDetailOpen] = useState(false);
-
   /* ---------------------------------- HOOKS --------------------------------- */
   const {
     data: dashboardData,
@@ -67,24 +60,6 @@ export default function DemoInventoryContent() {
   // exhaustive-deps).
   const items = useMemo(() => dashboardData?.items || [], [dashboardData?.items]);
   const stats = dashboardData?.stats;
-
-  const handleOpenDetails = useCallback((id: string) => {
-    if (!id) return;
-    setSelectedItemId(id);
-    setDetailOpen(true);
-  }, []);
-
-  const handleCloseDetails = useCallback(() => {
-    setDetailOpen(false);
-    setSelectedItemId(null);
-  }, []);
-
-  const selectedItem = useMemo(
-    () =>
-      (items as InventoryWithRelations[]).find((i) => i.id === selectedItemId) ??
-      null,
-    [items, selectedItemId]
-  );
 
   const warehouseOptions = useMemo(() => {
     const seen = new Map<string, string>();
@@ -169,7 +144,7 @@ export default function DemoInventoryContent() {
                 items={items}
                 loading={isLoading}
                 refreshing={isFetching}
-                onSelect={handleOpenDetails}
+                onSelect={notifyDisabled}
                 onEdit={notifyDisabled}
                 onDelete={notifyDisabled}
                 meta={{
@@ -191,15 +166,6 @@ export default function DemoInventoryContent() {
           </Box>
         </CustomCard>
       </Stack>
-
-      {detailOpen && (
-        <InventoryDetailsDialog
-          isOpen={detailOpen}
-          onClose={handleCloseDetails}
-          item={selectedItem}
-          onEdit={notifyDisabled}
-        />
-      )}
     </Box>
   );
 }

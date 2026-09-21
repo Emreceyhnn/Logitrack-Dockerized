@@ -6,9 +6,9 @@ import { DUTY_ORDER } from "@/app/lib/utils/driverConsoleUi";
 import LanguageSwitcher from "../nav/LanguageSwitcher";
 import UserAccountNav from "../nav/UserAccountNav";
 
-// Mirrors DashboardHeader: the bell pulls the firebase SDK (~237 kB) in via
-// useNotifications, so it is lazy-loaded to keep it out of this route's First
-// Load JS. The 40px placeholder holds its slot while the chunk streams in.
+// Mirrors DashboardHeader: useNotifications opens an EventSource, which
+// doesn't exist during SSR, so ssr: false is required here, not just an
+// optimization. The 40px placeholder holds its slot while the chunk streams in.
 const NotificationBell = dynamic(
   () => import("../notifications/NotificationBell"),
   { ssr: false, loading: () => <Box sx={{ width: 40, height: 40 }} /> }

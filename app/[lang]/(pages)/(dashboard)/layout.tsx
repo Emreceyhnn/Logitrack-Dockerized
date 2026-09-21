@@ -1,3 +1,4 @@
+import Script from "next/script";
 import DashboardLayoutClient from "@/app/components/dashboard/DashboardLayoutClient";
 import { Metadata } from "next";
 import { redirect } from "next/navigation";
@@ -43,8 +44,21 @@ export default async function DashboardLayout({
 
   // UserProvider lives here (not in the root [lang] layout) so the session
   // read only makes the dashboard tree dynamic — marketing pages stay static.
+  //
+  // Google Maps is loaded exactly once, here, rather than letting each
+  // AddressAutocomplete instance load its own <script> (its default
+  // behaviour): several stop/address fields mount at once on shipment/route
+  // forms, and react-google-autocomplete's loader has a race — concurrent
+  // instances step on each other's `__REACT_GOOGLE_AUTOCOMPLETE_CALLBACK__`,
+  // so `google.maps.places` isn't ready when a later instance checks for it
+  // ("Google maps places API must be loaded."). AddressAutocomplete is given
+  // no apiKey prop, which makes it skip its own loader and use this script.
   return (
     <UserProvider initialUser={user}>
+      <Script
+        src={`https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&libraries=places`}
+        strategy="afterInteractive"
+      />
       <DashboardLayoutClient>{children}</DashboardLayoutClient>
     </UserProvider>
   );

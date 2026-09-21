@@ -1,4 +1,4 @@
- 
+
 import { describe, it, mock, beforeEach, before } from "node:test";
 import { expect } from "expect";
 
@@ -11,14 +11,8 @@ const reactMock = {
   useRef: mock.fn((init) => ({ current: init })),
 };
 
-const firebaseMock = {
-  db: "mockDb",
-  ref: mock.fn(() => "mockRef"),
-  onValue: mock.fn(),
-  off: mock.fn(),
-};
-
 const notificationsActionMock = {
+  getNotificationsAction: mock.fn(async () => ({ success: true, notifications: [] })),
   markAsReadAction: mock.fn(),
   deleteNotificationAction: mock.fn(),
 };
@@ -34,11 +28,6 @@ mock.module("react", {
   defaultExport: { ...realReact, ...reactMock },
 });
 
-// Subscriptions gate on Firebase custom-token auth; stub it as signed in.
-mock.module("../lib/firebase-auth.ts", {
-  namedExports: { ensureFirebaseAuth: mock.fn(async () => {}) },
-});
-mock.module("../lib/firebase.ts", { namedExports: firebaseMock });
 mock.module("../lib/actions/notifications.ts", { namedExports: notificationsActionMock });
 
 // 2. TEST GRUPLARI
@@ -52,9 +41,9 @@ describe("useNotifications Hook", () => {
   beforeEach(() => {
     reactMock.useEffect.mock.resetCalls();
     reactMock.useState.mock.resetCalls();
-    firebaseMock.ref.mock.resetCalls();
-    firebaseMock.onValue.mock.resetCalls();
+    notificationsActionMock.getNotificationsAction.mock.resetCalls();
     notificationsActionMock.markAsReadAction.mock.resetCalls();
+    notificationsActionMock.deleteNotificationAction.mock.resetCalls();
   });
 
   it("should_InitializeHookAndReturnHelpers", () => {
@@ -68,9 +57,12 @@ describe("useNotifications Hook", () => {
     expect(result.unreadCount).toBeDefined();
     expect(result.loading).toBeDefined();
     expect(typeof result.markAsRead).toBe("function");
+    expect(typeof result.deleteNotification).toBe("function");
   });
 
-  it("should_CallMarkAsReadAction_WithNotificationPathAndId", async () => {
+  // markAsRead/deleteNotification now take only the notification id — the
+  // RTDB `_sourcePath` concept this test used to assert on no longer exists.
+  it("should_CallMarkAsReadAction_WithOnlyNotificationId", async () => {
     notificationsActionMock.markAsReadAction.mock.mockImplementation(
       async () => ({ success: true })
     );
@@ -80,18 +72,39 @@ describe("useNotifications Hook", () => {
       id: "notif-1",
       title: "T",
       message: "M",
-      type: "GENERAL",
+      type: "INFO",
       createdAt: Date.now(),
       isRead: false,
-      _sourcePath: "notifications/inbox/user-1",
     };
 
     await result.markAsRead(notification);
 
     expect(notificationsActionMock.markAsReadAction.mock.calls.length).toBe(1);
     expect(notificationsActionMock.markAsReadAction.mock.calls[0]?.arguments).toEqual([
-      "notifications/inbox/user-1",
       "notif-1",
+    ]);
+  });
+
+  it("should_CallDeleteNotificationAction_WithOnlyNotificationId", async () => {
+    notificationsActionMock.deleteNotificationAction.mock.mockImplementation(
+      async () => ({ success: true })
+    );
+
+    const result = useNotificationsMod.useNotifications({ id: "user-1" });
+    const notification = {
+      id: "notif-2",
+      title: "T",
+      message: "M",
+      type: "INFO",
+      createdAt: Date.now(),
+      isRead: false,
+    };
+
+    await result.deleteNotification(notification);
+
+    expect(notificationsActionMock.deleteNotificationAction.mock.calls.length).toBe(1);
+    expect(notificationsActionMock.deleteNotificationAction.mock.calls[0]?.arguments).toEqual([
+      "notif-2",
     ]);
   });
 });

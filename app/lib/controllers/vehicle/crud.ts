@@ -7,16 +7,14 @@ import { vehicleSchema } from "../../validation/serverSchemas";
 import { sendNotificationAction as createNotification } from "@/app/lib/actions/notifications";
 import { checkPermission } from "../utils/checkPermission";
 import { authenticatedAction } from "../../auth-middleware";
-import { syncVehicleToFirebaseAction as syncVehicleToFirebase } from "../../actions/vehicleTracking";
 import { invalidateVehicleCache } from "./cache";
 import { controllerGuard } from "../utils/controllerGuard";
-import { logger } from "@/app/lib/logger";
 import { withLiveDocumentStatus } from "../../utils/documentStatus";
 
 
 /**
- * tr-sisteme yeni bir araç ekler ve Firebase ile senkronize eder
- * en-creates a new vehicle in the system and synchronizes it with Firebase
+ * tr-sisteme yeni bir araç ekler
+ * en-creates a new vehicle in the system
  * input (user: AuthenticatedUser, vehicleData: unknown)
  * output (Promise<Vehicle>)
  */
@@ -50,10 +48,6 @@ export const createVehicle = authenticatedAction(
       });
 
       await invalidateVehicleCache(companyId);
-      // Sync to Firebase (background)
-      syncVehicleToFirebase(newVehicle).catch((err) =>
-        logger.error("Firebase sync failed:", err)
-      );
 
       return newVehicle;
     });
@@ -158,8 +152,8 @@ export const getVehicleById = authenticatedAction(
 const vehicleUpdateSchema = vehicleSchema.partial();
 
 /**
- * tr-belirtilen aracın bilgilerini günceller ve Firebase ile senkronize eder
- * en-updates the specified vehicle's information and synchronizes it with Firebase
+ * tr-belirtilen aracın bilgilerini günceller
+ * en-updates the specified vehicle's information
  * input (user: AuthenticatedUser, vehicleId: string, data: Record<string, unknown>)
  * output (Promise<Vehicle>)
  */
@@ -195,10 +189,6 @@ export const updateVehicle = authenticatedAction(
       });
 
       await invalidateVehicleCache(companyId, vehicleId);
-      // Sync to Firebase (background)
-      syncVehicleToFirebase(updatedVehicle).catch((err) =>
-        logger.error("Firebase sync failed:", err)
-      );
 
       return updatedVehicle;
     });

@@ -147,7 +147,12 @@ export const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
           }}
         />
         <Autocomplete
-          apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || ""}
+          // No apiKey: the Maps script (with `libraries=places`) is loaded
+          // once, centrally, by the dashboard layout. Passing apiKey here
+          // makes this component load its own <script> per instance — with
+          // several AddressAutocomplete fields mounting at once (e.g. the
+          // shipment stops form), that races and intermittently fails with
+          // "Google maps places API must be loaded."
           onPlaceSelected={handlePlaceSelected}
           options={{
             types: ["geocode", "establishment"],
