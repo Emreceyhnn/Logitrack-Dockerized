@@ -35,6 +35,9 @@ services:
     # its rate limits) entirely.
     expose:
       - "3000"
+    networks:
+      - default
+      - gateway-network
     env_file:
       - .env
     environment:
@@ -166,3 +169,8 @@ volumes:
   postgres_data:
   redis_data:
   nginx_cache:
+
+networks:
+  default:
+  gateway-network:
+    external: true
