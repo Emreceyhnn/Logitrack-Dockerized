@@ -16,6 +16,7 @@ const dbMock = {
   // inventory model has to exist on the mock even when the list is empty.
   inventory: {
     groupBy: mock.fn(async () => []),
+    findMany: mock.fn(async () => []),
   },
 };
 

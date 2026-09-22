@@ -179,6 +179,11 @@ describe("Vehicle Controller", () => {
         id: "veh-1",
         plate: "34 ABC 123",
         companyId: "company-1",
+        documents: [],
+        issues: [],
+        maintenanceRecords: [],
+        fuelLogs: [],
+        routes: [],
       }));
 
       // Act

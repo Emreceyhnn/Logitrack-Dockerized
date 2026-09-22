@@ -18,7 +18,6 @@ Built with **Next.js 16 (App Router)**, **React 19**, **TypeScript**, **Prisma 7
 - **Customer management** — customers with multiple locations and Google Places address autocomplete.
 - **Analytics & reports** — operational dashboards and reports built on MUI X Charts.
 - **Multi-currency** — exchange rates synced from an external API via a scheduled job.
-- **SLA monitoring** — cron endpoints (e.g. expiration checks, delayed-shipment detection) under `app/api/cron/`.
 - **Internationalization** — fully localized UI (English 🇬🇧 / Turkish 🇹🇷) with locale-prefixed routes (`/[lang]/…`) and dictionary-based translations.
 - **Onboarding & landing** — public marketing pages (statically generated) and a company onboarding flow.
 
@@ -49,8 +48,7 @@ app/
 │   ├── auth/ company/ customers/ drivers/ inventory/ routes/
 │   ├── shipments/ trailers/ vehicles/ warehouses/ warehouse-worker/
 │   ├── analytics/ overview/ reports/ exchange-rates/ valhalla/
-│   ├── notifications/stream/ # SSE endpoint for in-app notifications
-│   └── cron/                # Scheduled jobs (expiration checks, SLA)
+│   └── notifications/stream/ # SSE endpoint for in-app notifications
 ├── components/              # Shared React components
 ├── hooks/                   # Shared React hooks
 └── lib/

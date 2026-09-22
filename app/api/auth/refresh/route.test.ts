@@ -74,7 +74,10 @@ describe("GET /api/auth/refresh", () => {
     const res: unknown = await GET(makeRequest("/dashboard"));
     expect(mockNextResponse.redirect.mock.calls.length).toBe(1);
     expect(res._status).toBe(302);
-    expect(res._redirect).toBe("http://localhost/dashboard");
+    // The route deliberately appends ?refreshed=1 to the target: it tells the
+    // proxy this hop already went through a re-mint, so a stale-claims flag
+    // that failed to clear can't bounce the request straight back here.
+    expect(res._redirect).toBe("http://localhost/dashboard?refreshed=1");
   });
 
   it("should_StayOnOrigin_WhenRedirectToIsAbsoluteExternalUrl", async () => {

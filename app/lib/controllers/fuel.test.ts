@@ -63,13 +63,18 @@ describe("Fuel Controller", () => {
   describe("createFuelLog() metodu", () => {
     const mockUser = { id: "user-1", companyId: "company-1" };
 
-    it("should_CreateFuelLog_AndNormalizeCurrency", async () => {
+    it("should_CreateFuelLog_AndPersistCostInEnteredCurrency", async () => {
       // Arrange
+      // createFuelLog deliberately stores cost/currency exactly as entered —
+      // it does NOT convert to a base currency at write time. Conversion
+      // happens at render time via formatFrom(cost, currency) (see the
+      // comment in fuel.ts). Any base-currency assumption here would test
+      // for behaviour the code explicitly does not implement.
       const expectedLog = {
         id: "log-1",
         volumeLiter: 50,
-        cost: 100,
-        currency: "USD",
+        cost: 3000,
+        currency: "TRY",
         date: new Date("2026-08-02T10:00:00.000Z"),
         driverId: "d-1",
         vehicleId: "v-1",
@@ -86,16 +91,16 @@ describe("Fuel Controller", () => {
         cost: 3000,
         odometerKm: 150000,
         fuelType: FuelType.DIESEL,
-        currency: "TRY" // Should convert to USD
+        currency: "TRY"
       });
 
       // Assert
       expect(result.id).toBe("log-1");
       expect(dbMock.fuelLog.create.mock.calls.length).toBe(1);
-      
+
       const createArgs = dbMock.fuelLog.create.mock.calls[0].arguments[0] as unknown;
-      expect(createArgs.data.cost).toBe(100); // 3000 / 30.0 = 100
-      expect(createArgs.data.currency).toBe("USD");
+      expect(createArgs.data.cost).toBe(3000);
+      expect(createArgs.data.currency).toBe("TRY");
     });
   });
 

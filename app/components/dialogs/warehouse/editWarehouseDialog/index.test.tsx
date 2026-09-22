@@ -69,6 +69,10 @@ mock.module("../../../../lib/controllers/warehouse.ts", {
     getWarehouseById: mock.fn(async () => null),
     getWarehouseStats: mock.fn(async () => null),
     getRecentStockMovements: mock.fn(async () => []),
+    getWarehouseZones: mock.fn(async () => []),
+    createWarehouseZone: mock.fn(async () => ({})),
+    updateWarehouseZone: mock.fn(async () => ({})),
+    deleteWarehouseZone: mock.fn(async () => ({})),
   },
 });
 

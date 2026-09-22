@@ -63,20 +63,23 @@ describe("CapacityUtilization RTL Component", () => {
     cleanup();
   });
 
+  // The component reads warehouse.usedPallets directly (server-derived from
+  // quantity ÷ units-per-pallet) — see the comment in capacityUtilization.tsx
+  // explaining why a `_count.inventory * 10` guess was removed.
   const mockWarehouses = [
     {
       id: "wh-1",
       name: "Main Hub",
       city: "Istanbul",
       capacityPallets: 5000,
-      _count: { inventory: 100 } // 100 * 10 = 1000 used -> 20%
+      usedPallets: 1000, // 1000 / 5000 -> 20%
     },
     {
       id: "wh-2",
       name: "Secondary Hub",
       city: "Ankara",
       capacityPallets: 1000,
-      _count: { inventory: 90 } // 90 * 10 = 900 used -> 90%
+      usedPallets: 900, // 900 / 1000 -> 90%
     }
   ];
 

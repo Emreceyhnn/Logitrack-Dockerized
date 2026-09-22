@@ -163,8 +163,12 @@ describe("Inventory Controller", () => {
       expect(dbMock.inventory.create.mock.calls.length).toBe(1);
       expect(dbMock.inventoryMovement.create.mock.calls.length).toBe(1); // Should log putaway
       
+      // Creating a brand-new inventory item logs its opening balance as
+      // STOCK_IN (see inventory/mutations.ts) — PUTAWAY is a distinct
+      // warehouse-worker movement for placing existing stock into a bin, not
+      // this initial-creation path.
       const moveArgs = dbMock.inventoryMovement.create.mock.calls[0].arguments[0] as unknown;
-      expect(moveArgs.data.type).toBe("PUTAWAY");
+      expect(moveArgs.data.type).toBe("STOCK_IN");
       
       expect(cacheUtilsMock.invalidatePattern.mock.calls.length).toBe(1); // Cache invalidated
     });

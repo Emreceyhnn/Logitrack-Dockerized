@@ -3,15 +3,14 @@
  * Vehicle Tracking — External Integration Layer
  * ============================================================================
  *
- * Companies choose ONE of two tracking modes:
+ * LogiTrack has no tracking pipeline of its own (the old one was Firebase
+ * RTDB-based and has been removed). Every company's live vehicle position
+ * comes from ITS OWN GPS/telematics provider, reached over a REST + WebSocket
+ * API through the adapter in this file — this is the only tracking mode.
  *
- *   • "internal"  → LogiTrack's own Firebase RTDB pipeline (see
- *                   `app/lib/vehicleTracking.ts`). Nothing here is used.
- *   • "external"  → the company's OWN GPS/telematics provider, reached over a
- *                   REST + WebSocket API through the adapter in this file.
- *
- * Both paths speak the SAME neutral DTOs (`VehicleLocation`, `VehicleTelemetry`,
- * `EmergencyEvent`) so callers can switch modes without changing their code.
+ * `VehicleTrackingMode` and `resolveTrackingMode()` are kept as a seam for a
+ * possible future first-party pipeline, but nothing calls them today and
+ * `resolveTrackingMode()` always resolves to "external".
  *
  * Best practices baked in (mirrors `warehouseExternalApi.ts`):
  *  - Provider-agnostic adapter behind `VehicleTrackingAdapter`.
@@ -57,7 +56,8 @@ export interface EmergencyEvent {
   raw?: unknown;
 }
 
-/** Which tracking backend a company uses. */
+/** Which tracking backend a company uses. "internal" is reserved for a
+ *  possible future first-party pipeline — nothing implements it today. */
 export type VehicleTrackingMode = "internal" | "external";
 
 // ─── Errors ─────────────────────────────────────────────────────────────────
@@ -406,8 +406,12 @@ function readTrackingEnv(): { provider: string; env: TrackingEnv } {
 }
 
 /**
- * tr-Bir şirketin takip modunu çözer. Varsayılan olarak "internal" (LogiTrack'in kendi Firebase işlem hattı) kullanılır, `EXTERNAL_TRACKING_ENABLED=true` aksi belirtilmedikçe. Her şirket için geçersiz kılmak üzere açık bir mod geçersiz kılınabilir.
- * en-Resolve a company's tracking mode. Defaults to "internal" (LogiTrack's own Firebase pipeline) unless `EXTERNAL_TRACKING_ENABLED=true`. Pass an explicit mode to override per-company.
+ * tr-Bir şirketin takip modunu çözer. LogiTrack'in kendi (Firebase tabanlı) işlem hattı
+ *    kaldırıldığı için varsayılan her zaman "external"dır — "internal" hiçbir yerde
+ *    uygulanmıyor. Bir override yalnızca ileride birinci taraf bir hat eklenirse anlam kazanır.
+ * en-Resolve a company's tracking mode. Defaults to "external" always — LogiTrack's own
+ *    (Firebase-based) pipeline has been removed, so "internal" is implemented nowhere. An
+ *    override only matters if a first-party pipeline is added back in the future.
  * input (override: VehicleTrackingMode)
  * output (VehicleTrackingMode)
  *
@@ -415,15 +419,14 @@ function readTrackingEnv(): { provider: string; env: TrackingEnv } {
 export function resolveTrackingMode(
   override?: VehicleTrackingMode
 ): VehicleTrackingMode {
-  if (override) return override;
-  return process.env.EXTERNAL_TRACKING_ENABLED === "true"
-    ? "external"
-    : "internal";
+  return override ?? "external";
 }
 
 /**
- * tr-Harici takip bağdaştırıcısı için factory. Yalnızca "external" modda geçerlidir; "internal" mod istemcide `app/lib/vehicleTracking.ts` tarafından sağlanır.
- * en-Factory for the external tracking adapter. Only relevant in "external" mode; "internal" mode is served by `app/lib/vehicleTracking.ts` on the client.
+ * tr-Harici takip bağdaştırıcısı için factory. "internal" mod hiçbir yerde uygulanmadığından
+ *    bu, tek gerçek takip yoludur.
+ * en-Factory for the external tracking adapter. This is the only real tracking path, since
+ *    "internal" mode is implemented nowhere.
  * input ()
  * output (VehicleTrackingAdapter)
  *

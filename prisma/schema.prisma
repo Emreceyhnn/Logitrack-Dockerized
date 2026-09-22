@@ -115,7 +115,7 @@ model User {
   passwordResetTokens     PasswordResetToken[]
   emailVerificationTokens EmailVerificationToken[]
 
-  notifications           Notification[]
+  notifications Notification[]
 
   @@index([companyId])
   @@index([roleId])
@@ -159,8 +159,11 @@ model Driver {
   @@unique([companyId, employeeId])
   @@index([companyId, status])
   @@index([homeBaseWarehouseId])
-  // Serves the check-expirations cron's cross-tenant license sweep
-  // (`licenseExpiry <= cutoff` with no companyId filter).
+  // Added for the check-expirations cron's cross-tenant license sweep
+  // (`licenseExpiry <= cutoff` with no companyId filter). That cron has since
+  // been removed (app/api/cron/); nothing queries this shape today. Kept
+  // rather than dropped since it's cheap and a similar sweep is a likely
+  // reintroduction — revisit if it's confirmed dead for good.
   @@index([licenseExpiry])
   @@map("drivers")
 }
@@ -216,53 +219,56 @@ model JoinRequest {
 }
 
 model Vehicle {
-  id                 String              @id @default(cuid())
-  fleetNo            String
-  plate              String
-  type               VehicleType
-  brand              String
-  model              String
-  year               Int
-  status             VehicleStatus       @default(AVAILABLE)
+  id                     String              @id @default(cuid())
+  fleetNo                String
+  plate                  String
+  type                   VehicleType
+  brand                  String
+  model                  String
+  year                   Int
+  status                 VehicleStatus       @default(AVAILABLE)
   // Expected date this vehicle becomes AVAILABLE again while status is
   // MAINTENANCE/OUT_OF_ORDER/BREAKDOWN. Null when not out of service, or
   // when the timeline isn't known yet (e.g. a breakdown just reported).
   estimatedAvailableDate DateTime?
-  maxLoadKg          Int
-  fuelType           FuelType
-  currentLat         Float?
-  currentLng         Float?
-  fuelLevel          Int?
-  odometerKm         Int?
-  companyId          String
-  nextServiceKm      Int?
-  avgFuelConsumption Float?
-  registrationExpiry DateTime?
-  inspectionExpiry   DateTime?
-  engineSize         String?
-  transmission       String?
-  techNotes          String?
-  photo              String?
-  enableAlerts       Boolean?            @default(true)
-  deletedAt          DateTime?
-  createdAt          DateTime            @default(now())
-  updatedAt          DateTime            @updatedAt
-  fuelCapacity       Int?
-  documents          Document[]
-  driver             Driver?
-  fuelLogs           FuelLog[]
-  issues             Issue[]
-  maintenanceRecords MaintenanceRecord[]
-  routes             Route[]
-  trailerAssignments TrailerAssignment[]
-  currentTrailer     Trailer?
-  company            Company             @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  maxLoadKg              Int
+  fuelType               FuelType
+  currentLat             Float?
+  currentLng             Float?
+  fuelLevel              Int?
+  odometerKm             Int?
+  companyId              String
+  nextServiceKm          Int?
+  avgFuelConsumption     Float?
+  registrationExpiry     DateTime?
+  inspectionExpiry       DateTime?
+  engineSize             String?
+  transmission           String?
+  techNotes              String?
+  photo                  String?
+  enableAlerts           Boolean?            @default(true)
+  deletedAt              DateTime?
+  createdAt              DateTime            @default(now())
+  updatedAt              DateTime            @updatedAt
+  fuelCapacity           Int?
+  documents              Document[]
+  driver                 Driver?
+  fuelLogs               FuelLog[]
+  issues                 Issue[]
+  maintenanceRecords     MaintenanceRecord[]
+  routes                 Route[]
+  trailerAssignments     TrailerAssignment[]
+  currentTrailer         Trailer?
+  company                Company             @relation(fields: [companyId], references: [id], onDelete: Restrict)
 
   @@unique([companyId, fleetNo])
   @@unique([companyId, plate])
   @@index([companyId, status])
-  // Serve the check-expirations cron's cross-tenant registration/inspection
-  // sweep (`registrationExpiry <= cutoff OR inspectionExpiry <= cutoff`).
+  // Added for the check-expirations cron's cross-tenant registration/
+  // inspection sweep (`registrationExpiry <= cutoff OR inspectionExpiry <=
+  // cutoff`). That cron has since been removed (app/api/cron/); nothing
+  // queries this shape today. Kept rather than dropped — cheap, and a
+  // similar sweep is a likely reintroduction.
   @@index([registrationExpiry])
   @@index([inspectionExpiry])
   @@map("vehicles")
@@ -549,9 +555,11 @@ model Shipment {
   @@index([companyId, status])
   @@index([companyId, createdAt(sort: Desc)])
   @@index([companyId, trackingId])
-  // Serves the check-expirations cron's cross-tenant SLA sweep
-  // (`status IN (...) AND slaDeadline < now`), which has no companyId filter
-  // by design — it processes every tenant in one pass.
+  // Added for the check-expirations cron's cross-tenant SLA sweep
+  // (`status IN (...) AND slaDeadline < now`, no companyId filter — it
+  // processed every tenant in one pass). That cron has since been removed
+  // (app/api/cron/); nothing queries this shape today. Kept rather than
+  // dropped — cheap, and a similar sweep is a likely reintroduction.
   @@index([status, slaDeadline])
   @@index([driverId, status])
   @@index([customerId])
@@ -632,50 +640,57 @@ model ShipmentItem {
 }
 
 model Route {
-  id           String      @id @default(cuid())
-  name         String?
-  status       RouteStatus @default(PLANNED)
-  date         DateTime
-  startTime    DateTime?
-  endTime      DateTime?
-  distanceKm   Float?
-  durationMin  Int?
-  driverId     String?
-  vehicleId    String?
-  trailerId    String?
+  id            String      @id @default(cuid())
+  name          String?
+  status        RouteStatus @default(PLANNED)
+  date          DateTime
+  startTime     DateTime?
+  endTime       DateTime?
+  distanceKm    Float?
+  durationMin   Int?
+  driverId      String?
+  vehicleId     String?
+  trailerId     String?
   // True when this route is a deadhead/empty-return leg (no cargo carried
   // back to base) rather than a delivery run — used for empty-return-rate
   // reporting. Not inferred from shipment count: a route can legitimately
   // have zero shipments (e.g. a driver relocation) without being a return.
-  isEmptyReturn Boolean    @default(false)
-  companyId    String
-  deletedAt    DateTime?
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @updatedAt
+  isEmptyReturn Boolean     @default(false)
+  companyId     String
+  deletedAt     DateTime?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
   // Valhalla-encoded polyline of the planned corridor centre line, stored at
   // precision 6 to match `decodeShape`. Nullable: routes created before this
   // column existed (and any route the routing engine failed to shape) have no
   // geometry, and deviation checks skip them rather than guessing.
-  shape        String?
+  shape         String?
   // Corridor half-width. A ping further than this from the centre line counts
   // as off-route. Null falls back to DEFAULT_ROUTE_BUFFER_METERS.
-  bufferMeters Int?
-  company      Company     @relation(fields: [companyId], references: [id], onDelete: Restrict)
-  driver       Driver?     @relation(fields: [driverId], references: [id], onDelete: Restrict)
-  vehicle      Vehicle?    @relation(fields: [vehicleId], references: [id], onDelete: Restrict)
-  trailer      Trailer?    @relation(fields: [trailerId], references: [id], onDelete: Restrict)
-  shipments    Shipment[]
-  stops        RouteStop[]
+  bufferMeters  Int?
+  company       Company     @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  driver        Driver?     @relation(fields: [driverId], references: [id], onDelete: Restrict)
+  vehicle       Vehicle?    @relation(fields: [vehicleId], references: [id], onDelete: Restrict)
+  trailer       Trailer?    @relation(fields: [trailerId], references: [id], onDelete: Restrict)
+  shipments     Shipment[]
+  stops         RouteStop[]
 
   @@index([companyId, date])
   @@index([driverId, date])
   @@index([vehicleId])
   @@index([trailerId])
-  // Serves the check-expirations cron's cross-tenant delayed/upcoming sweep
-  // (`status IN ('PLANNED','ACTIVE')` with no companyId filter).
+  // Added for the check-expirations cron's cross-tenant delayed/upcoming
+  // sweep (`status IN ('PLANNED','ACTIVE')`, no companyId filter). That cron
+  // has since been removed (app/api/cron/); nothing queries this shape
+  // today. Kept rather than dropped — cheap, and a similar sweep is a likely
+  // reintroduction.
   @@index([status])
-  // Serves the per-GPS-ping active-route lookup in the location endpoint,
-  // which resolves a vehicle's in-progress route on every push.
+  // Added for the per-GPS-ping active-route lookup in the vehicle location
+  // endpoint (resolved a vehicle's in-progress route on every push). That
+  // endpoint has since been removed along with the internal tracking
+  // pipeline (app/api/vehicles/[id]/location); nothing queries this shape
+  // today. Kept rather than dropped — a first-party or external tracking
+  // integration is likely to need the same lookup again.
   @@index([vehicleId, status])
   @@map("routes")
 }
@@ -718,8 +733,11 @@ model Document {
   vehicle    Vehicle?       @relation(fields: [vehicleId], references: [id], onDelete: Restrict)
 
   @@index([companyId, expiryDate])
-  // Serves the check-expirations cron's cross-tenant sweep (expiryDate
-  // filtered with no companyId), which can't use the composite index above.
+  // Added for the check-expirations cron's cross-tenant sweep (expiryDate
+  // filtered with no companyId, which couldn't use the composite index
+  // above). That cron has since been removed (app/api/cron/); nothing
+  // queries this shape today. Kept rather than dropped — cheap, and a
+  // similar sweep is a likely reintroduction.
   @@index([expiryDate])
   @@index([driverId])
   @@index([vehicleId])
@@ -757,18 +775,18 @@ model FuelLog {
 // off of — unlike fuel/maintenance, which are tied to a vehicle action.
 // Feeds monthly_report.cost_efficiency.cost_breakdown.
 model OperatingExpense {
-  id          String              @id @default(cuid())
+  id          String                   @id @default(cuid())
   companyId   String
   category    OperatingExpenseCategory
-  amount      Decimal             @db.Decimal(12, 2)
-  currency    String              @default("TRY")
+  amount      Decimal                  @db.Decimal(12, 2)
+  currency    String                   @default("TRY")
   date        DateTime
   note        String?
   createdById String?
-  createdAt   DateTime            @default(now())
-  updatedAt   DateTime            @updatedAt
-  company     Company             @relation(fields: [companyId], references: [id], onDelete: Restrict)
-  createdBy   User?               @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  createdAt   DateTime                 @default(now())
+  updatedAt   DateTime                 @updatedAt
+  company     Company                  @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  createdBy   User?                    @relation(fields: [createdById], references: [id], onDelete: SetNull)
 
   @@index([companyId, date])
   @@index([companyId, category, date])
@@ -776,34 +794,36 @@ model OperatingExpense {
 }
 
 model Issue {
-  id          String        @id @default(cuid())
-  title       String
-  description String?
-  status      IssueStatus   @default(OPEN)
-  priority    IssuePriority @default(MEDIUM)
-  type        IssueType     @default(OTHER)
-  vehicleId   String?
-  driverId    String?
-  shipmentId  String?
-  warehouseId String?
-  /** Free-text zone code the issue was reported from (warehouse issues only). */
-  zone        String?
-  companyId   String
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
-  trailerId   String?
+  id                   String        @id @default(cuid())
+  title                String
+  description          String?
+  status               IssueStatus   @default(OPEN)
+  priority             IssuePriority @default(MEDIUM)
+  type                 IssueType     @default(OTHER)
+  vehicleId            String?
+  driverId             String?
+  shipmentId           String?
+  warehouseId          String?
+  /**
+   * Free-text zone code the issue was reported from (warehouse issues only).
+   */
+  zone                 String?
+  companyId            String
+  createdAt            DateTime      @default(now())
+  updatedAt            DateTime      @updatedAt
+  trailerId            String?
   // Insurance/carrier claim tracking, meaningful only on type=DAMAGE issues.
   // Feeds monthly_report.loss_and_damage.claim_recovery — left null/NONE on
   // every non-damage issue rather than forcing a claim workflow on all of them.
-  claimStatus         ClaimStatus @default(NONE)
-  claimFiledAmount    Decimal?    @db.Decimal(12, 2)
-  claimRecoveredAmount Decimal?   @db.Decimal(12, 2)
-  company     Company       @relation(fields: [companyId], references: [id], onDelete: Restrict)
-  driver      Driver?       @relation(fields: [driverId], references: [id], onDelete: Restrict)
-  shipment    Shipment?     @relation(fields: [shipmentId], references: [id], onDelete: Restrict)
-  trailer     Trailer?      @relation(fields: [trailerId], references: [id], onDelete: Restrict)
-  vehicle     Vehicle?      @relation(fields: [vehicleId], references: [id], onDelete: Restrict)
-  warehouse   Warehouse?    @relation(fields: [warehouseId], references: [id], onDelete: Restrict)
+  claimStatus          ClaimStatus   @default(NONE)
+  claimFiledAmount     Decimal?      @db.Decimal(12, 2)
+  claimRecoveredAmount Decimal?      @db.Decimal(12, 2)
+  company              Company       @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  driver               Driver?       @relation(fields: [driverId], references: [id], onDelete: Restrict)
+  shipment             Shipment?     @relation(fields: [shipmentId], references: [id], onDelete: Restrict)
+  trailer              Trailer?      @relation(fields: [trailerId], references: [id], onDelete: Restrict)
+  vehicle              Vehicle?      @relation(fields: [vehicleId], references: [id], onDelete: Restrict)
+  warehouse            Warehouse?    @relation(fields: [warehouseId], references: [id], onDelete: Restrict)
 
   @@index([companyId, status])
   @@index([vehicleId])
@@ -828,6 +848,16 @@ model Notification {
   category  NotificationCategory?
   link      String?
   metadata  Json?
+  // KNOWN TRADE-OFF: `isRead` is a single shared flag on the row, not
+  // per-recipient. For a personal notification (userId set) that's exactly
+  // right. For a company/role-wide or global row, it means ONE person
+  // marking it read flips it read for everyone who can see that row — a
+  // deliberate simplification over Firebase RTDB's old behaviour (each user
+  // had their own copy under notifications/inbox/{userId}, so read state was
+  // naturally per-user everywhere). Revisit if this surfaces as a real
+  // complaint ("I never saw that notification") at scale: the fix is a
+  // separate NotificationRead(notificationId, userId, readAt) join table,
+  // which turns "isRead" into an EXISTS check instead of a column read.
   isRead    Boolean               @default(false)
   createdAt DateTime              @default(now())
 
@@ -838,8 +868,8 @@ model Notification {
   companyId String?
   roleId    String?
 
-  user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  company   Company? @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  user    User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  company Company? @relation(fields: [companyId], references: [id], onDelete: Cascade)
 
   @@index([userId, isRead, createdAt])
   @@index([companyId, roleId, createdAt])

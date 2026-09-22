@@ -143,7 +143,11 @@ describe("WarehouseListTable RTL Component", () => {
       city: "Istanbul",
       capacityPallets: 1000,
       capacityVolumeM3: 5000,
-      _count: { inventory: 50 }, // 500 pallets, 250 m3
+      // Pallet usage reads warehouse.usedPallets directly (server-derived
+      // from quantity ÷ units-per-pallet — see warehouseList.tsx); volume
+      // still falls back to _count.inventory * 5 where usedVolume is unset.
+      usedPallets: 500,
+      _count: { inventory: 50 }, // volume fallback: 50 * 5 = 250 m3
       operatingHours: "08:00 - 18:00",
       timezone: "Europe/Istanbul",
     }

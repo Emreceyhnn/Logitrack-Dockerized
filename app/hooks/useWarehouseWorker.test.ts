@@ -48,6 +48,7 @@ const warehouseWorkerControllerMock = {
   advanceWarehouseTask: mock.fn(),
   requestRestock: mock.fn(),
   reportWarehouseIssue: mock.fn(),
+  logInboundArrival: mock.fn(),
 };
 mock.module("../lib/controllers/warehouseWorker.ts", { namedExports: warehouseWorkerControllerMock });
 

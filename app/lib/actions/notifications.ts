@@ -351,8 +351,13 @@ function ownershipClause(
 }
 
 /**
- * tr-belirtilen bildirimi okundu olarak işaretler
- * en-marks the specified notification as read
+ * tr-belirtilen bildirimi okundu olarak işaretler. KNOWN TRADE-OFF: şirket/rol geneli
+ *    ve global bildirimlerde isRead tek satırda paylaşılır (bkz. schema.prisma'daki
+ *    Notification.isRead yorumu) — bu çağrı o satırları herkes için okundu yapar.
+ * en-marks the specified notification as read. KNOWN TRADE-OFF: on company/role-wide
+ *    and global notifications, isRead is shared on a single row (see the
+ *    Notification.isRead comment in schema.prisma) — this call marks it read for
+ *    everyone who can see that row, not just the caller.
  * input (notificationId: string)
  * output (Promise<{ success: boolean; error?: string }>)
  */

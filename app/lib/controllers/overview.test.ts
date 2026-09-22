@@ -90,7 +90,23 @@ const trendUtilsMock = {
 };
 
 // Dayjs Mock
-const dayjsMock = mock.fn();
+// deriveDocumentUrgency (overview/transforms.ts) chains dayjs().startOf("day")
+// and .diff(...) on both dayjs() and dayjs(someDate) — the mock has to return
+// a chainable object from every call, not just a bare mock.fn() that resolves
+// to undefined.
+const makeDayjsInstance = (value?: Date | string) => {
+  const real = value !== undefined ? new Date(value) : new Date();
+  const instance = {
+    startOf: mock.fn(() => instance),
+    diff: mock.fn((other: { _date?: Date }, _unit?: string) => {
+      const otherMs = other?._date?.getTime() ?? real.getTime();
+      return Math.round((real.getTime() - otherMs) / (1000 * 60 * 60 * 24));
+    }),
+    _date: real,
+  };
+  return instance;
+};
+const dayjsMock = mock.fn((value?: Date | string) => makeDayjsInstance(value));
 const dayjsUtcMock = mock.fn(() => ({
   tz: mock.fn(() => ({
     format: mock.fn(() => "Jan 01")
@@ -215,13 +231,19 @@ describe("Overview Controller", () => {
         { id: "w-1", name: "Main Hub", capacityPallets: 1000, capacityVolumeM3: 5000, lat: 41.0, lng: 28.9 }
       ]);
       
-      dbMock.inventory.groupBy.mock.mockImplementation(async () => [
-        { warehouseId: "w-1", _sum: { palletCount: 500, volumeM3: 2000 } }
-      ]);
-      
-      dbMock.inventory.findMany.mock.mockImplementation(async () => [
-        { id: "inv-1", name: "Item 1", sku: "SKU-1", quantity: 5, minStock: 10, warehouse: { name: "Main Hub" } }
-      ]);
+      // db.inventory.findMany is called twice, in parallel (inside the same
+      // Promise.all — call ORDER is not guaranteed), with different
+      // `select`/`include` shapes in the real code: once for the
+      // per-warehouse pallet/volume rows (palletUsageByWarehouse folds these
+      // — no groupBy _sum, see palletOccupancy.ts) and once for the
+      // low-stock items list (the only call site passing `take`). Branch on
+      // that shape rather than call order.
+      dbMock.inventory.findMany.mock.mockImplementation(
+        async (args: { take?: number }) =>
+          args?.take !== undefined
+            ? [{ id: "inv-1", name: "Item 1", sku: "SKU-1", quantity: 5, minStock: 10, warehouse: { name: "Main Hub" } }]
+            : [{ warehouseId: "w-1", quantity: 5000, palletCount: 10, volumeM3: 2000 }]
+      );
       
       dbMock.shipment.findMany.mock.mockImplementation(async () => [
         { status: ShipmentStatus.IN_TRANSIT, createdAt: new Date() }

@@ -28,27 +28,7 @@ export type SecurityAlertKind =
   | "PASSWORD_RESET"
   | "EMAIL_CHANGED";
 
-export type SubscriptionEmailKind =
-  | "TRIAL_ENDING"
-  | "TRIAL_ENDED"
-  | "PLAN_ACTIVATED";
-
 export type NotificationEmailKind = "INFO" | "WARNING" | "SUCCESS" | "ERROR";
-
-export interface WeeklyReportEmailData {
-  companyName: string;
-  weekLabel: string;
-  lang?: "en" | "tr" | undefined;
-  stats: {
-    newShipments: number;
-    deliveredShipments: number;
-    delayedShipments: number;
-    completedRoutes: number;
-    activeVehicles: number;
-    totalVehicles: number;
-    upcomingMaintenance: number;
-  };
-}
 
 /**
  * tr-Tüm giden e-postaların tek geçiş noktası. LogiTrack Email Service'in `/send` uç noktasına
@@ -407,54 +387,6 @@ export async function sendSecurityAlertEmail(
 }
 
 /**
- * tr-Abonelik yaşam döngüsü e-postası gönderir (deneme bitişi, plan aktivasyonu).
- * en-Sends a subscription lifecycle email (trial expiry, plan activation).
- * input (recipient: { email: string; lang?: "en" | "tr" }, data: { kind: SubscriptionEmailKind; daysRemaining?: number; planName?: string })
- * output (Promise<boolean>) — true when handed off to the email service
- */
-export async function sendSubscriptionEmail(
-  recipient: { email: string; lang?: "en" | "tr" | undefined },
-  data: {
-    kind: SubscriptionEmailKind;
-    userName?: string | undefined;
-    daysRemaining?: number | undefined;
-    planName?: string | undefined;
-  }
-): Promise<boolean> {
-  if (!process.env.EMAIL_SERVICE_URL) {
-    logger.warn(
-      `[email] EMAIL_SERVICE_URL not set — subscription email (${data.kind}) for ${recipient.email} not sent`
-    );
-    return false;
-  }
-
-  try {
-    await dispatchEmail(
-      {
-        to: recipient.email,
-        template: "subscription",
-        lang: recipient.lang,
-        data: {
-          kind: data.kind,
-          userName: data.userName,
-          daysRemaining: data.daysRemaining,
-          planName: data.planName,
-        },
-      },
-      "sendSubscriptionEmail"
-    );
-    return true;
-  } catch (error) {
-    const msg = error instanceof Error ? error.message : String(error);
-    logger.error(
-      `[email] sendSubscriptionEmail (${data.kind}) failed for ${recipient.email}:`,
-      msg
-    );
-    return false;
-  }
-}
-
-/**
  * tr-Sevkiyat/bakım gibi olay tabanlı bildirimler için toplu e-posta gönderir. Her alıcı e-postası ayrı bir gönderim
  *    olarak işlenir; bir alıcının başarısız olması diğerlerini etkilemez. EMAIL_SERVICE_URL tanımlı değilse günlüğe kaydeder.
  * en-Sends event-driven notification emails (shipment/maintenance) to a batch of recipients. Each recipient is sent
@@ -508,50 +440,3 @@ export async function sendNotificationEmail(
   );
 }
 
-/**
- * tr-Haftalık özet raporunu bir alıcı grubuna gönderir. Her alıcı e-postası ayrı bir gönderim olarak işlenir;
- *    bir alıcının başarısız olması diğerlerini etkilemez. EMAIL_SERVICE_URL tanımlı değilse günlüğe kaydeder.
- * en-Sends the weekly summary report to a batch of recipients. Each recipient is sent independently so one
- *    failure doesn't block the rest. If EMAIL_SERVICE_URL is not set, logs instead of sending.
- * input (recipients: { email: string; lang?: "en" | "tr" }[], report: Omit<WeeklyReportEmailData, "lang">)
- * output (Promise<void>)
- */
-export async function sendWeeklyReportEmail(
-  recipients: { email: string; lang?: "en" | "tr" | undefined }[],
-  report: Omit<WeeklyReportEmailData, "lang">
-): Promise<void> {
-  if (recipients.length === 0) return;
-
-  if (!process.env.EMAIL_SERVICE_URL) {
-    logger.warn(
-      `[email] EMAIL_SERVICE_URL not set — weekly report for "${report.companyName}" not sent to ${recipients.length} recipient(s)`
-    );
-    return;
-  }
-
-  await Promise.all(
-    recipients.map(async (recipient) => {
-      try {
-        await dispatchEmail(
-          {
-            to: recipient.email,
-            template: "weeklyReport",
-            lang: recipient.lang,
-            data: {
-              companyName: report.companyName,
-              weekLabel: report.weekLabel,
-              stats: report.stats,
-            },
-          },
-          "sendWeeklyReportEmail"
-        );
-      } catch (error) {
-        const msg = error instanceof Error ? error.message : String(error);
-        logger.error(
-          `[email] sendWeeklyReportEmail failed for ${recipient.email}:`,
-          msg
-        );
-      }
-    })
-  );
-}

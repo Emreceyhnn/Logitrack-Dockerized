@@ -31,6 +31,11 @@ mock.module("@mui/material", {
     IconButton: (props: Record<string, unknown>) => ({ type: "IconButton", props }),
     Tab: (props: Record<string, unknown>) => ({ type: "Tab", props }),
     Tabs: (props: Record<string, unknown>) => ({ type: "Tabs", props }),
+    Grid: (props: Record<string, unknown>) => ({ type: "Grid", props }),
+    Button: (props: Record<string, unknown>) => ({ type: "Button", props }),
+    TextField: (props: Record<string, unknown>) => ({ type: "TextField", props }),
+    LinearProgress: (props: Record<string, unknown>) => ({ type: "LinearProgress", props }),
+    CircularProgress: (props: Record<string, unknown>) => ({ type: "CircularProgress", props }),
   }
 });
 
@@ -56,7 +61,10 @@ mock.module("../../../../lib/language/DictionaryContext.tsx", {
 // The dialog reads the pathname to detect the public Live Demo (where the
 // edit action is disabled). Not the dashboard path here, so isDemo is false.
 mock.module("next/navigation", {
-  namedExports: { usePathname: mock.fn(() => "/en/warehouses") }
+  namedExports: {
+    usePathname: mock.fn(() => "/en/warehouses"),
+    redirect: mock.fn(),
+  }
 });
 
 mock.module("sonner", { namedExports: { toast: { info: mock.fn() } } });

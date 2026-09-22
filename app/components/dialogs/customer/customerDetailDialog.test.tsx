@@ -46,6 +46,13 @@ mock.module("../../../lib/language/DictionaryContext.tsx", {
   namedExports: { useDictionary: useDictionaryMock },
 });
 
+mock.module("next/navigation", {
+  namedExports: {
+    usePathname: mock.fn(() => "/en/customers"),
+    useRouter: mock.fn(() => ({ push: mock.fn(), replace: mock.fn() })),
+  },
+});
+
 const mockCustomer = {
   id: "cust-1",
   name: "Acme Corp",

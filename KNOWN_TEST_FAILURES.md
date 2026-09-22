@@ -1,106 +1,92 @@
 # Bilinen Test Hataları (Pre-existing)
 
 Bu dosya, `npm run test` ile çalıştırılan tam test suite'inde başarısız olan
-ama bu oturumdaki WarehouseTaskItem / reporting altyapısı değişiklikleriyle
-**ilgisi olmayan**, önceden var olan hataları listeler. Her biri `git stash`
-ile temiz ağaçta da doğrulandı — bu değişikliklerden bağımsız.
-
-`npm run test` çıktısı 14 batch'i "FAILED" olarak işaretliyor; bunlardan
-sadece bazıları gerçek test başarısızlığı, bazıları aynı batch içindeki
-başka bir dosyanın hatası yüzünden batch'in tamamı başarısız görünüyor
-(örn. `warehouseWorker.test.ts` kendi başına tamamen geçiyor ama aynı
-batch'teki `vehicle.test.ts` fail ettiği için batch "FAILED" görünüyor).
+ama WarehouseTaskItem/reporting altyapısı değişiklikleriyle **ilgisi olmayan**,
+önceden var olan hataları listeliyordu. Aşağıdaki maddelerin çoğu bir temizlik
+turunda tek satırlık/mock-senkronizasyon düzeltmeleriyle kapatıldı — bkz.
+"Çözülenler" bölümü. Kalan tek gerçek açık madde en altta.
 
 ---
 
-## 1. Auth / API route testleri
+## Çözülenler
 
-- **`app/api/auth/refresh/route.test.ts`** → `should_RedirectToTarget_WhenSessionRefreshSucceeds`
-  Beklenen: `http://localhost/dashboard`, Gelen: `http://localhost/dashboard?refreshed=1`.
-  Route muhtemelen `?refreshed=1` query param'ı eklemeye başlamış, test güncellenmemiş.
+Aşağıdakiler kapatıldı; her biri kendi test dosyasında yeşil.
 
-- **`app/api/vehicles/dashboard/route.test.ts`** → `should_ReturnDashboardData_WhenAuthorized`
-  1 subtest fail.
-
-## 2. Component/dialog testleri (RTL)
-
-- **`CustomerDetailDialog`** → `should_LoadAndRenderCustomerDetails_WhenIdProvided`
-- **`CapacityUtilization`** → `should_RenderCapacityValues_WhenLoadingIsFalse`
-- **`WarehouseListTable`** → `should_RenderColumns_Properly` (sayı formatı/locale sorunu olabilir)
-- **`EditCompanyMemberDialog`** → `should_RenderMemberDetails_WhenDialogOpens`,
-  `should_CallUpdateController_WhenSaveClicked` — ikisi de
-  `Cannot read properties of undefined (reading 'noWarehouses')` hatası veriyor
-  (çeviri/dictionary mock'u eksik bir alan).
-- **`NotificationBell`** → `should_InitializeWithoutErrors_WhenUserIsProvided`,
-  `should_HandleUnreadCount_WhenNotificationsExist`
-
-## 3. `createWarehouseZone` export eksikliği
-
-- **`addWarehouseDialog/index.test.tsx`**, **`editWarehouseDialog/index.test.tsx`**
-  → `The requested module '@/app/lib/controllers/warehouse' does not provide
-  an export named 'createWarehouseZone'`
-  Mock modülü güncel değil — gerçek `warehouse` controller'ı muhtemelen bu
-  fonksiyonu artık export ediyor/etmiyor, test mock'u senkronize değil.
-
-## 4. `WarehouseDetailsDialog` — `next/navigation` mock eksikliği
-
-- **`warehouseDetailsDialog/index.test.tsx`**
-  → `The requested module 'next/navigation' does not provide an export
-  named 'redirect'`
-  Test mock'u `redirect`'i export etmiyor.
-
-## 5. `useWarehouseWorker.test.ts` — `logInboundArrival` export eksikliği
-
-- **`app/hooks/useWarehouseWorker.test.ts`** → tüm suite (`useWarehouseWorker Hook`)
-  → `The requested module '@/app/lib/controllers/warehouseWorker' does not
-  provide an export named 'logInboundArrival'`
-  Dosyanın kendi `warehouseWorkerControllerMock` objesi (satır ~45-51) sadece
-  5 fonksiyon mock'luyor (`logWarehouseMovement`, `adjustWarehouseStock`,
-  `advanceWarehouseTask`, `requestRestock`, `reportWarehouseIssue`),
-  `logInboundArrival` eksik. `useWarehouseWorker.ts` bu fonksiyonu gerçekten
-  import ediyor (log-arrival mutation'ı için), mock modülü onu içermediği
-  için import hatası veriyor.
-  **Fix**: `warehouseWorkerControllerMock`'a `logInboundArrival: mock.fn()` eklemek yeterli.
-
-- **`useWarehouses.test.ts`** benzer bir zincirleme etkiyle aynı batch içinde
-  "cancelled" (`test did not finish before its parent and was cancelled`)
-  olarak görünüyor — kök neden yukarıdaki mock eksikliği.
-
-## 6. Controller testleri (daha önce de bilinen hatalar)
-
-- **`inventory.test.ts`** → `should_CreateInventoryAndMovement_WhenValidDataProvided`
-  (STOCK_IN/PUTAWAY movement type tutarsızlığı)
-- **`fuel.test.ts`** → `should_CreateFuelLog_AndNormalizeCurrency`
-  (kur çevirme kodu hiç yazılmamış)
-- **`overview.test.ts`** → `should_ReturnDashboardData_WhenUserHasCompanyId`
-  → `Cannot read properties of undefined (reading 'startOf')` (muhtemelen bir
-  date/dayjs mock'u eksik)
-- **`vehicle.test.ts`** → `should_ReturnVehicle_WhenVehicleExistsAndBelongsToCompany`
-  → `Cannot read properties of undefined (reading 'map')` — mock,
-  `documents`/`issues` gibi alanları döndürmüyor, `withLiveDocumentStatus`
-  `documents.map` üzerinde patlıyor.
-- **`warehouse.test.ts`** → `should_ReturnWarehousesList_WhenUserHasCompany`
-  → `db.inventory.findMany is not a function` — mock objesinde
-  `inventory.findMany` tanımlı değil.
+1. **`logInboundArrival` mock eksikliği** — `useWarehouseWorker.test.ts` ve
+   zincirleme olarak `useWarehouses.test.ts`. Fix: mock objesine
+   `logInboundArrival: mock.fn()` eklendi.
+2. **`createWarehouseZone` export eksikliği** — `addWarehouseDialog/index.test.tsx`,
+   `editWarehouseDialog/index.test.tsx`. Fix: `getWarehouseZones`,
+   `createWarehouseZone`, `updateWarehouseZone`, `deleteWarehouseZone` mock'a eklendi
+   (gerçek `useWarehouses.ts` hook'u bunları da import ediyordu, mock eksikti).
+3. **`next/navigation` mock eksikliği** — `warehouseDetailsDialog/index.test.tsx`
+   (`redirect` eksikti), `customerDetailDialog.test.tsx` ve
+   `NotificationBell.test.tsx` (`useRouter` eksikti — `CustomerActivityPanel`/
+   `NotificationBell` içinde kullanılıyor, testte hiç mock'lanmamıştı).
+4. **`@mui/material` mock eksikliği** — `warehouseDetailsDialog/index.test.tsx`
+   (`Button`, `Grid`, `TextField`, `LinearProgress`, `CircularProgress` eksikti;
+   alt component ağacı — `zonesTab`, `editWarehouseDialog` vb. — bunları kullanıyordu).
+5. **`documents`/`issues`/`maintenanceRecords`/`fuelLogs`/`routes` mock eksikliği** —
+   `vehicle.test.ts` (`getVehicleById`) ve `app/api/vehicles/dashboard/route.test.ts`.
+   Gerçek kod bu alanlar üzerinde `.map()` çağırıyor (`withLiveDocumentStatus`,
+   Decimal→number dönüşümleri); mock araç objesi bunları döndürmüyordu.
+6. **`db.inventory.findMany` eksikliği** — `warehouse.test.ts`
+   (`getWarehouses`). Gerçek kod artık `groupBy` değil `findMany` + yerel
+   fold (`palletUsageByWarehouse`) kullanıyor; mock hâlâ eski `groupBy` API'sini
+   taşıyordu.
+7. **`dayjs` mock'unun zincirlenemez olması** — `overview.test.ts`. Mock
+   `dayjs()` çağrısında `undefined` dönüyordu, gerçek kod
+   `dayjs().startOf("day").diff(...)` zinciri kuruyordu
+   (`deriveDocumentUrgency`). Ayrıca aynı dosyada `db.inventory.findMany`'in
+   **iki farklı çağrı amacına** (pallet-sum satırları vs. low-stock liste)
+   aynı `mockImplementationOnce` sırasıyla cevap verilmeye çalışılması bir
+   `Promise.all` race'i yüzünden kırılgandı — `args.take` varlığına göre
+   dallanan bir `mockImplementation`'a çevrildi.
+8. **`?refreshed=1` query param'ı** — `app/api/auth/refresh/route.test.ts`.
+   Route bilinçli olarak bunu ekliyor (proxy'nin redirect loop'unu önlemek
+   için, route.ts'teki yorum); test eski beklenen URL'i kontrol ediyordu.
+9. **Kur çevirme davranış varsayımı** — `fuel.test.ts`. `createFuelLog`
+   **bilinçli olarak** kur çevirmiyor — cost/currency girildiği gibi saklanır,
+   çevrim render zamanında `formatFrom()` ile yapılır (fuel.ts'teki yorum).
+   Test, kodun yapmadığı bir davranışı (yazma zamanında USD'ye çevirme)
+   bekliyordu; gerçek davranışa göre yeniden yazıldı.
+10. **`STOCK_IN` vs `PUTAWAY` movement type** — `inventory.test.ts`. Yeni
+    envanter kalemi oluşturma açılış bakiyesini `STOCK_IN` olarak loglar
+    (`inventory/mutations.ts`); `PUTAWAY` ayrı bir warehouse-worker akışı.
+    Test yanlış türü bekliyordu.
+11. **`usedPallets`/`_count.inventory * 10` geçişi** — `capacityUtilization.test.tsx`,
+    `warehouseList.test.tsx`. Kapasite hesaplaması artık server-derived
+    `warehouse.usedPallets` alanını okuyor (quantity ÷ birim-per-pallet);
+    `_count.inventory * 10` tahmini bilinçli olarak kaldırılmıştı
+    (component'teki yorum: "multiplying the SKU count by a magic 10 reported
+    a number unrelated to real rack usage"). Testler eski varsayıma göre
+    mock veri kuruyordu.
+12. **`dict.company.dialogs.*` eksikliği** — `EditCompanyMemberDialog.test.tsx`
+    (`should_RenderMemberDetails_WhenDialogOpens`). Component `noWarehouses`,
+    `assignWarehouse`, `selectWarehouse`, `warehouseManagerNote`,
+    `warehouseStaffNote` okuyor; mock dictionary'de `company.dialogs` hiç
+    yoktu.
 
 ---
 
-## Doğrulama Yöntemi
+## Açık kalan
 
-Her madde için `git stash -u` ile bu oturumun tüm değişiklikleri (schema,
-controller, hook, UI, migration, seed script dahil) geçici olarak kaldırılıp
-ilgili test dosyası/batch'i tekrar çalıştırıldı; aynı hata temiz ağaçta da
-üretildi. Bu, listedeki hiçbir maddenin WarehouseTaskItem/reporting
-değişiklikleriyle ilişkili olmadığını doğrular.
+### `EditCompanyMemberDialog.test.tsx` → `should_CallUpdateController_WhenSaveClicked`
 
-## Öneri
+Save butonuna tıklandığında `updateCompanyMemberMock` hiç çağrılmıyor
+(`waitFor` timeout). Dictionary eksikliği (yukarıdaki madde 12) giderildikten
+sonra da kalıyor — kök sebep farklı ve daha derin: form submit'i,
+`editCompanyMemberValidationSchema` için kurulan mock
+(`{ validate: async () => true }`) ile Formik'in gerçek yup-şeması
+etkileşimi arasında bir yerde engelleniyor olabilir; `getWarehouses()`
+component mount'ta çağrılıyor ve testte mock'lanmamış (gerçek server action,
+test ortamında reddedilir — `catch` bloğu yakalıyor ama zamanlamayı
+etkileyebilir). Tek satırlık bir düzeltme değil; form/mock etkileşiminin
+adım adım izlenmesi gerekiyor. Ayrı ele alınmalı.
 
-Bu liste, ayrı bir temizlik turunda ele alınabilir. Öncelik sırası önerisi:
-1. **`logInboundArrival` mock eksikliği** (madde 5) — tek satırlık fix, 2 test
-   dosyasını (`useWarehouseWorker.test.ts`, dolaylı olarak `useWarehouses.test.ts`)
-   düzeltir.
-2. **`createWarehouseZone` / `next/navigation` mock eksiklikleri** (madde 3-4)
-   — mock senkronizasyon sorunları, kod değişmeden test mock'u güncellenerek
-   çözülür.
-3. Geri kalanlar (madde 1, 2, 6) gerçek kod/mantık incelemesi gerektiriyor,
-   ayrı ayrı değerlendirilmeli.
+## Doğrulama Yöntemi (orijinal liste için)
+
+Her madde `git stash -u` ile temiz ağaçta da doğrulanmıştı — WarehouseTaskItem/
+reporting değişikliklerinden bağımsız olduklarını teyit etmek için. Yukarıdaki
+düzeltmeler ise doğrudan hedefli test çalıştırmalarıyla (`npm run test:single --
+<file>`) doğrulandı.

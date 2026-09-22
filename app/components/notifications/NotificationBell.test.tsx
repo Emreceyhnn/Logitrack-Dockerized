@@ -86,6 +86,12 @@ mock.module("../../hooks/useDateSettings.ts", { namedExports: { useDateSettings:
 mock.module("../../hooks/useUser.ts", { namedExports: { useUser: useUserMock } });
 mock.module("../../hooks/useNotifications.ts", { namedExports: { useNotifications: useNotificationsMock } });
 
+mock.module("next/navigation", {
+  namedExports: {
+    useRouter: mock.fn(() => ({ push: mock.fn(), replace: mock.fn() })),
+  },
+});
+
 mock.module("../../lib/priorityColor.ts", {
   namedExports: { getStatusColor: mock.fn(), resolveStatusAlpha: mock.fn() }
 });

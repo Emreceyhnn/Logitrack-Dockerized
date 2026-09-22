@@ -33,7 +33,14 @@ const useDictionaryMock = mock.fn(() => ({
         INACTIVE: "Inactive",
         SUSPENDED: "Suspended",
       }
-    }
+    },
+    dialogs: {
+      noWarehouses: "No warehouses available",
+      assignWarehouse: "Assign Warehouse",
+      selectWarehouse: "Select a warehouse",
+      warehouseManagerNote: "Manages this warehouse",
+      warehouseStaffNote: "Assigned to this warehouse",
+    },
   },
   validation: {
     genericFormError: "Validation Error",
