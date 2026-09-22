@@ -50,7 +50,7 @@ jobs:
 
 
             for i in $(seq 1 10); do
-              STATUS=$(curl -s -o /dev/null -w "%{http_code}" "http://localhost/healthz" || echo "000")
+              STATUS=$(curl -s -L -o /dev/null -w "%{http_code}" "http://localhost/healthz" || echo "000")
               if [ "$STATUS" = "200" ]; then
                 echo "Deploy başarılı, servis ayakta (HTTP $STATUS)."
                 exit 0
