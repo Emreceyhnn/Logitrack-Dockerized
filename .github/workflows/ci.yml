@@ -1,10 +1,12 @@
 name: Logitrack CI
 
+# `push` tetikleyicisi bilinçli olarak yok: main'e push edilen kod
+# docker.publish.yml içinden bu workflow'u (workflow_call) çalıştırır ve
+# image build/deploy yalnızca testler geçerse ilerler.
 on:
-  push:
-    branches: ["main", "master"]
   pull_request:
     branches: ["main", "master"]
+  workflow_call:
 
 permissions:
   contents: read
@@ -12,9 +14,21 @@ permissions:
 jobs:
   test-and-build:
     runs-on: ubuntu-latest
+    services:
+      # documents.test.ts gibi bazı testler gerçek ../redis modülünü import eder;
+      # ulaşılabilir bir Redis yoksa bağlantı denemesinde asılı kalır.
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
     env:
       DATABASE_URL: "postgresql://postgres:postgres@localhost:5432/postgres?schema=public"
-      REDIS_URL: "redis://localhost:1234"
+      REDIS_URL: "redis://localhost:6379"
       JWT_SECRET: "ci-dummy-jwt-secret-at-least-32-chars-long"
 
     steps:
@@ -39,8 +53,11 @@ jobs:
       - name: Type check
         run: npx tsc --noEmit
 
-      # - name: Run Unit Tests
-      #   run: npm test
+      - name: Run Unit Tests
+        run: npm test
+
+      - name: Dependency audit (production, high+)
+        run: npm audit --omit=dev --audit-level=high
 
       - name: Build
         run: npm run build

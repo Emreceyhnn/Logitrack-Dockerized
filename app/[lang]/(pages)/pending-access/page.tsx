@@ -52,6 +52,7 @@ export default function PendingAccessPage() {
         setGranted(true);
         // Full navigation (not client router) so the proxy's refresh flow runs
         // and re-mints the access token with the new entitlement.
+        // eslint-disable-next-line @next/next/no-location-assign-relative-destination -- bilinçli tam sayfa yenileme (oturum durumu)
         window.location.href = `/${locale}`;
       }
     } finally {
@@ -69,6 +70,7 @@ export default function PendingAccessPage() {
 
   const handleSignOut = async () => {
     await logoutAction();
+    // eslint-disable-next-line @next/next/no-location-assign-relative-destination -- bilinçli tam sayfa yenileme (oturum durumu)
     window.location.href = `/${locale}`;
   };
 
