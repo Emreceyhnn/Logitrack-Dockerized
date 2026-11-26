@@ -31,8 +31,9 @@ jobs:
           username: ${{ secrets.VPS_USERNAME }}
           # Şifreli SSH yerine anahtar: VPS'te PasswordAuthentication kapalı.
           key: ${{ secrets.VPS_SSH_KEY }}
-          # Host anahtarı sabitlenir (MITM koruması).
-          fingerprint: SHA256:jRF6fHss7fxT40MFmnaQDPXjc4QViGRAGjwo3KtVCyE
+          # Host anahtarı sabitlenir (MITM koruması). Go tabanlı drone-ssh sunucunun
+          # ECDSA host anahtarını seçer (ED25519 değil), bu yüzden o sabitlenir.
+          fingerprint: SHA256:UtCKVHXG5bBnNDapTZfr9AZLYriz7rRBSjIVz6uzdeY
           envs: IMAGE_TAG,PRODUCTION_ENV_FILE
           script: |
             set -e
