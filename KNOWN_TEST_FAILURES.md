@@ -90,3 +90,10 @@ Her madde `git stash -u` ile temiz ağaçta da doğrulanmıştı — WarehouseTa
 reporting değişikliklerinden bağımsız olduklarını teyit etmek için. Yukarıdaki
 düzeltmeler ise doğrudan hedefli test çalıştırmalarıyla (`npm run test:single --
 <file>`) doğrulandı.
+
+## Güncelleme: `EditCompanyMemberDialog` kapandı
+
+Kök sebep form/mock etkileşimi değildi: test üyesi `role_manager` rolündeydi
+(depo rolü sayılır) ve `warehouseId` verilmediği için Save butonu bilerek
+`disabled` kalıyordu. Fixture'a `assignedWarehouseId` eklendi ve gerçek
+`getWarehouses` server action'ı mock'landı. Artık bilinen açık test hatası yok.
