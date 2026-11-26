@@ -142,6 +142,7 @@ export default function UserAccountNav({
 
   const handleLogout = async () => {
     await logoutAction();
+    // eslint-disable-next-line @next/next/no-location-assign-relative-destination -- bilinçli tam sayfa yenileme (oturum durumu)
     window.location.href = `/${lang}`;
   };
 

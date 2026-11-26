@@ -47,6 +47,7 @@ export default function OnboardingPage() {
     // we know no re-mint is happening.
     checkAndSyncCompany().then((hasCompany) => {
       if (hasCompany) {
+        // eslint-disable-next-line @next/next/no-location-assign-relative-destination -- bilinçli tam sayfa yenileme (oturum durumu)
         window.location.href = `/${locale}/overview`;
         return;
       }
@@ -71,6 +72,7 @@ export default function OnboardingPage() {
     try {
       await acceptExistingUserInvitation(id);
       toast.success(dict.onboarding?.invitationAccepted || "Invitation accepted!", { id: loadingToast });
+      // eslint-disable-next-line @next/next/no-location-assign-relative-destination -- bilinçli tam sayfa yenileme (oturum durumu)
       window.location.href = `/${locale}/overview`;
     } catch (err) {
       const e = err as Error;
@@ -443,6 +445,7 @@ export default function OnboardingPage() {
           // router) is intentional: creating the company changes companyId, so
           // the proxy must re-mint the token on the next request for the
           // dashboard's tenant-scoped queries to resolve.
+          // eslint-disable-next-line @next/next/no-location-assign-relative-destination -- bilinçli tam sayfa yenileme (oturum durumu)
           window.location.href = `/${newLang || locale}/overview`;
         }}
       />

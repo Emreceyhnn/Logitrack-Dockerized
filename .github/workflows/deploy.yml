@@ -29,7 +29,10 @@ jobs:
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USERNAME }}
-          password: ${{secrets.VPS_PASSWORD}}
+          # Şifreli SSH yerine anahtar: VPS'te PasswordAuthentication kapalı.
+          key: ${{ secrets.VPS_SSH_KEY }}
+          # Host anahtarı sabitlenir (MITM koruması).
+          fingerprint: SHA256:jRF6fHss7fxT40MFmnaQDPXjc4QViGRAGjwo3KtVCyE
           envs: IMAGE_TAG,PRODUCTION_ENV_FILE
           script: |
             set -e
@@ -42,23 +45,47 @@ jobs:
             # gerekmesin.
             printf '%s' "$PRODUCTION_ENV_FILE" > .env
 
+            # Rollback için şu an çalışan image'ı kaydet.
+            PREV_IMAGE=$(docker inspect client-web-1 --format '{{.Image}}' 2>/dev/null || true)
+
             docker pull emrecyhn/logitrack:${IMAGE_TAG}
             docker tag emrecyhn/logitrack:${IMAGE_TAG} emrecyhn/logitrack:latest
-            docker compose down
+
+            # `down` yok: `up -d` yalnızca değişen servisi yeniden yaratır,
+            # diğer container'lar (ör. email-service) hiç durmaz. Web için
+            # kesinti yalnızca tek container'ın yeniden başlama süresi kadardır.
             docker compose up -d
-            docker image prune -f
 
+            healthy() {
+              for i in $(seq 1 12); do
+                STATUS=$(curl -s -k -o /dev/null -w "%{http_code}" -H "Host: logitrackenterprise.emreceyhan.xyz" "https://localhost/healthz" || echo "000")
+                if [ "$STATUS" = "200" ]; then
+                  echo "Servis ayakta (HTTP $STATUS)."
+                  return 0
+                fi
+                echo "Bekleniyor... deneme $i (HTTP $STATUS)"
+                sleep 5
+              done
+              return 1
+            }
 
-            for i in $(seq 1 10); do
-              STATUS=$(curl -s -k -o /dev/null -w "%{http_code}" -H "Host: logitrackenterprise.emreceyhan.xyz" "https://localhost/healthz" || echo "000")
-              if [ "$STATUS" = "200" ]; then
-                echo "Deploy başarılı, servis ayakta (HTTP $STATUS)."
-                exit 0
+            if healthy; then
+              echo "Deploy başarılı."
+              docker image prune -f
+              exit 0
+            fi
+
+            echo "Health check başarısız!"
+            if [ -n "$PREV_IMAGE" ]; then
+              echo "Önceki sürüme geri dönülüyor: $PREV_IMAGE"
+              docker tag "$PREV_IMAGE" emrecyhn/logitrack:latest
+              docker compose up -d
+              if healthy; then
+                echo "Rollback başarılı; önceki sürüm ayakta. Bu deploy BAŞARISIZ sayılıyor."
+              else
+                echo "Rollback sonrası da servis sağlıksız! Elle müdahale gerekli."
               fi
-              echo "Bekleniyor... deneme $i (HTTP $STATUS)"
-              sleep 5
-            done
-            echo "Health check başarısız! Deploy edilen sürüm sağlıksız olabilir."
+            fi
             exit 1
         env:
           IMAGE_TAG: ${{ steps.image.outputs.sha_short }}

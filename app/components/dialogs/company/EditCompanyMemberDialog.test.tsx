@@ -60,6 +60,13 @@ mock.module("../../../hooks/useCompany.ts", {
   },
 });
 
+// Gerçek server action (cookies/redis/db) test ortamında çalışamaz.
+mock.module("../../../lib/controllers/warehouse.ts", {
+  namedExports: {
+    getWarehouses: async () => [{ id: "warehouse-1", name: "Main Warehouse" }],
+  },
+});
+
 mock.module("../../../lib/validationSchema.ts", {
   namedExports: {
     editCompanyMemberValidationSchema: mock.fn(() => ({
@@ -113,6 +120,8 @@ describe("EditCompanyMemberDialog RTL Component", () => {
     roleId: "role_manager",
     roleName: "Manager",
     status: "ACTIVE",
+    // role_manager bir depo rolüdür: warehouseId yoksa Save butonu bilerek disabled.
+    assignedWarehouseId: "warehouse-1",
   };
 
   describe("EditCompanyMemberDialog() bileşeni", () => {
